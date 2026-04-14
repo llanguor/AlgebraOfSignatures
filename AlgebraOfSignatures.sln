@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{FD4361C4-4ABE-4C35-9F41-5E55E17E9D77}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{AF4FCF87-BAA1-435F-9B48-75A7E21CD4B5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Console", "Console", "{08BA3E9F-783E-4EF2-9555-2B4EFB0DF0C6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Wpf", "Wpf", "{8F4BEB1D-974C-4A4E-A256-8B2DACC1CE58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgebraOfSignatures.Core", "AlgebraOfSignatures.Core\AlgebraOfSignatures.Core.csproj", "{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8} = {FD4361C4-4ABE-4C35-9F41-5E55E17E9D77}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
