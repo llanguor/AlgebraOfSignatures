@@ -11,6 +11,8 @@ public abstract class HyperGraphBase :
 
     private readonly Lazy<Array> _adjacencyMatrix;
 
+    private readonly IHyperGraphRepresentationConverter _converter;
+
     #endregion
     
     
@@ -32,6 +34,7 @@ public abstract class HyperGraphBase :
     #region Constructors
 
     protected HyperGraphBase(
+        IHyperGraphRepresentationConverter converter,
         Array signature,
         int vertexCount,
         int uniformityDegree)
@@ -39,36 +42,18 @@ public abstract class HyperGraphBase :
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
         Signature = signature;
+        _converter = converter;
 
         _incidenceMatrix =
             new Lazy<Array>(() =>
-                ComputeIncidenceMatrixFromSignature(
-                    Signature,
-                    VertexCount, 
-                    UniformityDegree));
+                _converter.ComputeIncidenceMatrixFromSignature(
+                    Signature));
             
         _adjacencyMatrix =
             new Lazy<Array>(() => 
-                ComputeAdjacencyMatrixFromSignature(
-                    Signature,
-                    VertexCount,
-                    UniformityDegree));
+                _converter.ComputeAdjacencyMatrixFromSignature(
+                    Signature));
     }
     
-    #endregion
-    
-    
-    #region Abstract methods
-
-    protected abstract Array ComputeIncidenceMatrixFromSignature(
-        Array array,
-        int vertexCount,
-        int uniformityDegree);
-
-    protected abstract Array ComputeAdjacencyMatrixFromSignature(
-        Array array,
-        int vertexCount,
-        int uniformityDegree);
-
     #endregion
 }
