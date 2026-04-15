@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Wpf", "Wpf", "{8F4BEB1D-974
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgebraOfSignatures.Core", "AlgebraOfSignatures.Core\AlgebraOfSignatures.Core.csproj", "{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgebraOfSignatures.Console", "AlgebraOfSignatures.Console\AlgebraOfSignatures.Console.csproj", "{B6D6BC37-AE45-48BE-8F55-4028A15DB7AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,11 +19,16 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8} = {FD4361C4-4ABE-4C35-9F41-5E55E17E9D77}
+		{B6D6BC37-AE45-48BE-8F55-4028A15DB7AF} = {08BA3E9F-783E-4EF2-9555-2B4EFB0DF0C6}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6D6BC37-AE45-48BE-8F55-4028A15DB7AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6D6BC37-AE45-48BE-8F55-4028A15DB7AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6D6BC37-AE45-48BE-8F55-4028A15DB7AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6D6BC37-AE45-48BE-8F55-4028A15DB7AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

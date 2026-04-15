@@ -39,6 +39,21 @@ public abstract class HyperGraphBase :
         int vertexCount,
         int uniformityDegree)
     {
+        if (signature.GetType().GetElementType() != typeof(int)) 
+            throw new ArgumentException(
+                $"Expected {typeof(int)} array", 
+                nameof(signature));
+        
+        if (vertexCount < 1)
+            throw new ArgumentException(
+                $"Length of {nameof(vertexCount)} must be greater than 0",
+                nameof(vertexCount));
+        
+        if (uniformityDegree < 2)
+            throw new ArgumentException(
+                $"Length of {nameof(uniformityDegree)} must be greater than 1",
+                nameof(uniformityDegree));
+        
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
         Signature = signature;
