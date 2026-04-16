@@ -1,6 +1,7 @@
 ﻿namespace AlgebraOfSignatures.Core.Base.Interfaces;
 
-public interface IHyperGraph
+public interface IHyperGraph : 
+    ICloneable
 {
     
 }

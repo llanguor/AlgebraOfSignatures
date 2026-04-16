@@ -12,31 +12,39 @@ class Program
     static void Main(string[] args)
     {
         
-        var value = 16;
-        var n = Math.Floor(Math.Log2(value)) + 1;
-        Console.WriteLine(n);
-        for (var k = 0; k < n; k++)
-        {
-            var currentBit = (value >> k) & 1;
-            Console.WriteLine(currentBit);
-        }
+        var uh1 = HyperGraph.FromSignature(
+            new HyperGraphRepresentationConverter(),
+            new int[] { 57 },
+            8,
+            2);
+        
+        var uh2 = HyperGraph.FromSignature(
+            new HyperGraphRepresentationConverter(),
+            new int[] { 101 },
+            8,
+            2);
+
+        var result = uh1 & uh2;
+        
+        Console.WriteLine(result);
         
         /*
         _container = new Container();
-        
+
         _container.RegisterInstance<IHyperGraphRepresentationConverter>(
             new HyperGraphRepresentationConverter());
-        
-        _container.Register<IHyperGraph>(
+
+        _container.Register<HyperGraph>(
             Reuse.Singleton,
             Made.Of(() => HyperGraph.FromSignature(
-                Arg.Of<IHyperGraphRepresentationConverter>(), 42)));
-        
-       
-        var uh = _container.Resolve<IHyperGraph>();
-        
-        Console.WriteLine("Hello, World!");
+                Arg.Of<IHyperGraphRepresentationConverter>(), 459, 12)));
+
+        var uh = _container.Resolve<HyperGraph>();
+        var uh2 = _container.Resolve<HyperGraph>();
+        var array = uh.AdjacencyMatrix;
+
         _container?.Dispose();
         */
+
     }
 }

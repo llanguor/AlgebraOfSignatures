@@ -11,7 +11,7 @@ public abstract class HyperGraphBase :
 
     private readonly Lazy<Array> _adjacencyMatrix;
 
-    private readonly IHyperGraphRepresentationConverter _converter;
+    protected readonly IHyperGraphRepresentationConverter _converter;
 
     #endregion
     
@@ -73,6 +73,23 @@ public abstract class HyperGraphBase :
                     VertexCount,
                     UniformityDegree));
     }
+    
+    #endregion
+
+    
+    #region ICloneable implementation
+    
+    public HyperGraphBase Clone()
+    {
+        return new HyperGraph(
+            _converter,
+            (Array)Signature.Clone(),
+            VertexCount,
+            UniformityDegree);
+    }
+    
+    object ICloneable.Clone() => 
+        Clone();
     
     #endregion
 }
