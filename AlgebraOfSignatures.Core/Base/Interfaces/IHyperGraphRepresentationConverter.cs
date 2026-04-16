@@ -2,21 +2,29 @@
 
 public interface IHyperGraphRepresentationConverter
 {
-    Array ComputeSignatureFromIncidenceMatrix(
-        Array incidenceMatrix);
+    //todo: generalize?
+    
+    Array ComputeSignatureFromIncidence(
+        Array incidenceMatrix,
+        int uniformityDegree);
 
-    Array ComputeSignatureFromAdjacencyMatrix(
+    Array ComputeSignatureFromAdjacency(
         Array adjacencyMatrix);
 
-    Array ComputeIncidenceMatrixFromSignature(
-        Array signature);
+    Array ComputeIncidenceFromSignature(
+        Array signature,
+        int vertexCount,
+        int uniformityDegree);
     
-    Array ComputeIncidenceMatrixFromAdjacencyMatrix(
+    Array ComputeIncidenceFromAdjacency(
         Array adjacencyMatrix);
 
-    Array ComputeAdjacencyMatrixFromSignature(
-        Array signature);
+    Array ComputeAdjacencyFromSignature(
+        Array signature,
+        int vertexCount,
+        int uniformityDegree);
     
-    Array ComputeAdjacencyMatrixFromIncidenceMatrix(
-        Array incidenceMatrix);
+    Array ComputeAdjacencyFromIncidence(
+        Array incidenceMatrix,
+        int uniformityDegree);
 }

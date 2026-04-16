@@ -24,21 +24,27 @@ public abstract class HyperGraphRepresentationConverterBase :
             shape);
     }
 
-    public abstract Array ComputeSignatureFromIncidenceMatrix(
-        Array incidenceMatrix);
+    public abstract Array ComputeSignatureFromIncidence(
+        Array incidenceMatrix,
+        int uniformityDegree);
     
-    public abstract Array ComputeSignatureFromAdjacencyMatrix(
-        Array adjacencyMatrix);
-    
-    public abstract Array ComputeIncidenceMatrixFromSignature(
-        Array signature);
-
-    public abstract Array ComputeIncidenceMatrixFromAdjacencyMatrix(
+    public abstract Array ComputeSignatureFromAdjacency(
         Array adjacencyMatrix);
 
-    public abstract Array ComputeAdjacencyMatrixFromSignature(
-        Array signature);
+    public abstract Array ComputeIncidenceFromSignature(
+        Array signature,
+        int vertexCount,
+        int uniformityDegree);
 
-    public abstract Array ComputeAdjacencyMatrixFromIncidenceMatrix(
-        Array incidenceMatrix);
+    public abstract Array ComputeIncidenceFromAdjacency(
+        Array adjacencyMatrix);
+
+    public abstract Array ComputeAdjacencyFromSignature(
+        Array signature,
+        int vertexCount,
+        int uniformityDegree);
+
+    public abstract Array ComputeAdjacencyFromIncidence(
+        Array incidenceMatrix,
+        int uniformityDegree);
 }

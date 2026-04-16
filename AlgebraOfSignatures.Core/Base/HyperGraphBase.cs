@@ -61,13 +61,17 @@ public abstract class HyperGraphBase :
 
         _incidenceMatrix =
             new Lazy<Array>(() =>
-                _converter.ComputeIncidenceMatrixFromSignature(
-                    Signature));
+                _converter.ComputeIncidenceFromSignature(
+                    Signature,
+                    VertexCount,
+                    UniformityDegree));
             
         _adjacencyMatrix =
             new Lazy<Array>(() => 
-                _converter.ComputeAdjacencyMatrixFromSignature(
-                    Signature));
+                _converter.ComputeAdjacencyFromSignature(
+                    Signature, 
+                    VertexCount,
+                    UniformityDegree));
     }
     
     #endregion

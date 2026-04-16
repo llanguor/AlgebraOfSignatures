@@ -32,7 +32,7 @@ public class HyperGraph(
         
         return new HyperGraph(
             converter,
-            converter.ComputeSignatureFromIncidenceMatrix(incidenceMatrix),
+            converter.ComputeSignatureFromIncidence(incidenceMatrix, uniformityDegree),
             vertexCount,
             uniformityDegree);
     }
@@ -51,7 +51,7 @@ public class HyperGraph(
         
         return new HyperGraph(
             converter,
-            converter.ComputeSignatureFromAdjacencyMatrix(adjacencyMatrix),
+            converter.ComputeSignatureFromAdjacency(adjacencyMatrix),
             vertexCount,
             uniformityDegree);
     }
