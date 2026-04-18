@@ -1,8 +1,8 @@
 ﻿namespace AlgebraOfSignatures.Core.Base.Interfaces;
 
-public interface IHyperGraphRepresentationConverter
+public interface IRepresentationConverter
 {
-    //todo: generalize?
+    #region Methods
     
     Array ComputeSignatureFromIncidence(
         Array incidenceMatrix,
@@ -27,4 +27,6 @@ public interface IHyperGraphRepresentationConverter
     Array ComputeAdjacencyFromIncidence(
         Array incidenceMatrix,
         int uniformityDegree);
+    
+    #endregion
 }

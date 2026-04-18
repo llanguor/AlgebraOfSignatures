@@ -1,10 +1,8 @@
 ﻿using AlgebraOfSignatures.Core.Base;
-using AlgebraOfSignatures.Core.Base.Interfaces;
+namespace AlgebraOfSignatures.Core.RepresentationConverters;
 
-namespace AlgebraOfSignatures.Core;
-
-public class HyperGraphRepresentationConverter:
-    HyperGraphRepresentationConverterBase
+internal sealed class RepresentationConverterUniform2:
+    RepresentationConverterBase
 {
     #region ThrowIf Methods
     

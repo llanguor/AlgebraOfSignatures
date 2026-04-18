@@ -1,8 +1,10 @@
+using AlgebraOfSignatures.Core.RepresentationConverters;
+
 namespace AlgebraOfSignatures.Core.Tests;
 
-public class HyperGraphRepresentationConverterTests
+public class RepresentationConverterUniform2Tests
 {
-    private readonly HyperGraphRepresentationConverter _converter = new();
+    private readonly RepresentationConverterUniform2 _converterUniform2 = new();
 
     [Fact]
     public void ComputeSignatureFromIncidence_ReturnsCorrectValue()
@@ -17,12 +19,12 @@ public class HyperGraphRepresentationConverterTests
             vertexCount = 12,
             uniformityDegree = 2;
         
-        var adjacency = _converter.ComputeAdjacencyFromSignature(
+        var adjacency = _converterUniform2.ComputeAdjacencyFromSignature(
             new [] {signature},
             vertexCount, 
             uniformityDegree);
 
-        var signatureOutput = _converter.ComputeSignatureFromAdjacency(
+        var signatureOutput = _converterUniform2.ComputeSignatureFromAdjacency(
             adjacency);
         
         Assert.True(true);
@@ -47,7 +49,7 @@ public class HyperGraphRepresentationConverterTests
             vertexCount = 12,
             uniformityDegree = 2;
         
-        var result = _converter.ComputeAdjacencyFromSignature(
+        var result = _converterUniform2.ComputeAdjacencyFromSignature(
             new [] {signature},
             vertexCount, 
             uniformityDegree);

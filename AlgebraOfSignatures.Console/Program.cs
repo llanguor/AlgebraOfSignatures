@@ -1,5 +1,7 @@
 ﻿using AlgebraOfSignatures.Core;
+using AlgebraOfSignatures.Core.Base;
 using AlgebraOfSignatures.Core.Base.Interfaces;
+using AlgebraOfSignatures.Core.RepresentationConverters;
 using DryIoc;
 
 namespace AlgebraOfSignatures.Console;
@@ -12,14 +14,12 @@ class Program
     static void Main(string[] args)
     {
         
-        var uh1 = HyperGraph.FromSignature(
-            new HyperGraphRepresentationConverter(),
+        var uh1 = UniformHyperGraph.FromSignature(
             new int[] { 57 },
             8,
             2);
         
-        var uh2 = HyperGraph.FromSignature(
-            new HyperGraphRepresentationConverter(),
+        var uh2 = UniformHyperGraph.FromSignature(
             new int[] { 101 },
             8,
             2);
@@ -31,16 +31,16 @@ class Program
         /*
         _container = new Container();
 
-        _container.RegisterInstance<IHyperGraphRepresentationConverter>(
-            new HyperGraphRepresentationConverter());
+        _container.RegisterInstance<IRepresentationConverter>(
+            new RepresentationConverterUniform2());
 
-        _container.Register<HyperGraph>(
+        _container.Register<UniformHyperGraph>(
             Reuse.Singleton,
-            Made.Of(() => HyperGraph.FromSignature(
-                Arg.Of<IHyperGraphRepresentationConverter>(), 459, 12)));
+            Made.Of(() => UniformHyperGraph.FromSignature(
+                Arg.Of<IRepresentationConverter>(), 459, 12)));
 
-        var uh = _container.Resolve<HyperGraph>();
-        var uh2 = _container.Resolve<HyperGraph>();
+        var uh = _container.Resolve<UniformHyperGraph>();
+        var uh2 = _container.Resolve<UniformHyperGraph>();
         var array = uh.AdjacencyMatrix;
 
         _container?.Dispose();

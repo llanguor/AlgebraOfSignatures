@@ -1,9 +1,8 @@
 ﻿using AlgebraOfSignatures.Core.Base.Interfaces;
-
 namespace AlgebraOfSignatures.Core.Base;
 
-public abstract class HyperGraphRepresentationConverterBase :
-    IHyperGraphRepresentationConverter
+public abstract class RepresentationConverterBase :
+    IRepresentationConverter
 {
     protected Array CreateRankedArray<T>(
         int size,
