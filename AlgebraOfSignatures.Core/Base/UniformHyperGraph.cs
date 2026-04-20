@@ -187,4 +187,25 @@ public abstract class UniformHyperGraph :
         int constant);
     
     #endregion
+    
+    
+    #region ThrowIf Methods
+    
+    protected void ThrowIfVertexCountMismatch( 
+        int vertexCount1,
+        int vertexCount2)
+    {
+        if(vertexCount1 != vertexCount2)
+            throw new ArgumentException("Vertex count mismatch");
+    }
+    
+    protected void ThrowIfUniformityDegreeMismatch( 
+        int uniformityDegree1,
+        int uniformityDegree2)
+    {
+        if(uniformityDegree1 != uniformityDegree2)
+            throw new ArgumentException("Uniformity degree mismatch");
+    }
+    
+    #endregion
 }

@@ -4,7 +4,9 @@ namespace AlgebraOfSignatures.Core.Base;
 public abstract class RepresentationConverterBase :
     IRepresentationConverter
 {
-    protected Array CreateRankedArray<T>(
+    #region Methods
+    
+    protected internal Array CreateRankedArray<T>(
         int size,
         int rank)
     {
@@ -23,27 +25,92 @@ public abstract class RepresentationConverterBase :
             shape);
     }
 
-    public abstract Array ComputeSignatureFromIncidence(
+    public Array ComputeSignatureFromIncidence(
         Array incidenceMatrix,
-        int uniformityDegree);
-    
-    public abstract Array ComputeSignatureFromAdjacency(
-        Array adjacencyMatrix);
+        int uniformityDegree)
+    {
+        return ComputeSignatureFromAdjacency(
+            ComputeAdjacencyFromIncidence(
+                incidenceMatrix, uniformityDegree));
+    }
 
-    public abstract Array ComputeIncidenceFromSignature(
+    public Array ComputeIncidenceFromSignature(
         Array signature,
         int vertexCount,
-        int uniformityDegree);
+        int uniformityDegree)
+    {
+        return ComputeIncidenceFromAdjacency(
+            ComputeAdjacencyFromSignature(
+                signature,
+                vertexCount,
+                uniformityDegree));
+    }
+    
+    #endregion
 
-    public abstract Array ComputeIncidenceFromAdjacency(
+    
+    #region ThrowIf Methods
+    
+    protected void ThrowIfIllegalGraphParameters( 
+        int vertexCount,
+        int uniformityDegree)
+    {
+        ThrowIfIllegalVertexCount(vertexCount);
+        ThrowIfIllegalUniformityDegree(uniformityDegree);
+    }
+    
+    protected void ThrowIfIllegalVertexCount( 
+        int vertexCount)
+    {
+        if (vertexCount < 1)
+            throw new ArgumentOutOfRangeException(
+                $"{nameof(vertexCount)} must be greater than or equal to 1.");
+    }
+    
+    protected void ThrowIfIllegalUniformityDegree( 
+        int uniformityDegree)
+    {
+        if (uniformityDegree < 2)
+            throw new ArgumentOutOfRangeException(
+                $"{nameof(uniformityDegree)} must be greater than or equal to 2.");
+    }
+
+    protected void ThrowIfIllegalSignature(Array signature, int vertexCount)
+    {
+        //todo: throw if illegal signature 
+        //todo: throw if x > 2^(v-1)  // (signature for 2-ranked) >= 2^(vertexCount-1)  // (signature for 2-ranked) > (2<<(n-1))
+        //throw new NotImplementedException();
+    }
+
+    protected void ThrowIfIllegalIncidence(Array incidenceMatrix)
+    {
+        throw new NotImplementedException();
+    }
+    
+    protected void ThrowIfIllegalAdjacency(Array incidenceMatrix)
+    {
+        // throw new NotImplementedException();
+    }
+    
+    #endregion
+    
+    
+    #region Abstract Methods
+
+    public abstract Array ComputeSignatureFromAdjacency(
         Array adjacencyMatrix);
-
+    
     public abstract Array ComputeAdjacencyFromSignature(
         Array signature,
         int vertexCount,
         int uniformityDegree);
-
+    
+    public abstract Array ComputeIncidenceFromAdjacency(
+        Array adjacencyMatrix);
+    
     public abstract Array ComputeAdjacencyFromIncidence(
         Array incidenceMatrix,
         int uniformityDegree);
+    
+    #endregion
 }
