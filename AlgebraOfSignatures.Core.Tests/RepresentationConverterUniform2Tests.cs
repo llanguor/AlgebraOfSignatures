@@ -28,6 +28,13 @@ public class RepresentationConverterUniform2Tests
             adjacency);
         
         Assert.True(true);
+        
+        
+        /*
+          var converter = new RepresentationConverterUniform3();
+        
+         
+         */
     }
     
     [Fact]

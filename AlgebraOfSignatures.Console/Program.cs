@@ -13,8 +13,43 @@ class Program
     
     static void Main(string[] args)
     {
+        var converter = new RepresentationConverterUniform3();
+        var matrix = converter.CreateRankedArray<bool>(6, 3);
         
-        var uh1 = UniformHyperGraph.FromSignature(
+        matrix.SetValue(true, 0,1,2);
+        matrix.SetValue(true, 0,1,3);
+        matrix.SetValue(true, 0,1,4);
+        matrix.SetValue(true, 0,1,5);
+        matrix.SetValue(true, 0,2,3);
+        matrix.SetValue(true, 0,2,4);
+        matrix.SetValue(true, 0,3,4);
+        
+        matrix.SetValue(true, 1,1,2);
+        matrix.SetValue(true, 1,1,3);
+        matrix.SetValue(true, 1,1,4);
+        matrix.SetValue(true, 1,1,5);
+        matrix.SetValue(true, 1,2,3);
+        matrix.SetValue(true, 1,2,4);
+        matrix.SetValue(true, 1,3,4);
+        
+        matrix.SetValue(true, 2,1,2);
+        matrix.SetValue(true, 2,1,3);
+        matrix.SetValue(true, 2,1,4);
+        matrix.SetValue(true, 2,1,5);
+        matrix.SetValue(true, 2,2,3);
+        matrix.SetValue(true, 2,2,4);
+        matrix.SetValue(true, 2,3,4);
+        
+        matrix.SetValue(true, 3,1,2);
+        matrix.SetValue(true, 3,1,3);
+        matrix.SetValue(true, 3,1,4);
+        matrix.SetValue(true, 3,1,5);
+        matrix.SetValue(true, 3,2,3);
+        matrix.SetValue(true, 3,2,4);
+        matrix.SetValue(true, 3,3,4);
+
+        var result = converter.ComputeSignatureFromAdjacency(matrix);
+        /*var uh1 = UniformHyperGraph.FromSignature(
             new int[] { 57 },
             8,
             2);
@@ -25,8 +60,9 @@ class Program
             2);
 
         var result = uh1 & uh2;
+        */
         
-        Console.WriteLine(result);
+        Console.WriteLine("result");
         
         /*
         _container = new Container();

@@ -11,21 +11,24 @@ internal sealed class RepresentationConverterUniform3 :
         ThrowIfIllegalGraphParameters(vertexCount, uniformityDegree);
         ThrowIfIllegalAdjacency(adjacencyMatrix);
 
-        int i = 0, j = 0;
-        
         var signature = CreateRankedArray<int>(
             vertexCount-2, 
             uniformityDegree-2);
         
-        for (var x = 0; x < vertexCount - 2; ++x)
+        //todo: k-2 в общем случае??? Проверить
+        for (var k = 0;
+             k < vertexCount - 2;
+             ++k)
         {
-            i = x + 1;
-            j = vertexCount - 1;
+            var i = k + 1;
+            var j = vertexCount - 1;
             
-            for (var k = vertexCount - 3 - x; k >= 0; --k)
+            for (var byteNumber = vertexCount - 3 - k;
+                 byteNumber >= 0;
+                 --byteNumber)
             {
                 var value = Convert.ToInt32(
-                    adjacencyMatrix.GetValue(x, i, j));
+                    adjacencyMatrix.GetValue(k, i, j));
 
                 if (value == 0)
                 {
@@ -36,8 +39,8 @@ internal sealed class RepresentationConverterUniform3 :
                     ++i;
                     var toWrite =
                         Convert.ToInt32(
-                            signature.GetValue(x)) | (1 << k);
-                    signature.SetValue(toWrite, x);
+                            signature.GetValue(k)) | (1 << byteNumber);
+                    signature.SetValue(toWrite, k);
                 }
             }
         }
@@ -45,9 +48,67 @@ internal sealed class RepresentationConverterUniform3 :
         return signature;
     }
 
-    public override Array ComputeAdjacencyFromSignature(Array signature, int vertexCount, int uniformityDegree)
+    public override Array ComputeAdjacencyFromSignature(
+        Array signature,
+        int vertexCount,
+        int uniformityDegree)
     {
-        throw new NotImplementedException();
+        ThrowIfIllegalGraphParameters(vertexCount, uniformityDegree);
+        ThrowIfIllegalSignature(signature, vertexCount);
+  
+        var adjacencyMatrix =  
+            CreateRankedArray<bool>(
+            vertexCount,
+            uniformityDegree);
+        
+        //var value = Convert.ToInt32(
+        //    signature.GetValue(0));
+
+        var indices = new int[uniformityDegree];
+        
+        for (indices[0] = 0;
+             indices[0] < vertexCount - 2;
+             ++indices[0])
+        {
+            indices[1] = indices[0] + 1;
+            indices[2] = vertexCount - 1;
+            var currentSignature = Convert.ToInt32(
+                signature.GetValue(indices[0]));
+            
+            //не vertexCount-3 в данном случае
+            for (var byteNumber = vertexCount - 3 - indices[0];
+                 byteNumber >= 0;
+                 --byteNumber)
+            {
+                var currentBit = (currentSignature >> byteNumber) & 1;
+                if (currentBit == 0)
+                {
+                    --indices[2];
+                }
+                else
+                {
+                    for (var columnNumber = indices[1] + 1;
+                         columnNumber <= indices[2];
+                         ++columnNumber)
+                    {
+                        var toPermute = (int[])indices.Clone();
+                        
+                        toPermute[2] = columnNumber;
+                        
+                        ForEachPermutation(
+                            toPermute,
+                            array =>
+                            {
+                                adjacencyMatrix.SetValue(true, array);
+                            });
+                    }
+
+                    ++indices[1];
+                }
+            }
+        }
+
+        return adjacencyMatrix;
     }
     
     public override Array ComputeIncidenceFromAdjacency(Array adjacencyMatrix)

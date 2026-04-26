@@ -13,7 +13,8 @@ internal sealed class Uniform2HyperGraph(
         vertexCount, 
         uniformityDegree)
 {
-    public override IUniformHyperGraph Intersect(IUniformHyperGraph other)
+    public override IUniformHyperGraph Intersect(
+        IUniformHyperGraph other)
     {
         ThrowIfUniformityDegreeMismatch(
             this.UniformityDegree, 

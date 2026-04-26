@@ -1,11 +1,20 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AContainer_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003FUsers_003Flifem_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fae17d143747f60cb54bbbb7c3323781cb538e8062ed8a991afce467b21c2fe9_003FContainer_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AThrowHelper_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003F_002E_002E_003FUsers_003Flifem_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F2c8e7ca976f350cba9836d5565dac56b11e0b56656fa786460eb1395857a6fa_003FThrowHelper_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=0864a30c_002D71b4_002D4a46_002D82af_002D942f52fedfd1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ComputeAdjacencyFromSignature_ReturnsCorrectValue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterUniform3Tests.ComputeAdjacencyFromSignature_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=20dcd1ab_002Dca26_002D48ab_002D854a_002D301d51a381ef/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ComputeSignatureFromAdjacency_ReturnsCorrectValue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterUniform2Tests.ComputeSignatureFromAdjacency_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConveterBaseTests.HeapPermutation_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterUniform2Tests.ComputeAdjacencyFromSignature_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterUniform3Tests.ComputeSignatureFromAdjacency_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterUniform3Tests.ComputeAdjacencyFromSignature_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d7096b93_002D3d1c_002D4321_002Db54f_002D815b734c80fd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AlgebraOfSignatures.Core.Tests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d7096b93_002D3d1c_002D4321_002Db54f_002D815b734c80fd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="AlgebraOfSignatures.Core.Tests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="C:\Extensions\Ortem\Git\AlgebraOfSignatures\AlgebraOfSignatures.Core.Tests" Presentation="&amp;lt;Tests&amp;gt;\&amp;lt;AlgebraOfSignatures.Core.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

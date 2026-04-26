@@ -16,7 +16,9 @@ internal sealed class RepresentationConverterUniform2:
             j = vertexCount - 1,
             signature = 0;
 
-        for (var k = vertexCount - 3; k >= 0; --k)
+        for (var byteNumber = vertexCount - 3;
+             byteNumber >= 0; 
+             --byteNumber)
         {
             var value = Convert.ToInt32(
                 adjacencyMatrix.GetValue(i, j));
@@ -28,7 +30,7 @@ internal sealed class RepresentationConverterUniform2:
             else
             {
                 ++i;
-                signature |= (1 << k);
+                signature |= (1 << byteNumber);
             }
         }
         
@@ -51,21 +53,27 @@ internal sealed class RepresentationConverterUniform2:
             signature.GetValue(0));
 
         int i = 0,
-            j = vertexCount;
+            j = vertexCount - 1;
 
-        for (var k = vertexCount - 3; k >= 0; --k)
+        for (var byteNumber = vertexCount - 3; 
+             byteNumber >= 0; 
+             --byteNumber)
         {
-            var currentBit = (value >> k) & 1;
+            var currentBit = (value >> byteNumber) & 1;
             if (currentBit == 0)
             {
                 --j;
             }
             else
             {
-                for (var q = 0; q < j; ++q)
+                for (var columnNumber = i + 1;
+                     columnNumber <= j;
+                     ++columnNumber)
                 {
-                    adjacencyMatrix.SetValue(true, i, q);
-                    adjacencyMatrix.SetValue(true,q, i);
+                    var toPermute = new[] { i, columnNumber };
+                    ForEachPermutation(
+                        (int[]) toPermute.Clone(), 
+                        array => adjacencyMatrix.SetValue(true, array));
                 }
                 ++i;
             }
