@@ -1,6 +1,7 @@
 ﻿using AlgebraOfSignatures.Core.Base.Interfaces;
 using AlgebraOfSignatures.Core.Contexts;
-namespace AlgebraOfSignatures.Core.Base;
+
+namespace AlgebraOfSignatures.Core;
 
 public abstract class UniformHyperGraph :
     IUniformHyperGraph

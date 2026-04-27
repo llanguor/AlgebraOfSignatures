@@ -52,16 +52,16 @@ public interface IUniformHyperGraph
         a.Union(b);
     
     public static IUniformHyperGraph operator +(IUniformHyperGraph a, IUniformHyperGraph b) =>
-        a.Add(b).Mod2N(a.VertexCount-1);
+        a.Add(b);
 
     public static IUniformHyperGraph operator +(IUniformHyperGraph a, int constant) =>
-        a.Add(constant).Mod2N(a.VertexCount-1);
+        a.Add(constant);
 
     public static IUniformHyperGraph operator *(IUniformHyperGraph a, IUniformHyperGraph b) =>
-        a.Multiply(b).Mod2N(a.VertexCount-1);
+        a.Multiply(b);
 
     public static IUniformHyperGraph operator *(IUniformHyperGraph a, int constant) =>
-        a.Multiply(constant).Mod2N(a.VertexCount-1);
+        a.Multiply(constant);
     
     #endregion
 }
