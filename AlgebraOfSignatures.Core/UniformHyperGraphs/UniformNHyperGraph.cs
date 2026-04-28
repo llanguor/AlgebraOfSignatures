@@ -4,7 +4,7 @@ namespace AlgebraOfSignatures.Core.UniformHyperGraphs;
 
 internal sealed class UniformNHyperGraph(
     IRepresentationConverter converter,
-    Array signature,
+    Signature signature,
     int vertexCount, 
     int uniformityDegree) :
     UniformHyperGraph(

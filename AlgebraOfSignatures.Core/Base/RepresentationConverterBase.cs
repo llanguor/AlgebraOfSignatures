@@ -63,7 +63,7 @@ public abstract class RepresentationConverterBase :
         }
     }
 
-    public Array ComputeSignatureFromIncidence(
+    public Signature ComputeSignatureFromIncidence(
         Array incidenceMatrix,
         int uniformityDegree)
     {
@@ -73,7 +73,7 @@ public abstract class RepresentationConverterBase :
     }
 
     public Array ComputeIncidenceFromSignature(
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree)
     {
@@ -113,10 +113,10 @@ public abstract class RepresentationConverterBase :
                 $"{nameof(uniformityDegree)} must be greater than or equal to 2.");
     }
 
-    protected void ThrowIfIllegalSignature(Array signature, int vertexCount)
+    protected void ThrowIfIllegalSignature(Signature signature, int vertexCount)
     {
         //todo: throw if illegal signature 
-        //todo: throw if x > 2^(v-1)  // (signature for 2-ranked) >= 2^(vertexCount-1)  // (signature for 2-ranked) > (2<<(n-1))
+        //todo: throw if x > 2^(v-1) 
         //throw new NotImplementedException();
     }
 
@@ -135,11 +135,11 @@ public abstract class RepresentationConverterBase :
     
     #region Abstract Methods
 
-    public abstract Array ComputeSignatureFromAdjacency(
+    public abstract Signature ComputeSignatureFromAdjacency(
         Array adjacencyMatrix);
     
     public abstract Array ComputeAdjacencyFromSignature(
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree);
     

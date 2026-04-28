@@ -4,15 +4,15 @@ public interface IRepresentationConverter
 {
     #region Methods
     
-    Array ComputeSignatureFromIncidence(
+    Signature ComputeSignatureFromIncidence(
         Array incidenceMatrix,
         int uniformityDegree);
 
-    Array ComputeSignatureFromAdjacency(
+    Signature ComputeSignatureFromAdjacency(
         Array adjacencyMatrix);
 
     Array ComputeIncidenceFromSignature(
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree);
     
@@ -20,7 +20,7 @@ public interface IRepresentationConverter
         Array adjacencyMatrix);
 
     Array ComputeAdjacencyFromSignature(
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree);
     

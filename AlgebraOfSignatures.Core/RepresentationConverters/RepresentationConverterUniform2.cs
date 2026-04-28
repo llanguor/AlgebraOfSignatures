@@ -4,41 +4,44 @@ namespace AlgebraOfSignatures.Core.RepresentationConverters;
 internal sealed class RepresentationConverterUniform2:
     RepresentationConverterBase
 {
-    public override Array ComputeSignatureFromAdjacency(
+    public override Signature ComputeSignatureFromAdjacency(
         Array adjacencyMatrix)
     {
         var vertexCount = adjacencyMatrix.GetLength(0);
         var uniformityDegree = adjacencyMatrix.Rank;
         ThrowIfIllegalGraphParameters(vertexCount, uniformityDegree);
         ThrowIfIllegalAdjacency(adjacencyMatrix);
-        
-        int i = 0,
-            j = vertexCount - 1,
-            signature = 0;
 
-        for (var byteNumber = vertexCount - 3;
-             byteNumber >= 0; 
-             --byteNumber)
+        int i = 0,
+            j = vertexCount - 1;
+        long signature = 0;
+
+        for (var bitNumber = vertexCount - 3;
+             bitNumber >= 0; 
+             --bitNumber)
         {
-            var value = Convert.ToInt32(
+            var value = Convert.ToBoolean(
                 adjacencyMatrix.GetValue(i, j));
 
-            if (value == 0)
+            if (!value)
             {
                 --j;
             }
             else
             {
                 ++i;
-                signature |= (1 << byteNumber);
+                signature |= 1L << bitNumber;
             }
         }
         
-        return new[] { signature };
+        return new Signature(
+            signature,
+            vertexCount,
+            uniformityDegree);
     }
 
     public override Array ComputeAdjacencyFromSignature(
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree)
     {
@@ -49,17 +52,18 @@ internal sealed class RepresentationConverterUniform2:
             vertexCount,
             uniformityDegree);
         
-        var value = Convert.ToInt32(
-            signature.GetValue(0));
+        var value = 
+            signature.GetValue(0);
+        var bitsCount = vertexCount - 3;
 
         int i = 0,
             j = vertexCount - 1;
 
-        for (var byteNumber = vertexCount - 3; 
-             byteNumber >= 0; 
-             --byteNumber)
+        for (var bitNumber = bitsCount; 
+             bitNumber >= 0; 
+             --bitNumber)
         {
-            var currentBit = (value >> byteNumber) & 1;
+            var currentBit = (value >> bitNumber) & 1;
             if (currentBit == 0)
             {
                 --j;

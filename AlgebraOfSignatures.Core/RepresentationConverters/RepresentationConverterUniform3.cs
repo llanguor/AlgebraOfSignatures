@@ -4,52 +4,45 @@ namespace AlgebraOfSignatures.Core.RepresentationConverters;
 internal sealed class RepresentationConverterUniform3 :
     RepresentationConverterBase
 {
-    public override Array ComputeSignatureFromAdjacency(Array adjacencyMatrix)
+    public override Signature ComputeSignatureFromAdjacency(Array adjacencyMatrix)
     {
         var vertexCount = adjacencyMatrix.GetLength(0);
         var uniformityDegree = adjacencyMatrix.Rank;
         ThrowIfIllegalGraphParameters(vertexCount, uniformityDegree);
         ThrowIfIllegalAdjacency(adjacencyMatrix);
 
-        var signature = CreateRankedArray<int>(
-            vertexCount-2, 
-            uniformityDegree-2);
+        long signature = 0; 
+        var indices = new int[uniformityDegree];
+        indices[0] = 0;
+        indices[1] = indices[0] + 1;
+        indices[2] = vertexCount - 1;
         
-        //todo: k-2 в общем случае??? Проверить
-        for (var k = 0;
-             k < vertexCount - 2;
-             ++k)
+        for (var bitNumber = vertexCount - 3 - indices[0];
+             bitNumber >= 0;
+             --bitNumber)
         {
-            var i = k + 1;
-            var j = vertexCount - 1;
-            
-            for (var byteNumber = vertexCount - 3 - k;
-                 byteNumber >= 0;
-                 --byteNumber)
-            {
-                var value = Convert.ToInt32(
-                    adjacencyMatrix.GetValue(k, i, j));
+            var value = Convert.ToBoolean(
+                adjacencyMatrix.GetValue(indices));
 
-                if (value == 0)
-                {
-                    --j;
-                }
-                else
-                {
-                    ++i;
-                    var toWrite =
-                        Convert.ToInt32(
-                            signature.GetValue(k)) | (1 << byteNumber);
-                    signature.SetValue(toWrite, k);
-                }
+            if (!value)
+            {
+                --indices[2];
+            }
+            else
+            {
+                ++indices[1];
+                signature |= 1L << bitNumber;
             }
         }
         
-        return signature;
+        return new Signature(
+            signature,
+            vertexCount, 
+            uniformityDegree);
     }
 
     public override Array ComputeAdjacencyFromSignature(
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree)
     {
@@ -60,9 +53,6 @@ internal sealed class RepresentationConverterUniform3 :
             CreateRankedArray<bool>(
             vertexCount,
             uniformityDegree);
-        
-        //var value = Convert.ToInt32(
-        //    signature.GetValue(0));
 
         var indices = new int[uniformityDegree];
         
@@ -72,15 +62,14 @@ internal sealed class RepresentationConverterUniform3 :
         {
             indices[1] = indices[0] + 1;
             indices[2] = vertexCount - 1;
-            var currentSignature = Convert.ToInt32(
-                signature.GetValue(indices[0]));
+            var currentSignature = 
+                signature.GetValue(indices[0]);
             
-            //не vertexCount-3 в данном случае
-            for (var byteNumber = vertexCount - 3 - indices[0];
-                 byteNumber >= 0;
-                 --byteNumber)
+            for (var bitNumber = vertexCount - 3 - (uniformityDegree == 2 ? 0 : indices[0]);
+                 bitNumber >= 0;
+                 --bitNumber)
             {
-                var currentBit = (currentSignature >> byteNumber) & 1;
+                var currentBit = (currentSignature >> bitNumber) & 1;
                 if (currentBit == 0)
                 {
                     --indices[2];

@@ -34,47 +34,48 @@ public class Signature :
     
     public void SetValue(long value, int vertexCount, int uniformityDegree)
     {
+        if (value < 0)
+            throw new ArgumentException("Value cannot be negative.", nameof(value));
+        
+        if (vertexCount < 2)
+            throw new ArgumentException("Vertex count cannot be less than 2.", nameof(vertexCount));
+        
+        if (uniformityDegree < 2)
+            throw new ArgumentException("Uniformity edge cannot be less than 2.", nameof(uniformityDegree));
+        
         Value = value;
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
     }
 
     /// <inheritdoc/>
-    public long GetValue(params int[] indices)
+    public long GetValue(int degreeOfTruncation)
     {
-        if (indices.Length == 0)
+        if (degreeOfTruncation == 0)
             return Value;
         
-        if (indices.Length != UniformityDegree-2)
+        if (degreeOfTruncation >= VertexCount-2)
             throw new ArgumentException(
-                $"Incorrect number of indices for array. Expected {UniformityDegree-2} indices.");
+                $"Incorrect index. Each index must be less than {VertexCount-2}.");
 
-        var lastIndex = indices[0];
-        foreach (var index in indices)
-        {
-            if (index >= VertexCount-2)
-                throw new ArgumentException(
-                    $"Incorrect index. Each index must be less than {VertexCount-2}.");
-            
-            if (index < lastIndex)
-                throw new ArgumentException(
-                    $"Incorrect index. Each index must be greater than or equal to previous index. This is justified by the fact that the prism narrows from bottom to top relative to large indices");
-            
-            lastIndex = index;
-        }
+        if (degreeOfTruncation < 0)
+            throw new ArgumentException("Degree of truncation cannot be negative.", nameof(degreeOfTruncation));
         
-        var i = indices[^1];
         var onesCount = 0;
-        
-        var bytesNumber = VertexCount - 2;
-        while (onesCount != i &&
-               --bytesNumber >= 0)
+        var bitNumber = VertexCount - 2;
+        while (onesCount != degreeOfTruncation &&
+               --bitNumber >= 0)
         {
-            if ((Value & (1<<bytesNumber)) != 0)
+            if ((Value & (1L <<bitNumber)) != 0)
                 ++onesCount;
         }
         
-        return Value & ((1 << bytesNumber)-1);
+        return Value & ((1L << bitNumber)-1);
+    }
+    
+    public long GetValue()
+    {
+        return GetValue(0);
     }
     
     #endregion
@@ -90,6 +91,10 @@ public class Signature :
         
         var signature1 = this.Value;
         var signature2 = other.Value;
+        
+        if (signature1 == 0 && signature2 == 0) 
+            return this;
+        
         var bitsCount =  Convert.ToInt32(
             Math.Floor(Math.Log2(Math.Max(signature1, signature2))));
 
@@ -121,7 +126,7 @@ public class Signature :
                 ++onesCount2;
             
             Value =
-                (Value & ~(1 << currentBitNumber)) |
+                (Value & ~(1L << currentBitNumber)) |
                 (bit1 << currentBitNumber);
         }
 
@@ -136,6 +141,10 @@ public class Signature :
         
         var signature1 = this.Value;
         var signature2 = other.Value;
+        
+        if (signature1 == 0 && signature2 == 0) 
+            return this;
+        
         var bitsCount =  Convert.ToInt32(
             Math.Floor(Math.Log2(Math.Max(signature1, signature2))));
 
@@ -167,7 +176,7 @@ public class Signature :
                 ++onesCount2;
             
             Value =
-                (Value & ~(1 << currentBitNumber)) |
+                (Value & ~(1L << currentBitNumber)) |
                 (bit1 << currentBitNumber);
         }
 
@@ -179,7 +188,7 @@ public class Signature :
         if (n <= 0) 
             return this;
         
-        Value &= (1 << n) - 1;
+        Value &= (1L << n) - 1;
         return this;
     }
 
@@ -291,7 +300,7 @@ public class Signature :
         int vertexCount2)
     {
         if(vertexCount1 != vertexCount2)
-            throw new Exception("Cannot multiply signatures with different vertex counts");
+            throw new Exception("Cannot operate on signatures with different vertex counts");
     }
     
     protected void ThrowIfUniformityDegreeMismatch( 

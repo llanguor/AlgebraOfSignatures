@@ -4,12 +4,13 @@ namespace AlgebraOfSignatures.Core.Tests;
 
 public class RepresentationConverterUniform3Tests
 {
-    private readonly RepresentationConverterUniform3 _converter = new();
-
+    private readonly RepresentationConverterUniform3 _converter3 = new();
+    private readonly RepresentationConverterUniformN _converterN = new();
+    
     [Fact]
     public void ComputeSignatureFromAdjacency_ReturnsCorrectValue()
     {
-        var matrix = _converter.CreateRankedArray<bool>(6, 3);
+        var matrix = _converter3.CreateRankedArray<bool>(6, 3);
         
         matrix.SetValue(true, 0,1,2);
         matrix.SetValue(true, 0,1,3);
@@ -43,7 +44,7 @@ public class RepresentationConverterUniform3Tests
         matrix.SetValue(true, 3,2,4);
         matrix.SetValue(true, 3,3,4);
 
-        var result = _converter.ComputeSignatureFromAdjacency(matrix);
+        var result = _converterN.ComputeSignatureFromAdjacency(matrix);
         
         Assert.True(true);
     }
@@ -51,16 +52,15 @@ public class RepresentationConverterUniform3Tests
     [Fact]
     public void ComputeAdjacencyFromSignature_ReturnsCorrectValue()
     {
-        var signature = _converter.CreateRankedArray<int>(4, 1);
-        signature.SetValue(11, 0);
-        signature.SetValue(3, 1);
-        signature.SetValue(1, 2);
-        signature.SetValue(0, 3);
-        
         int vertexCount = 6,
             uniformityDegree = 3;
         
-        var adjacency = _converter.ComputeAdjacencyFromSignature(
+        var signature = new Signature(
+            11,
+            vertexCount,
+            uniformityDegree);
+        
+        var adjacency = _converterN.ComputeAdjacencyFromSignature(
             signature,
             vertexCount, 
             uniformityDegree);

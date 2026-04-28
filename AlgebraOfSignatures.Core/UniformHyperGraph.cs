@@ -24,7 +24,9 @@ public abstract class UniformHyperGraph :
         
         return new UniformHyperGraphContext(
             converter,
-            converter.ComputeSignatureFromIncidence(incidenceMatrix, uniformityDegree),
+            converter.ComputeSignatureFromIncidence(
+                incidenceMatrix, 
+                uniformityDegree),
             vertexCount,
             uniformityDegree);
     }
@@ -48,19 +50,12 @@ public abstract class UniformHyperGraph :
             vertexCount,
             uniformityDegree);
     }
-    
-    // todo: vertexCount and uniformityDegree can be derived from signature directly?
-    // todo: add if(signature array is just int-value) ...      (for api-consistent) 
+
     public static IUniformHyperGraph FromSignature(
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree)
     {
-        if (signature.GetType().GetElementType() != typeof(int))
-            throw new ArgumentException(
-                $"Expected {typeof(int)} array", 
-                nameof(signature));
-        
         var converter = new RepresentationConverterContext(
             uniformityDegree);
 
@@ -71,22 +66,20 @@ public abstract class UniformHyperGraph :
             uniformityDegree);   
     }
     
-    // todo: vertexCount can be derived from signature directly?
     public static IUniformHyperGraph FromSignature(
-        int signature,
-        int vertexCount)
+        long signatureValue,
+        int vertexCount,
+        int uniformityDegree)
     {
-        const int uniformityDegree = 2;
-        var converter = new RepresentationConverterContext(
-            uniformityDegree);
-
-        return new UniformHyperGraphContext(
-            converter,
-            new[] { signature }, 
-            vertexCount, 
-            uniformityDegree);   
+        return FromSignature(
+            new Signature(
+                signatureValue,
+                vertexCount,
+                uniformityDegree),
+            vertexCount,
+            uniformityDegree); 
     }
-    
+
     #endregion
     
     
@@ -109,7 +102,7 @@ public abstract class UniformHyperGraph :
     public Array AdjacencyMatrix => 
         _adjacencyMatrix.Value;
 
-    public Array Signature { get; protected set; }
+    public Signature Signature { get; private init; }
     
     public int UniformityDegree { get; private init; }
     
@@ -122,29 +115,20 @@ public abstract class UniformHyperGraph :
 
     protected UniformHyperGraph(
         IRepresentationConverter converter,
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree)
     {
-        if (signature.GetType().GetElementType() != typeof(int)) 
-            throw new ArgumentException(
-                $"Expected {typeof(int)} array", 
-                nameof(signature));
-        
-        if (vertexCount < 1)
-            throw new ArgumentException(
-                $"Length of {nameof(vertexCount)} must be greater than 0",
-                nameof(vertexCount));
+        if (vertexCount < 2)
+            throw new ArgumentException("Vertex count cannot be less than 2.", nameof(vertexCount));
         
         if (uniformityDegree < 2)
-            throw new ArgumentException(
-                $"Length of {nameof(uniformityDegree)} must be greater than 1",
-                nameof(uniformityDegree));
+            throw new ArgumentException("Uniformity edge cannot be less than 2.", nameof(uniformityDegree));
         
+        Converter = converter;
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
         Signature = signature;
-        Converter = converter;
 
         _incidenceMatrix =
             new Lazy<Array>(() =>
@@ -186,27 +170,6 @@ public abstract class UniformHyperGraph :
     
     public abstract IUniformHyperGraph Multiply(
         int constant);
-    
-    #endregion
-    
-    
-    #region ThrowIf Methods
-    
-    protected void ThrowIfVertexCountMismatch( 
-        int vertexCount1,
-        int vertexCount2)
-    {
-        if(vertexCount1 != vertexCount2)
-            throw new ArgumentException("Vertex count mismatch");
-    }
-    
-    protected void ThrowIfUniformityDegreeMismatch( 
-        int uniformityDegree1,
-        int uniformityDegree2)
-    {
-        if(uniformityDegree1 != uniformityDegree2)
-            throw new ArgumentException("Uniformity degree mismatch");
-    }
     
     #endregion
 }

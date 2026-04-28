@@ -36,19 +36,19 @@ internal sealed class RepresentationConverterContext :
     
     #region Methods
     
-    public Array ComputeSignatureFromIncidence(Array incidenceMatrix, int uniformityDegree) => 
+    public Signature ComputeSignatureFromIncidence(Array incidenceMatrix, int uniformityDegree) => 
         _converter!.ComputeSignatureFromIncidence(incidenceMatrix, uniformityDegree);
 
-    public Array ComputeSignatureFromAdjacency(Array adjacencyMatrix) =>
+    public Signature ComputeSignatureFromAdjacency(Array adjacencyMatrix) =>
         _converter!.ComputeSignatureFromAdjacency(adjacencyMatrix);
 
-    public Array ComputeIncidenceFromSignature(Array signature, int vertexCount, int uniformityDegree) =>
+    public Array ComputeIncidenceFromSignature(Signature signature, int vertexCount, int uniformityDegree) =>
         _converter!.ComputeIncidenceFromSignature(signature, vertexCount, uniformityDegree);
 
     public Array ComputeIncidenceFromAdjacency(Array adjacencyMatrix) =>
         _converter!.ComputeIncidenceFromAdjacency(adjacencyMatrix);
 
-    public Array ComputeAdjacencyFromSignature(Array signature, int vertexCount, int uniformityDegree) =>
+    public Array ComputeAdjacencyFromSignature(Signature signature, int vertexCount, int uniformityDegree) =>
         _converter!.ComputeAdjacencyFromSignature(signature, vertexCount, uniformityDegree);
 
     public Array ComputeAdjacencyFromIncidence(Array incidenceMatrix, int uniformityDegree) => 

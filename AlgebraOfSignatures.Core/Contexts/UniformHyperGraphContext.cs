@@ -16,7 +16,7 @@ internal sealed class UniformHyperGraphContext :
 
     public UniformHyperGraphContext(
         IRepresentationConverter converter,
-        Array signature,
+        Signature signature,
         int vertexCount,
         int uniformityDegree)
     {
@@ -46,7 +46,7 @@ internal sealed class UniformHyperGraphContext :
     public Array AdjacencyMatrix =>
         _uniformHyperGraph.AdjacencyMatrix;
     
-    public Array Signature =>
+    public Signature Signature =>
         _uniformHyperGraph.Signature;
     
     public int VertexCount =>

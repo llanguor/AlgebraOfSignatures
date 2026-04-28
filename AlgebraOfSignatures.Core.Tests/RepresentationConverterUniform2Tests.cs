@@ -5,6 +5,7 @@ namespace AlgebraOfSignatures.Core.Tests;
 public class RepresentationConverterUniform2Tests
 {
     private readonly RepresentationConverterUniform2 _converterUniform2 = new();
+    private readonly RepresentationConverterUniformN _converterUniformN = new();
 
     [Fact]
     public void ComputeSignatureFromIncidence_ReturnsCorrectValue()
@@ -15,12 +16,12 @@ public class RepresentationConverterUniform2Tests
     [Fact]
     public void ComputeSignatureFromAdjacency_ReturnsCorrectValue()
     {
-        int signature = 459, 
-            vertexCount = 12,
+        int vertexCount = 12,
             uniformityDegree = 2;
+        var signature = new Signature(459, vertexCount, uniformityDegree);
         
         var adjacency = _converterUniform2.ComputeAdjacencyFromSignature(
-            new [] {signature},
+            signature,
             vertexCount, 
             uniformityDegree);
 
@@ -52,12 +53,12 @@ public class RepresentationConverterUniform2Tests
     [Fact]
     public void ComputeAdjacencyFromSignature_ReturnsCorrectValue()
     {
-        int signature = 459, 
-            vertexCount = 12,
+        int vertexCount = 12,
             uniformityDegree = 2;
+        var signature = new Signature(459, vertexCount, uniformityDegree);
         
         var result = _converterUniform2.ComputeAdjacencyFromSignature(
-            new [] {signature},
+            signature,
             vertexCount, 
             uniformityDegree);
 
