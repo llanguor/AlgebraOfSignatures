@@ -26,6 +26,7 @@
     &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.SignatureTests.GetValue_2Uniform_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterTests.ComputeUniform3_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.SignatureTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=20dcd1ab_002Dca26_002D48ab_002D854a_002D301d51a381ef/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ComputeSignatureFromAdjacency_ReturnsCorrectValue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;

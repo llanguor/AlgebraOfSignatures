@@ -31,7 +31,7 @@ public abstract class RepresentationConverterBase :
     /// </summary>
     /// <param name="indices">Array being permuted (modified in-place).</param>
     /// <param name="handler">Called for each permutation. The same array instance is reused.</param>
-    protected internal void ForEachPermutation(
+    protected void ForEachPermutation(
         int[] indices,
         Action<int[]> handler)
     {

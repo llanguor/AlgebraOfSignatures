@@ -1,28 +1,27 @@
 ﻿using AlgebraOfSignatures.Core.Base.Interfaces;
-using AlgebraOfSignatures.Core.Contexts;
 
 namespace AlgebraOfSignatures.Core;
 
-public abstract class UniformHyperGraph :
-    IUniformHyperGraph
+public class UniformHyperGraph :
+    IUniformHyperGraph, 
+    ICloneable
 {
     #region Fabric Methods
-    
+
     public static IUniformHyperGraph FromIncidenceMatrix(
         Array incidenceMatrix,
-        int uniformityDegree)
+        int uniformityDegree,
+        IRepresentationConverter? converter = null)
     {
         if (incidenceMatrix.GetType().GetElementType() != typeof(bool))
             throw new ArgumentException(
                 $"Expected {typeof(bool)} array", 
                 nameof(incidenceMatrix));
         
+        converter ??= new RepresentationConverter();
         var vertexCount = incidenceMatrix.GetLength(0);
         
-        var converter = new RepresentationConverterContext(
-            uniformityDegree);
-        
-        return new UniformHyperGraphContext(
+        return new UniformHyperGraph(
             converter,
             converter.ComputeSignatureFromIncidence(
                 incidenceMatrix, 
@@ -32,19 +31,19 @@ public abstract class UniformHyperGraph :
     }
     
     public static IUniformHyperGraph FromAdjacencyMatrix(
-        Array adjacencyMatrix)
+        Array adjacencyMatrix,
+        IRepresentationConverter? converter = null)
     {
         if (adjacencyMatrix.GetType().GetElementType() != typeof(bool))
             throw new ArgumentException(
                 $"Expected {typeof(bool)} array",
                 nameof(adjacencyMatrix));
         
+        converter ??= new RepresentationConverter();
         var vertexCount = adjacencyMatrix.GetLength(0);
         var uniformityDegree = adjacencyMatrix.Rank;
-        var converter = new RepresentationConverterContext(
-            uniformityDegree);
         
-        return new UniformHyperGraphContext(
+        return new UniformHyperGraph(
             converter,
             converter.ComputeSignatureFromAdjacency(adjacencyMatrix),
             vertexCount,
@@ -54,12 +53,11 @@ public abstract class UniformHyperGraph :
     public static IUniformHyperGraph FromSignature(
         Signature signature,
         int vertexCount,
-        int uniformityDegree)
+        int uniformityDegree,
+        IRepresentationConverter? converter = null)
     {
-        var converter = new RepresentationConverterContext(
-            uniformityDegree);
-
-        return new UniformHyperGraphContext(
+        converter ??= new RepresentationConverter();
+        return new UniformHyperGraph(
             converter,
             signature, 
             vertexCount, 
@@ -69,7 +67,8 @@ public abstract class UniformHyperGraph :
     public static IUniformHyperGraph FromSignature(
         long signatureValue,
         int vertexCount,
-        int uniformityDegree)
+        int uniformityDegree,
+        IRepresentationConverter? converter = null)
     {
         return FromSignature(
             new Signature(
@@ -77,7 +76,8 @@ public abstract class UniformHyperGraph :
                 vertexCount,
                 uniformityDegree),
             vertexCount,
-            uniformityDegree); 
+            uniformityDegree,
+            converter); 
     }
 
     #endregion
@@ -89,7 +89,11 @@ public abstract class UniformHyperGraph :
 
     private readonly Lazy<Array> _adjacencyMatrix;
 
-    protected readonly IRepresentationConverter Converter;
+    private readonly int _uniformityDegree;
+
+    private readonly int _vertexCount;
+
+    private readonly IRepresentationConverter _converter;
 
     #endregion
     
@@ -103,10 +107,34 @@ public abstract class UniformHyperGraph :
         _adjacencyMatrix.Value;
 
     public Signature Signature { get; private init; }
-    
-    public int UniformityDegree { get; private init; }
-    
-    public int VertexCount { get; protected set; }
+
+    public int UniformityDegree
+    {
+        get => _uniformityDegree;
+        private init
+        {
+            if (value < 2)
+                throw new ArgumentException(
+                    "Uniformity edge cannot be less than 2.",
+                    nameof(UniformityDegree));
+            
+            _uniformityDegree = value;
+        }
+    }
+
+    public int VertexCount
+    {
+        get => _vertexCount;
+        private init
+        {
+            if (value < 2)
+                throw new ArgumentException(
+                    "Vertex count cannot be less than 2.", 
+                    nameof(VertexCount));
+            
+            _vertexCount = value;
+        }
+    }
     
     #endregion
     
@@ -119,57 +147,135 @@ public abstract class UniformHyperGraph :
         int vertexCount,
         int uniformityDegree)
     {
-        if (vertexCount < 2)
-            throw new ArgumentException("Vertex count cannot be less than 2.", nameof(vertexCount));
-        
-        if (uniformityDegree < 2)
-            throw new ArgumentException("Uniformity edge cannot be less than 2.", nameof(uniformityDegree));
-        
-        Converter = converter;
+        _converter = converter;
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
         Signature = signature;
 
         _incidenceMatrix =
             new Lazy<Array>(() =>
-                Converter.ComputeIncidenceFromSignature(
+                _converter.ComputeIncidenceFromSignature(
                     Signature,
                     VertexCount,
                     UniformityDegree));
             
         _adjacencyMatrix =
             new Lazy<Array>(() => 
-                Converter.ComputeAdjacencyFromSignature(
+                _converter.ComputeAdjacencyFromSignature(
                     Signature, 
                     VertexCount,
                     UniformityDegree));
     }
     
     #endregion
+    
+    
+    #region Operators Methods
 
+    public UniformHyperGraph Intersect(UniformHyperGraph other)
+    {
+        this.Signature.Intersect(other.Signature);
+        return this;
+    }
+
+    public UniformHyperGraph Union(UniformHyperGraph other)
+    {
+        this.Signature.Union(other.Signature);
+        return this;
+    }
+
+    public UniformHyperGraph Mod2N(int n)
+    {
+        this.Signature.Mod2N(n);
+        return this;
+    }
+
+    public UniformHyperGraph Add(UniformHyperGraph other)
+    {
+        this.Signature.Add(other.Signature);
+        return this;
+    }
+
+    public UniformHyperGraph Add(long constant)
+    {
+        this.Signature.Add(constant);
+        return this;
+    }
+
+    public UniformHyperGraph Multiply(UniformHyperGraph other)
+    {
+        this.Signature.Multiply(other.Signature);
+        return this;
+    }
+
+    public UniformHyperGraph Multiply(long constant)
+    {
+        this.Signature.Multiply(constant);
+        return this;
+    }
     
-    #region Abstract Methods
+    #endregion
     
-    public abstract IUniformHyperGraph Intersect(
-        IUniformHyperGraph other);
     
-    public abstract IUniformHyperGraph Union(
-        IUniformHyperGraph other);
+    #region Static Operators Methods
     
-    public abstract IUniformHyperGraph Mod2N(
-        int n);
+    public static UniformHyperGraph Intersect(UniformHyperGraph a, UniformHyperGraph b) => 
+        a.Clone().Intersect(b);
+
+    public static UniformHyperGraph Union(UniformHyperGraph a, UniformHyperGraph b) => 
+        a.Clone().Union(b);
     
-    public abstract IUniformHyperGraph Add(
-        IUniformHyperGraph other);
+    public static UniformHyperGraph Add(UniformHyperGraph a, UniformHyperGraph b) =>
+        a.Clone().Add(b);
+
+    public static UniformHyperGraph Add(UniformHyperGraph a, long constant) =>
+        a.Clone().Add(constant);
+
+    public static UniformHyperGraph Multiply(UniformHyperGraph a, UniformHyperGraph b) =>
+        a.Clone().Multiply(b);
+
+    public static UniformHyperGraph Multiply(UniformHyperGraph a, long constant) =>
+        a.Clone().Multiply(constant);
     
-    public abstract IUniformHyperGraph Add(
-        int constant);
+    #endregion
     
-    public abstract IUniformHyperGraph Multiply(
-        IUniformHyperGraph other);
     
-    public abstract IUniformHyperGraph Multiply(
-        int constant);
+    #region Operators
     
+    public static UniformHyperGraph operator &(UniformHyperGraph a, UniformHyperGraph b) => 
+        UniformHyperGraph.Intersect(a, b);
+
+    public static UniformHyperGraph operator |(UniformHyperGraph a, UniformHyperGraph b) => 
+        UniformHyperGraph.Union(a, b);
+    
+    public static UniformHyperGraph operator +(UniformHyperGraph a, UniformHyperGraph b) =>
+        UniformHyperGraph.Add(a, b);
+
+    public static UniformHyperGraph operator +(UniformHyperGraph a, long constant) =>
+        UniformHyperGraph.Add(a, constant);
+
+    public static UniformHyperGraph operator *(UniformHyperGraph a, UniformHyperGraph b) =>
+        UniformHyperGraph.Multiply(a, b);
+
+    public static UniformHyperGraph operator *(UniformHyperGraph a, long constant) =>
+        UniformHyperGraph.Multiply(a, constant);
+    
+    #endregion
+    
+    
+    #region ICloneable Implementation
+
+    public UniformHyperGraph Clone()
+    {
+        return new UniformHyperGraph(
+            _converter,
+            Signature.Clone(),
+            VertexCount,
+            UniformityDegree);
+    }
+
+    object ICloneable.Clone() => 
+        Clone();
+
     #endregion
 }

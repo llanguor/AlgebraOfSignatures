@@ -29,7 +29,5 @@ public interface ISignature
     public long GetValue(
         int degreeOfTruncation);
     
-    public long GetValue();
-    
     #endregion
 }

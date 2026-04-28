@@ -6,11 +6,59 @@ public class Signature :
     ISignature,
     ICloneable
 {
-    #region Properties
+    #region Fields
+
+    private long _value;
+
+    private int _vertexCount;
+
+    private int _uniformityDegree;
     
-    public long Value { get; private set; }
-    public int VertexCount { get; private set; }
-    public int UniformityDegree { get; private set; }
+    #endregion
+    
+    #region Properties
+
+    public long Value
+    {
+        get => _value;
+        private set
+        {
+            if (value < 0)
+                throw new ArgumentException(
+                    "Value cannot be negative.",
+                    nameof(Value));
+
+            _value = value;
+        }
+    }
+
+    public int VertexCount
+    {
+        get => _vertexCount;
+        private set
+        {
+            if (value < 2)
+                throw new ArgumentException(
+                    "Vertex count cannot be less than 2.", 
+                    nameof(VertexCount));
+            
+            _vertexCount = value;
+        }
+    }
+
+    public int UniformityDegree
+    {
+        get => _uniformityDegree;
+        private set
+        {
+            if (value < 2)
+                throw new ArgumentException(
+                    "Uniformity edge cannot be less than 2.",
+                    nameof(UniformityDegree));
+            
+            _uniformityDegree = value;
+        }
+    }
     
     #endregion
     
@@ -32,24 +80,18 @@ public class Signature :
     
     #region Methods
     
-    public void SetValue(long value, int vertexCount, int uniformityDegree)
+    public void SetValue(
+        long value,
+        int vertexCount, 
+        int uniformityDegree)
     {
-        if (value < 0)
-            throw new ArgumentException("Value cannot be negative.", nameof(value));
-        
-        if (vertexCount < 2)
-            throw new ArgumentException("Vertex count cannot be less than 2.", nameof(vertexCount));
-        
-        if (uniformityDegree < 2)
-            throw new ArgumentException("Uniformity edge cannot be less than 2.", nameof(uniformityDegree));
-        
         Value = value;
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
     }
 
     /// <inheritdoc/>
-    public long GetValue(int degreeOfTruncation)
+    public long GetValue(int degreeOfTruncation = 0)
     {
         if (degreeOfTruncation == 0)
             return Value;
@@ -73,9 +115,25 @@ public class Signature :
         return Value & ((1L << bitNumber)-1);
     }
     
-    public long GetValue()
+    #endregion
+    
+          
+    #region ThrowIf Methods
+    
+    protected void ThrowIfVertexCountMismatch( 
+        int vertexCount1,
+        int vertexCount2)
     {
-        return GetValue(0);
+        if(vertexCount1 != vertexCount2)
+            throw new Exception("Cannot operate on signatures with different vertex counts");
+    }
+    
+    protected void ThrowIfUniformityDegreeMismatch( 
+        int uniformityDegree1,
+        int uniformityDegree2)
+    {
+        if(uniformityDegree1 != uniformityDegree2)
+            throw new ArgumentException("Uniformity degree mismatch");
     }
     
     #endregion
@@ -231,7 +289,7 @@ public class Signature :
     #endregion
     
     
-    #region Static Methods
+    #region Static Operator Methods
     
     public static Signature Intersect(Signature a, Signature b) => 
         a.Clone().Intersect(b);
@@ -290,26 +348,5 @@ public class Signature :
     object ICloneable.Clone() => 
         Clone();
 
-    #endregion
-    
-        
-    #region ThrowIf Methods
-    
-    protected void ThrowIfVertexCountMismatch( 
-        int vertexCount1,
-        int vertexCount2)
-    {
-        if(vertexCount1 != vertexCount2)
-            throw new Exception("Cannot operate on signatures with different vertex counts");
-    }
-    
-    protected void ThrowIfUniformityDegreeMismatch( 
-        int uniformityDegree1,
-        int uniformityDegree2)
-    {
-        if(uniformityDegree1 != uniformityDegree2)
-            throw new ArgumentException("Uniformity degree mismatch");
-    }
-    
     #endregion
 }
