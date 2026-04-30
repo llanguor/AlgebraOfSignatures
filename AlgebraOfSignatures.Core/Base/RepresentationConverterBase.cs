@@ -128,6 +128,10 @@ public abstract class RepresentationConverterBase :
     protected void ThrowIfIllegalAdjacency(Array incidenceMatrix)
     {
         // throw new NotImplementedException();
+        
+        if (incidenceMatrix.GetType().GetElementType() != typeof(bool))
+            throw new ArgumentException($"{nameof(incidenceMatrix)} elements must be of type bool");
+
     }
     
     #endregion
@@ -151,4 +155,5 @@ public abstract class RepresentationConverterBase :
         int uniformityDegree);
     
     #endregion
+    
 }

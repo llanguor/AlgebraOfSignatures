@@ -12,33 +12,71 @@ internal sealed class RepresentationConverter :
         var uniformityDegree = adjacencyMatrix.Rank;
         ThrowIfIllegalGraphParameters(vertexCount, uniformityDegree);
         ThrowIfIllegalAdjacency(adjacencyMatrix);
-
-        long signature = 0; 
-        var indices = new int[uniformityDegree];
-        indices[^1] = vertexCount - 1;
-        for (var i = 0; i < uniformityDegree - 1; ++i)
+        
+        var signature = 
+            uniformityDegree == 2 ? 
+            CreateRankedArray<long>(1,1) : 
+            CreateRankedArray<long>(vertexCount-2, uniformityDegree-2);
+        
+        var indices = new int[uniformityDegree == 2 ? 1 :uniformityDegree-2];
+        var adjacencyIndices = new int[uniformityDegree];
+        for (var i = 0; i < indices.Length; ++i)
         {
             indices[i] = i;
         }
 
-        for (var bitNumber = vertexCount - 3 - (uniformityDegree==2 ? 0 : indices[^3]);
-             bitNumber >= 0;
-             --bitNumber)
+        while (uniformityDegree == 2 ||
+               indices[0] != vertexCount - 2)
         {
-            var value = Convert.ToBoolean(
-                adjacencyMatrix.GetValue(indices));
+            for (var i = uniformityDegree - 3;
+                 i > 0;
+                 --i)
+            {
+                if (indices[i] != vertexCount - 2) 
+                    break;
+                
+                ++indices[i-1];
+                indices[i] = indices[i-1] + 1;
+                if (i+1 != indices.Length)
+                    indices[i + 1] = indices[i] + 1;
+            }
+            
+            var rowIndex = uniformityDegree == 2 ? 0 : indices[^1] + 1;
+            var columnIndex = vertexCount - 1;
 
-            if (!value)
+            long currentSignatureValue = 0;
+           
+            for (var bitNumber = vertexCount - 3 - (uniformityDegree == 2 ? 0 : indices[^1]);
+                 bitNumber >= 0;
+                 --bitNumber)
             {
-                --indices[^1];
+                indices.CopyTo(adjacencyIndices, 0);
+                adjacencyIndices[^2] = rowIndex;
+                adjacencyIndices[^1] = columnIndex;
+                var value = Convert.ToBoolean(
+                    adjacencyMatrix.GetValue(adjacencyIndices));
+
+                if (!value)
+                {
+                    --columnIndex;
+                }
+                else
+                {
+                    ++rowIndex;
+                    currentSignatureValue |= 1L << bitNumber;
+                }
             }
-            else
-            {
-                ++indices[^2];
-                signature |= 1L << bitNumber;
-            }
+            
+            signature.SetValue(
+                currentSignatureValue,
+                indices);
+            
+            if (uniformityDegree == 2)
+                break;
+            
+            ++indices[^1];
         }
-        
+
         return new Signature(
             signature,
             vertexCount, 
@@ -58,14 +96,15 @@ internal sealed class RepresentationConverter :
                 vertexCount,
                 uniformityDegree);
 
-        var indices= new int[uniformityDegree];
-        for (var i = 1; i < uniformityDegree - 2; ++i)
+        var indices = new int[uniformityDegree-2];
+        var adjacencyIndices = new int[uniformityDegree];
+        for (var i = 1; i < indices.Length; ++i)
         {
             indices[i] = i;
         }
         
-        while (indices[0] != 
-               vertexCount - 2)
+        while (uniformityDegree == 2 || 
+               indices[0] != vertexCount - 2)
         {
             for (var i = uniformityDegree - 3;
                  i > 0;
@@ -76,49 +115,51 @@ internal sealed class RepresentationConverter :
                 
                 ++indices[i-1];
                 indices[i] = indices[i-1] + 1;
-                indices[i + 1] = indices[i] + 1;
+                if (i+1 != indices.Length)
+                    indices[i + 1] = indices[i] + 1;
             }
             
-            indices[^2] = uniformityDegree == 2 ? 0 : indices[^3] + 1;
-            indices[^1] = vertexCount - 1;
+            var rowIndex = uniformityDegree == 2 ? 0 : indices[^1] + 1;
+            var columnIndex = vertexCount - 1;
 
             var currentSignature = 
-                signature.GetValue(uniformityDegree == 2 ? 0 : indices[^3]); 
+                signature.GetValue(uniformityDegree == 2 ? 0 : indices[^1]); 
             
-            for (var bitNumber = vertexCount - 3 - (uniformityDegree == 2 ? 0 : indices[^3]);
+            for (var bitNumber = vertexCount - 3 - (uniformityDegree == 2 ? 0 : indices[^1]);
                  bitNumber >= 0;
                  --bitNumber)
             {
                 var currentBit = (currentSignature >> bitNumber) & 1;
                 if (currentBit == 0)
                 {
-                    --indices[^1];
+                    --columnIndex;
                 }
                 else
                 {
-                    for (var columnNumber = indices[^2] + 1;
-                         columnNumber <= indices[^1];
-                         ++columnNumber)
+                    for (var currentRowColumnIndex = rowIndex + 1;
+                         currentRowColumnIndex <= columnIndex;
+                         ++currentRowColumnIndex)
                     {
-                        var toPermute = (int[])indices.Clone();
-                        toPermute[^1] = columnNumber;
+                        indices.CopyTo(adjacencyIndices, 0);
+                        adjacencyIndices[^2] = rowIndex;
+                        adjacencyIndices[^1] = currentRowColumnIndex;
                         
                         ForEachPermutation(
-                            toPermute,
+                            adjacencyIndices,
                             array =>
                             {
                                 adjacencyMatrix.SetValue(true, array);
                             });
                     }
 
-                    ++indices[^2];
+                    ++rowIndex;
                 }
             }
 
-            if (uniformityDegree != 2)
-                ++indices[^3];
-            else
+            if (uniformityDegree == 2)
                 break;
+            
+            ++indices[^1];
         }
 
         return adjacencyMatrix;

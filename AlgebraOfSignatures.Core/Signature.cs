@@ -8,34 +8,21 @@ public class Signature :
 {
     #region Fields
 
-    private long _value;
+    private readonly int _vertexCount;
 
-    private int _vertexCount;
-
-    private int _uniformityDegree;
+    private readonly int _uniformityDegree;
     
     #endregion
     
+    
     #region Properties
 
-    public long Value
-    {
-        get => _value;
-        private set
-        {
-            if (value < 0)
-                throw new ArgumentException(
-                    "Value cannot be negative.",
-                    nameof(Value));
-
-            _value = value;
-        }
-    }
+    protected Array Value { get; }
 
     public int VertexCount
     {
         get => _vertexCount;
-        private set
+        private init
         {
             if (value < 2)
                 throw new ArgumentException(
@@ -49,7 +36,7 @@ public class Signature :
     public int UniformityDegree
     {
         get => _uniformityDegree;
-        private set
+        private init
         {
             if (value < 2)
                 throw new ArgumentException(
@@ -66,11 +53,44 @@ public class Signature :
     #region Constructors
 
     public Signature(
+        Array value,
+        int vertexCount,
+        int uniformityDegree)
+    {
+        VertexCount = vertexCount;
+        UniformityDegree = uniformityDegree;
+        
+        //todo: move to Parameter?
+        
+        if (value.GetType().GetElementType() != typeof(long))
+            throw new ArgumentException($"{nameof(value)} elements must be of type long");
+        
+        //todo:move away from
+        Value = value;
+        if (UniformityDegree == 3) //and array.Length!=1
+        {
+            for (var i = 1; i < vertexCount - 2; ++i)
+            {
+                ThrowIfIncorrectSignatureNextValue(
+                    Convert.ToInt64(value.GetValue(i-1)),
+                    Convert.ToInt64(value.GetValue(i)),
+                    i);
+            }
+        }
+        
+        Value = value;
+
+    }
+    
+    public Signature(
         long value,
         int vertexCount,
         int uniformityDegree)
     {
-        Value = value;
+        if (value < 0)
+            throw new ArgumentException("Value cannot be negative.", nameof(value));
+        
+        Value = new [] { value };
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
     }
@@ -81,44 +101,70 @@ public class Signature :
     #region Methods
     
     public void SetValue(
-        long value,
-        int vertexCount, 
-        int uniformityDegree)
+        long value, params int[] indices)
     {
-        Value = value;
-        VertexCount = vertexCount;
-        UniformityDegree = uniformityDegree;
+        //todo: throw if incorrect value
+        var lastValue = Convert.ToInt64(Value.GetValue(indices));
+        
+        if (UniformityDegree == 3 && indices[^1] != 0)
+            ThrowIfIncorrectSignatureNextValue(lastValue, value);
+        
+        if (indices.Length == 0) 
+            Value.SetValue(value, 0);
+        else
+            Value.SetValue(value, indices);
     }
 
     /// <inheritdoc/>
-    public long GetValue(int degreeOfTruncation = 0)
+    public long GetValue(params int[] indices)
     {
-        if (degreeOfTruncation == 0)
-            return Value;
-        
-        if (degreeOfTruncation >= VertexCount-2)
-            throw new ArgumentException(
-                $"Incorrect index. Each index must be less than {VertexCount-2}.");
-
-        if (degreeOfTruncation < 0)
-            throw new ArgumentException("Degree of truncation cannot be negative.", nameof(degreeOfTruncation));
-        
-        var onesCount = 0;
-        var bitNumber = VertexCount - 2;
-        while (onesCount != degreeOfTruncation &&
-               --bitNumber >= 0)
-        {
-            if ((Value & (1L <<bitNumber)) != 0)
-                ++onesCount;
-        }
-        
-        return Value & ((1L << bitNumber)-1);
+        return Convert.ToInt64(
+            indices.Length == 0 ? 
+                Value.GetValue(0) :
+                Value.GetValue(indices));
     }
-    
+
+    private int CalculateBitLength(params int[] indices)
+    {
+        //todo: k-signature
+        return VertexCount - 2 - indices[^1];
+    }
+
+    private long TruncateValue(long value)
+    {
+        var msb = (int)Math.Floor(Math.Log2(value));
+        return value & ((1L << msb) - 1);
+    }
+
     #endregion
     
           
     #region ThrowIf Methods
+
+    protected void ThrowIfIncorrectSignatureNextValue(
+        long lastValue,
+        long currValue,
+        params int[] indices)
+    {
+        var totalBits = CalculateBitLength(indices);
+        if (currValue >> totalBits != 0)
+            throw new ArgumentException(
+                $"Such a signature cannot exist. The number is too large for this position in the array.");
+            
+        lastValue = TruncateValue(lastValue);
+        var lastCount = 0;
+        var currCount = 0;
+        
+        for (var bit = totalBits-1; bit >= 0; --bit)
+        {
+            lastCount += (int)((lastValue >> bit) & 1L);
+            currCount += (int)((currValue >> bit) & 1L);
+            
+            if (currCount > lastCount)
+                throw new ArgumentException(
+                    "Such a signature cannot exist. A \"0\" cannot be followed by a \"1\" by the definition of extremity.");
+        }
+    }
     
     protected void ThrowIfVertexCountMismatch( 
         int vertexCount1,
@@ -143,6 +189,7 @@ public class Signature :
 
     public Signature Intersect(Signature other)
     {
+        /*
         ThrowIfUniformityDegreeMismatch(
             this.UniformityDegree, 
             other.UniformityDegree);
@@ -187,12 +234,14 @@ public class Signature :
                 (Value & ~(1L << currentBitNumber)) |
                 (bit1 << currentBitNumber);
         }
+        */
 
         return this;
     }
 
     public Signature Union(Signature other)
     {
+        /*
         ThrowIfUniformityDegreeMismatch(
             this.UniformityDegree, 
             other.UniformityDegree);
@@ -237,52 +286,63 @@ public class Signature :
                 (Value & ~(1L << currentBitNumber)) |
                 (bit1 << currentBitNumber);
         }
+        */
 
         return this;
     }
 
     public Signature Mod2N(int n)
     {
+        /*
         if (n <= 0) 
             return this;
         
         Value &= (1L << n) - 1;
+        */
         return this;
     }
 
     public Signature Add(Signature other)
     {
+        /*
         ThrowIfVertexCountMismatch(
             this.VertexCount, 
             other.VertexCount);
 
         this.Value += other.Value;
         this.Mod2N(VertexCount-1);
+        */
         return this;
     }
 
     public Signature Add(long constant)
     {
+        /*
         this.Value += constant;
         this.Mod2N(VertexCount-1);
+        */
         return this;
     }
 
     public Signature Multiply(Signature other)
     {
+        /*
         ThrowIfVertexCountMismatch(
             this.VertexCount, 
             other.VertexCount);
                    
         this.Value *= other.Value;
         this.Mod2N(VertexCount-1);
+        */
         return this;
     }
 
     public Signature Multiply(long constant)
     {
+        /*
         this.Value *= constant;
         this.Mod2N(VertexCount-1);
+        */
         return this;
     }
     

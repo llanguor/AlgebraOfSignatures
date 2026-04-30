@@ -65,7 +65,7 @@ public class UniformHyperGraph :
     }
     
     public static IUniformHyperGraph FromSignature(
-        long signatureValue,
+        Array signatureValue,
         int vertexCount,
         int uniformityDegree,
         IRepresentationConverter? converter = null)
