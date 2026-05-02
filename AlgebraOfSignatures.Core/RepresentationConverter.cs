@@ -56,6 +56,9 @@ internal sealed class RepresentationConverter :
                 var value = Convert.ToBoolean(
                     adjacencyMatrix.GetValue(adjacencyIndices));
 
+                
+            
+                
                 if (!value)
                 {
                     --columnIndex;

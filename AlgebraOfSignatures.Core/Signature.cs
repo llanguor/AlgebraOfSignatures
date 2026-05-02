@@ -400,7 +400,7 @@ public class Signature :
     public Signature Clone()
     {
         return new Signature(
-            Value,
+            (Array)Value.Clone(),
             VertexCount,
             UniformityDegree);
     }

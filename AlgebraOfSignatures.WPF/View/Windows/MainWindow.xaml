@@ -1,0 +1,22 @@
+﻿<Window x:Class="AlgebraOfSignatures.WPF.View.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.View.Windows"
+        mc:Ignorable="d"
+        Title="MainWindow" 
+        SizeToContent="Manual"
+        WindowStartupLocation="CenterScreen"
+        FontSize="15">
+    <Grid>
+        <TabControl x:Name="Tabs">
+            <TabItem Header="Конвертация">
+                <Frame x:Name="ConversionFrame"/>
+            </TabItem>
+            <TabItem Header="Операции">
+                <Frame x:Name="OperationsFrame"/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

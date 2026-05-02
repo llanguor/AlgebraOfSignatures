@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgebraOfSignatures.Console
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgebraOfSignatures.Core.Tests", "AlgebraOfSignatures.Core.Tests\AlgebraOfSignatures.Core.Tests.csproj", "{0BCD1E96-2A38-447D-9226-11CED952142E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlgebraOfSignatures.WPF", "AlgebraOfSignatures.WPF\AlgebraOfSignatures.WPF.csproj", "{FF168374-D1F0-499B-958A-04A108C987EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,7 @@ Global
 		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8} = {FD4361C4-4ABE-4C35-9F41-5E55E17E9D77}
 		{B6D6BC37-AE45-48BE-8F55-4028A15DB7AF} = {08BA3E9F-783E-4EF2-9555-2B4EFB0DF0C6}
 		{0BCD1E96-2A38-447D-9226-11CED952142E} = {AF4FCF87-BAA1-435F-9B48-75A7E21CD4B5}
+		{FF168374-D1F0-499B-958A-04A108C987EE} = {8F4BEB1D-974C-4A4E-A256-8B2DACC1CE58}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{717E6AA5-5F6E-40F3-BA62-BBB22CBBAFC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -37,5 +40,9 @@ Global
 		{0BCD1E96-2A38-447D-9226-11CED952142E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BCD1E96-2A38-447D-9226-11CED952142E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BCD1E96-2A38-447D-9226-11CED952142E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF168374-D1F0-499B-958A-04A108C987EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF168374-D1F0-499B-958A-04A108C987EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF168374-D1F0-499B-958A-04A108C987EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF168374-D1F0-499B-958A-04A108C987EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

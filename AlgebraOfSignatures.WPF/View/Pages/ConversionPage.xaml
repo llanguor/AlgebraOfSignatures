@@ -1,0 +1,16 @@
+﻿<Page x:Class="AlgebraOfSignatures.WPF.View.Pages.ConversionPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.View.Pages"
+      xmlns:controls="clr-namespace:AlgebraOfSignatures.WPF.Controls"
+      mc:Ignorable="d"
+      Title="ConversionPage" 
+      FontSize="15"
+      Height="450"
+      Width="800">
+    <Grid>
+        <controls:HyperGraph/>
+    </Grid>
+</Page>
