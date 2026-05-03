@@ -140,7 +140,8 @@ public abstract class RepresentationConverterBase :
     #region Abstract Methods
 
     public abstract Signature ComputeSignatureFromAdjacency(
-        Array adjacencyMatrix);
+        Array adjacencyMatrix,
+        bool throwIfIncorrectAdjacencyMatrix = false);
     
     public abstract Array ComputeAdjacencyFromSignature(
         Signature signature,

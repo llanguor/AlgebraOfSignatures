@@ -61,7 +61,6 @@ public class Signature :
         UniformityDegree = uniformityDegree;
         
         //todo: move to Parameter?
-        
         if (value.GetType().GetElementType() != typeof(long))
             throw new ArgumentException($"{nameof(value)} elements must be of type long");
         
@@ -103,16 +102,18 @@ public class Signature :
     public void SetValue(
         long value, params int[] indices)
     {
+        if (indices.Length == 0)
+            indices = [0];
+        
         //todo: throw if incorrect value
-        var lastValue = Convert.ToInt64(Value.GetValue(indices));
+        var lastValue = Convert.ToInt64(
+            Value.GetValue(indices));
         
+        //todo: move to Parameter?
         if (UniformityDegree == 3 && indices[^1] != 0)
-            ThrowIfIncorrectSignatureNextValue(lastValue, value);
+            ThrowIfIncorrectSignatureNextValue(lastValue, value); 
         
-        if (indices.Length == 0) 
-            Value.SetValue(value, 0);
-        else
-            Value.SetValue(value, indices);
+        Value.SetValue(value, indices);
     }
 
     /// <inheritdoc/>

@@ -2,6 +2,7 @@
 
 public class RepresentationConverterTests
 {
+    //todo: тесты: ошибка при неверном заполнении незначащих и справа/слева от сигнатуры для к-матриц. Ошибка при неверном вводе. Проверка всех методов и тд
     //todo: tests for 2,3,4, 5(?) uh. Data from excel
     private readonly RepresentationConverter _converter = new();
     
@@ -11,7 +12,10 @@ public class RepresentationConverterTests
         int vertexCount = 6,
             uniformityDegree = 3;
       
-        var inputMatrix = _converter.CreateRankedArray<bool>(vertexCount, uniformityDegree);
+        var inputMatrix = _converter.CreateRankedArray<bool>(
+            vertexCount, 
+            uniformityDegree);
+        
         inputMatrix.SetValue(true, 0,1,2);
         inputMatrix.SetValue(true, 0,1,3);
         inputMatrix.SetValue(true, 0,1,4);
@@ -81,9 +85,9 @@ public class RepresentationConverterTests
        
         
         var signature = _converter.ComputeSignatureFromAdjacency(inputMatrix);
-        /*
-        Assert.True(signature.Value == 11);
-       */
+        
+        //Assert.True(signature.Value == 11);
+       
         var matrix = _converter.ComputeAdjacencyFromSignature(
             signature,
             vertexCount, 

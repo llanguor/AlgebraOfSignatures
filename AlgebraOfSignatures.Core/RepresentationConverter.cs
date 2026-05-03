@@ -6,7 +6,8 @@ internal sealed class RepresentationConverter :
     RepresentationConverterBase
 {
     public override Signature ComputeSignatureFromAdjacency(
-        Array adjacencyMatrix)
+        Array adjacencyMatrix,
+        bool throwIfIncorrectAdjacencyMatrix = false)
     {
         var vertexCount = adjacencyMatrix.GetLength(0);
         var uniformityDegree = adjacencyMatrix.Rank;
@@ -18,16 +19,16 @@ internal sealed class RepresentationConverter :
             CreateRankedArray<long>(1,1) : 
             CreateRankedArray<long>(vertexCount-2, uniformityDegree-2);
         
-        var indices = new int[uniformityDegree == 2 ? 1 :uniformityDegree-2];
+        var indices = new int[uniformityDegree == 2 ? 1 : uniformityDegree-2];
         var adjacencyIndices = new int[uniformityDegree];
-        for (var i = 0; i < indices.Length; ++i)
+        for (var i = 1; i < indices.Length; ++i)
         {
             indices[i] = i;
         }
 
-        while (uniformityDegree == 2 ||
-               indices[0] != vertexCount - 2)
+        while (indices[0] != vertexCount - 2)
         {
+            //if we have reached the edge of dimension 'i+1', move to the next index in dimension 'i'
             for (var i = uniformityDegree - 3;
                  i > 0;
                  --i)
@@ -44,9 +45,10 @@ internal sealed class RepresentationConverter :
             var rowIndex = uniformityDegree == 2 ? 0 : indices[^1] + 1;
             var columnIndex = vertexCount - 1;
 
+            //start of traversal current row of adjacency matrix
             long currentSignatureValue = 0;
-           
-            for (var bitNumber = vertexCount - 3 - (uniformityDegree == 2 ? 0 : indices[^1]);
+            var bitsCount = vertexCount - 2 - indices[^1];
+            for (var bitNumber = bitsCount-1;
                  bitNumber >= 0;
                  --bitNumber)
             {
@@ -55,18 +57,63 @@ internal sealed class RepresentationConverter :
                 adjacencyIndices[^1] = columnIndex;
                 var value = Convert.ToBoolean(
                     adjacencyMatrix.GetValue(adjacencyIndices));
-
-                
-            
                 
                 if (!value)
                 {
+                    //There is a 0 in the cell.
+                    //This means we are to the right of the domain separator.
+                    
                     --columnIndex;
                 }
                 else
                 {
-                    ++rowIndex;
+                    //The cell contains a 1, which means it's on the domain boundary.
+                    //Let's add the number to the signature and move on to the next line.
+                    
                     currentSignatureValue |= 1L << bitNumber;
+                    ++rowIndex;
+                    
+                    if (!throwIfIncorrectAdjacencyMatrix)
+                        continue;
+
+                    //validate other cells of adjacency matrix 
+                    
+                    for (var currentRowColumnIndex = rowIndex;
+                         currentRowColumnIndex <= vertexCount;
+                         ++currentRowColumnIndex)
+                    {
+                        adjacencyIndices[^1] = currentRowColumnIndex;
+                        var cellValue = Convert.ToBoolean(
+                            adjacencyMatrix.GetValue(adjacencyIndices));
+
+                        if (currentRowColumnIndex > columnIndex &&
+                            cellValue == true ||
+                            currentRowColumnIndex <= columnIndex &&
+                            cellValue == false)
+                        {
+                            throw new ArgumentException(
+                                "The values in the cells to the left and right of the domain separator must be equal to 1 and 0, respectively.",
+                                nameof(adjacencyMatrix));
+                        }
+                            
+                        if (cellValue == false)
+                            continue;
+                            
+                        ForEachPermutation(
+                            adjacencyIndices,
+                            array =>
+                            {
+                                var permutationValue = Convert.ToBoolean(
+                                    adjacencyMatrix.GetValue(adjacencyIndices));
+         
+                                if (value != permutationValue)
+                                {
+                                    throw new ArgumentException(
+                                        $"The values in the matrix cell with indices [{string.Join(", ", adjacencyIndices)}] do not match the value specified in the significant cells of the signature",
+                                        nameof(adjacencyMatrix));
+                                };
+                            });
+                    }
                 }
             }
             
@@ -99,16 +146,16 @@ internal sealed class RepresentationConverter :
                 vertexCount,
                 uniformityDegree);
 
-        var indices = new int[uniformityDegree-2];
+        var indices = new int[uniformityDegree == 2 ? 1 : uniformityDegree-2];
         var adjacencyIndices = new int[uniformityDegree];
         for (var i = 1; i < indices.Length; ++i)
         {
             indices[i] = i;
         }
         
-        while (uniformityDegree == 2 || 
-               indices[0] != vertexCount - 2)
+        while (indices[0] != vertexCount - 2)
         {
+            //if we have reached the edge of dimension 'i+1', move to the next index in dimension 'i'
             for (var i = uniformityDegree - 3;
                  i > 0;
                  --i)
@@ -125,20 +172,23 @@ internal sealed class RepresentationConverter :
             var rowIndex = uniformityDegree == 2 ? 0 : indices[^1] + 1;
             var columnIndex = vertexCount - 1;
 
-            var currentSignature = 
-                signature.GetValue(uniformityDegree == 2 ? 0 : indices[^1]); 
+            var currentSignatureValue = 
+                signature.GetValue(indices[^1]); 
             
-            for (var bitNumber = vertexCount - 3 - (uniformityDegree == 2 ? 0 : indices[^1]);
+            //start of traversal current row of adjacency matrix
+            var bitsCount = vertexCount - 2 - indices[^1];
+            for (var bitNumber = bitsCount-1;
                  bitNumber >= 0;
                  --bitNumber)
             {
-                var currentBit = (currentSignature >> bitNumber) & 1;
+                var currentBit = (currentSignatureValue >> bitNumber) & 1;
                 if (currentBit == 0)
                 {
                     --columnIndex;
                 }
                 else
                 {
+                    //filling the left side of the matrix relative to the domain separation boundary
                     for (var currentRowColumnIndex = rowIndex + 1;
                          currentRowColumnIndex <= columnIndex;
                          ++currentRowColumnIndex)

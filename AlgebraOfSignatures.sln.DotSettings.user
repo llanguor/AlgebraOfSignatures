@@ -79,6 +79,8 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a6adba4c_002Ded05_002D4306_002Db786_002D03b7e6a8ab29/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetAllSignatures_3Uniform" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.SignatureTests.GetAllSignatures_3Uniform&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterTests.ComputeUniform3_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::0BCD1E96-2A38-447D-9226-11CED952142E::net8.0::AlgebraOfSignatures.Core.Tests.RepresentationConverterTests.ComputeUniform2_ReturnsCorrectValue&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d7096b93_002D3d1c_002D4321_002Db54f_002D815b734c80fd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="AlgebraOfSignatures.Core.Tests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;

@@ -9,7 +9,8 @@ public interface IRepresentationConverter
         int uniformityDegree);
 
     Signature ComputeSignatureFromAdjacency(
-        Array adjacencyMatrix);
+        Array adjacencyMatrix,
+        bool throwIfIncorrectAdjacencyMatrix = false);
 
     Array ComputeIncidenceFromSignature(
         Signature signature,
