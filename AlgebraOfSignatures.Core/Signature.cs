@@ -11,13 +11,25 @@ public class Signature :
     private readonly int _vertexCount;
 
     private readonly int _uniformityDegree;
+
+    private readonly Array _value = null!;
     
     #endregion
     
     
     #region Properties
 
-    protected Array Value { get; }
+    public Array Value
+    {
+        get => _value;
+        private init
+        {
+            if (value.GetType().GetElementType() != typeof(long))
+                throw new ArgumentException($"{nameof(value)} elements must be of type long");
+            
+            _value = value;
+        }
+    }
 
     public int VertexCount
     {
@@ -57,41 +69,26 @@ public class Signature :
         int vertexCount,
         int uniformityDegree)
     {
+        ThrowIfIncorrectSignature(
+            uniformityDegree,
+            vertexCount,
+            value);
+        
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
-        
-        //todo: move to Parameter?
-        if (value.GetType().GetElementType() != typeof(long))
-            throw new ArgumentException($"{nameof(value)} elements must be of type long");
-        
-        //todo:move away from
         Value = value;
-        if (UniformityDegree == 3) //and array.Length!=1
-        {
-            for (var i = 1; i < vertexCount - 2; ++i)
-            {
-                ThrowIfIncorrectSignatureNextValue(
-                    Convert.ToInt64(value.GetValue(i-1)),
-                    Convert.ToInt64(value.GetValue(i)),
-                    i);
-            }
-        }
-        
-        Value = value;
-
     }
     
     public Signature(
         long value,
-        int vertexCount,
-        int uniformityDegree)
+        int vertexCount)
     {
         if (value < 0)
             throw new ArgumentException("Value cannot be negative.", nameof(value));
         
         Value = new [] { value };
         VertexCount = vertexCount;
-        UniformityDegree = uniformityDegree;
+        UniformityDegree = 2;
     }
     
     #endregion
@@ -100,20 +97,19 @@ public class Signature :
     #region Methods
     
     public void SetValue(
-        long value, params int[] indices)
+        long value, 
+        params int[] indices)
     {
         if (indices.Length == 0)
             indices = [0];
-        
-        //todo: throw if incorrect value
-        var lastValue = Convert.ToInt64(
-            Value.GetValue(indices));
-        
-        //todo: move to Parameter?
-        if (UniformityDegree == 3 && indices[^1] != 0)
-            ThrowIfIncorrectSignatureNextValue(lastValue, value); 
-        
+
         Value.SetValue(value, indices);
+        
+        //todo: replace with ThrowIfIncorrectSetValue
+        ThrowIfIncorrectSignature(
+            UniformityDegree, 
+            VertexCount,
+            Value); 
     }
 
     /// <inheritdoc/>
@@ -142,6 +138,27 @@ public class Signature :
           
     #region ThrowIf Methods
 
+    protected void ThrowIfIncorrectSignature(
+        int uniformityDegree,
+        int vertexCount,
+        Array value)
+    {
+        if (uniformityDegree == 2)
+            return;
+
+        if (uniformityDegree != 3) 
+            return;
+        
+        //todo: k-signature
+        for (var i = 1; i < vertexCount - 2; ++i)
+        {
+            ThrowIfIncorrectSignatureNextValue(
+                Convert.ToInt64(value.GetValue(i-1)),
+                Convert.ToInt64(value.GetValue(i)),
+                i);
+        }
+    }
+    
     protected void ThrowIfIncorrectSignatureNextValue(
         long lastValue,
         long currValue,

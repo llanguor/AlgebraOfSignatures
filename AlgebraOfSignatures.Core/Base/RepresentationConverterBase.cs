@@ -1,4 +1,6 @@
 ﻿using AlgebraOfSignatures.Core.Base.Interfaces;
+using AlgebraOfSignatures.Core.Extensions;
+
 namespace AlgebraOfSignatures.Core.Base;
 
 public abstract class RepresentationConverterBase :
@@ -6,63 +8,6 @@ public abstract class RepresentationConverterBase :
 {
     #region Methods
     
-    protected internal Array CreateRankedArray<T>(
-        int size,
-        int rank)
-    {
-        if (size < 1)
-            throw new ArgumentException($"{nameof(size)} must be greater than 0");
-        
-        if (rank < 1)
-            throw new ArgumentException($"{nameof(rank)} must be greater than 0");
-        
-        var shape = Enumerable
-            .Repeat(size, rank)
-            .ToArray();
-        
-        return Array.CreateInstance(
-            typeof(T),
-            shape);
-    }
-    
-    /// <summary>
-    /// Generates all permutations of the input array using Heap's algorithm.
-    /// The array is modified in-place, and each permutation is passed to the handler.
-    /// </summary>
-    /// <param name="indices">Array being permuted (modified in-place).</param>
-    /// <param name="handler">Called for each permutation. The same array instance is reused.</param>
-    protected void ForEachPermutation(
-        int[] indices,
-        Action<int[]> handler)
-    {
-        var len = indices.Length;
-        Span<int> depth = stackalloc int[indices.Length]; 
-
-        handler(indices);
-
-        var i = 0;
-        while (i < len)
-        {
-            if (depth[i] < i)
-            {
-                if ((i & 1) == 0)
-                    (indices[0], indices[i]) = (indices[i], indices[0]);
-                else
-                    (indices[depth[i]], indices[i]) = (indices[i], indices[depth[i]]);
-                
-                handler(indices);
-
-                ++depth[i];
-                i = 0;
-            }
-            else
-            {
-                depth[i] = 0;
-                ++i;
-            }
-        }
-    }
-
     public Signature ComputeSignatureFromIncidence(
         Array incidenceMatrix,
         int uniformityDegree)
@@ -85,10 +30,55 @@ public abstract class RepresentationConverterBase :
     }
     
     #endregion
-
+    
     
     #region ThrowIf Methods
     
+    protected void ThrowIfIllegalAdjacencyValues( 
+        int vertexCount,
+        int rowIndex,
+        int columnIndex,
+        int [] adjacencyIndices,
+        Array adjacencyMatrix,
+        bool requiredValue)
+    {
+        for (var currentRowColumnIndex = rowIndex;
+             currentRowColumnIndex <= vertexCount;
+             ++currentRowColumnIndex)
+        {
+            adjacencyIndices[^1] = currentRowColumnIndex;
+            var cellValue = Convert.ToBoolean(
+                adjacencyMatrix.GetValue(adjacencyIndices));
+
+            if (currentRowColumnIndex > columnIndex &&
+                cellValue == true ||
+                currentRowColumnIndex <= columnIndex &&
+                cellValue == false)
+            {
+                throw new ArgumentException(
+                    "The values in the cells to the left and right of the domain separator must be equal to 1 and 0, respectively.",
+                    nameof(adjacencyMatrix));
+            }
+                        
+            if (cellValue == false)
+                continue;
+
+            adjacencyIndices.ForEachPermutation(
+                _ =>
+                {
+                    var permutationValue = Convert.ToBoolean(
+                        adjacencyMatrix.GetValue(adjacencyIndices));
+     
+                    if (requiredValue != permutationValue)
+                    {
+                        throw new ArgumentException(
+                            $"The values in the matrix cell with indices [{string.Join(", ", adjacencyIndices)}] do not match the value specified in the significant cells of the signature",
+                            nameof(adjacencyMatrix));
+                    };
+                });
+        }
+    }
+
     protected void ThrowIfIllegalGraphParameters( 
         int vertexCount,
         int uniformityDegree)
