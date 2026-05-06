@@ -5,10 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.View.Pages"
       mc:Ignorable="d"
-      Title="OperationsPage" 
-      FontSize="15"
-      Height="450"
-      Width="800">
+      Title="OperationsPage">
     <Grid>
         
     </Grid>

@@ -6,11 +6,9 @@
       xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.View.Pages"
       xmlns:controls="clr-namespace:AlgebraOfSignatures.WPF.Controls"
       mc:Ignorable="d"
-      Title="ConversionPage" 
-      FontSize="15"
-      Height="450"
-      Width="800">
+      Title="ConversionPage">
     <Grid>
-        <controls:HyperGraph/>
+        <controls:MatrixControl
+            UniformHyperGraph="{Binding UniformHyperGraph, Mode=TwoWay}"/>
     </Grid>
 </Page>

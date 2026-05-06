@@ -8,7 +8,7 @@ public class UniformHyperGraph :
 {
     #region Fabric Methods
 
-    public static IUniformHyperGraph FromIncidenceMatrix(
+    public static UniformHyperGraph FromIncidenceMatrix(
         Array incidenceMatrix,
         int uniformityDegree,
         IRepresentationConverter? converter = null)
@@ -30,7 +30,7 @@ public class UniformHyperGraph :
             uniformityDegree);
     }
     
-    public static IUniformHyperGraph FromAdjacencyMatrix(
+    public static UniformHyperGraph FromAdjacencyMatrix(
         Array adjacencyMatrix,
         IRepresentationConverter? converter = null)
     {
@@ -50,7 +50,7 @@ public class UniformHyperGraph :
             uniformityDegree);
     }
 
-    public static IUniformHyperGraph FromSignature(
+    public static UniformHyperGraph FromSignature(
         Signature signature,
         int vertexCount,
         int uniformityDegree,
@@ -64,7 +64,7 @@ public class UniformHyperGraph :
             uniformityDegree);   
     }
     
-    public static IUniformHyperGraph FromSignature(
+    public static UniformHyperGraph FromSignature(
         Array signatureValue,
         int vertexCount,
         int uniformityDegree,
@@ -84,10 +84,6 @@ public class UniformHyperGraph :
     
     
     #region Fields
-    
-    private readonly Lazy<Array> _incidenceMatrix;
-
-    private readonly Lazy<Array> _adjacencyMatrix;
 
     private readonly int _uniformityDegree;
 
@@ -100,11 +96,17 @@ public class UniformHyperGraph :
     
     #region Properties
 
-    public Array IncidenceMatrix => 
-        _incidenceMatrix.Value;
-    
-    public Array AdjacencyMatrix => 
-        _adjacencyMatrix.Value;
+    public Array IncidenceMatrix =>
+        _converter.ComputeIncidenceFromSignature(
+            Signature,
+            VertexCount,
+            UniformityDegree);
+
+    public Array AdjacencyMatrix =>
+        _converter.ComputeAdjacencyFromSignature(
+            Signature,
+            VertexCount,
+            UniformityDegree);
 
     public Signature Signature { get; private init; }
 
@@ -151,20 +153,6 @@ public class UniformHyperGraph :
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
         Signature = signature;
-
-        _incidenceMatrix =
-            new Lazy<Array>(() =>
-                _converter.ComputeIncidenceFromSignature(
-                    Signature,
-                    VertexCount,
-                    UniformityDegree));
-            
-        _adjacencyMatrix =
-            new Lazy<Array>(() => 
-                _converter.ComputeAdjacencyFromSignature(
-                    Signature, 
-                    VertexCount,
-                    UniformityDegree));
     }
     
     #endregion

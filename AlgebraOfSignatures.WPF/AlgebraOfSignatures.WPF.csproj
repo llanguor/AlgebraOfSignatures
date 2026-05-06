@@ -9,10 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="ViewModel\Pages\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\AlgebraOfSignatures.Core\AlgebraOfSignatures.Core.csproj" />
     </ItemGroup>
 

@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="AlgebraOfSignatures.WPF.Controls.UniformHyperGraphControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.Controls"
+             xmlns:dg2d="http://gu.se/DataGrid2D"
+             mc:Ignorable="d"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True"
+             Focusable="True"
+             FocusManager.IsFocusScope="True"
+             BorderBrush="Blue"
+             BorderThickness="1"
+             FontSize="15">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        
+        <local:SignatureValueControl
+            Grid.Row="0"
+            UniformHyperGraph="{Binding UniformHyperGraph, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=TwoWay}"/>
+        <local:MatrixControl
+            Grid.Row="1"
+            UniformHyperGraph="{Binding UniformHyperGraph, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=TwoWay}"/>
+        
+        <TextBlock
+            Grid.Row="2"
+            Text="{Binding SignatureFirstValue, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=OneWay}"
+            TextAlignment="Center"
+            Foreground="DimGray"/>
+    </Grid>
+</UserControl>

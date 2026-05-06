@@ -9,11 +9,11 @@ public class Signature :
 {
     #region Fields
 
-    private readonly int _vertexCount;
+    private int _vertexCount;
 
-    private readonly int _uniformityDegree;
+    private int _uniformityDegree;
 
-    private readonly Array _value = null!;
+    private Array _value = null!;
     
     #endregion
     
@@ -23,7 +23,7 @@ public class Signature :
     public Array Value
     {
         get => _value;
-        private init
+        private set
         {
             if (value.GetFinalElementType() != typeof(long))
                 throw new ArgumentException($"{nameof(value)} elements must be of type long");
@@ -35,7 +35,7 @@ public class Signature :
     public int VertexCount
     {
         get => _vertexCount;
-        private init
+        private set
         {
             if (value < 2)
                 throw new ArgumentException(
@@ -49,7 +49,7 @@ public class Signature :
     public int UniformityDegree
     {
         get => _uniformityDegree;
-        private init
+        private set
         {
             if (value < 2)
                 throw new ArgumentException(
@@ -70,11 +70,10 @@ public class Signature :
         int vertexCount,
         int uniformityDegree)
     {
-        VertexCount = vertexCount;
-        UniformityDegree = uniformityDegree;
-        
-        ThrowIfIncorrectSignature(value);
-        Value = value;
+        SetValues(
+            value,
+            vertexCount, 
+            uniformityDegree);
     }
     
     public Signature(
@@ -84,9 +83,10 @@ public class Signature :
         if (value < 0)
             throw new ArgumentException("Value cannot be negative.", nameof(value));
         
-        Value = new [] { value };
-        VertexCount = vertexCount;
-        UniformityDegree = 2;
+        SetValues(
+            new [] { value },
+            vertexCount, 
+            2);
     }
     
     #endregion
@@ -105,6 +105,18 @@ public class Signature :
         
         //todo: replace with ThrowIfIncorrectSetValue
         ThrowIfIncorrectSignature(Value); 
+    }
+    
+    public void SetValues(
+        Array values,
+        int vertexCount,
+        int uniformityDegree)
+    {
+        VertexCount = vertexCount;
+        UniformityDegree = uniformityDegree;
+        
+        ThrowIfIncorrectSignature(values);
+        Value = values;
     }
 
     /// <inheritdoc/>

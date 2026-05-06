@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using AlgebraOfSignatures.WPF.View.Pages;
 using AlgebraOfSignatures.WPF.View.Windows;
+using AlgebraOfSignatures.WPF.ViewModel.Pages;
 using AlgebraOfSignatures.WPF.ViewModel.Windows;
 using DistributedSystems.LaboratoryWork.Nuget.Dialog;
 using DistributedSystems.LaboratoryWork.Nuget.Navigation;
