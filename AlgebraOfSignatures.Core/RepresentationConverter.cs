@@ -8,10 +8,11 @@ internal sealed class RepresentationConverter :
 {
     public override Signature ComputeSignatureFromAdjacency(
         Array adjacencyMatrix,
-        bool throwIfIncorrectAdjacencyMatrix = false)
+        bool isThrowIfIncorrectAdjacencyMatrix = false)
     {
         var vertexCount = adjacencyMatrix.GetLength(0);
         var uniformityDegree = adjacencyMatrix.Rank;
+        var signatureLength = vertexCount - uniformityDegree + 1;
         long currentSignatureValue = 0;
         
         ThrowIfIllegalGraphParameters(vertexCount, uniformityDegree);
@@ -20,51 +21,46 @@ internal sealed class RepresentationConverter :
         var signatureArray = 
             uniformityDegree == 2 ? 
             ArrayExtensions.CreateRankedArray<long>(1,1) : 
-            ArrayExtensions.CreateRankedArray<long>(vertexCount-2, uniformityDegree-2);
+            ArrayExtensions.CreateRankedArray<long>(signatureLength, uniformityDegree-2);
         
         signatureArray.TraverseSignature(vertexCount, uniformityDegree, state =>
         {
             currentSignatureValue = Convert.ToInt64(
-                signatureArray.GetValue(state.TwoDimensionalIndices[^1]));
+                signatureArray.GetValue(state.SignatureIndices));
             
-            state.BitsCount = 
-                vertexCount - 2 - state.TwoDimensionalIndices[^1];
+            var bitsCount = 
+                signatureLength - state.SignatureIndices[^1];
             
-            for (state.BitNumber = state.BitsCount - 1;
-                 state.BitNumber >= 0;
-                 --state.BitNumber)
+            for (var bitNumber = bitsCount - 1;
+                 bitNumber >= 0;
+                 --bitNumber)
             {
-                state.TwoDimensionalIndices.CopyTo(state.FullIndices, 0);
-                state.FullIndices[^2] = state.RowIndex;
-                state.FullIndices[^1] = state.ColumnIndex;
-
                 var value = Convert.ToBoolean(
-                    adjacencyMatrix.GetValue(state.FullIndices));
+                    adjacencyMatrix.GetValue(state.AdjacencyIndices));
 
                 if (!value)
                 {
-                    --state.ColumnIndex;
+                    --state.AdjacencyIndices[^1];
                 }
                 else
                 {
-                    currentSignatureValue |= 1L << state.BitNumber;
-                    ++state.RowIndex;
-
-                    if (state.BitNumber == 0)
-                        signatureArray.SetValue(
-                            currentSignatureValue,
-                            state.TwoDimensionalIndices);
-
-                    if (throwIfIncorrectAdjacencyMatrix)
+                    currentSignatureValue |= 1L << bitNumber;
+                    ++state.AdjacencyIndices[^2];
+                    
+                    if (isThrowIfIncorrectAdjacencyMatrix)
                         ThrowIfIllegalAdjacencyValues(
                             vertexCount,
-                            state.RowIndex,
-                            state.ColumnIndex,
-                            state.FullIndices,
+                            state.AdjacencyIndices[^2],
+                            state.AdjacencyIndices[^1],
+                            state.AdjacencyIndices,
                             adjacencyMatrix,
                             value);
                 }
             }
+            
+            signatureArray.SetValue(
+                currentSignatureValue,
+                state.SignatureIndices);
         });
 
         return new Signature(
@@ -81,6 +77,7 @@ internal sealed class RepresentationConverter :
         ThrowIfIllegalGraphParameters(vertexCount, uniformityDegree);
         ThrowIfIllegalSignature(signature, vertexCount);
   
+        var signatureLength = vertexCount - uniformityDegree + 1;
         long currentSignatureValue = 0;
         var adjacencyMatrix =  
             ArrayExtensions.CreateRankedArray<bool>(
@@ -93,35 +90,32 @@ internal sealed class RepresentationConverter :
         adjacencyMatrix.TraverseSignature(vertexCount, uniformityDegree, state =>
         {
             currentSignatureValue = Convert.ToInt64(
-                signature.GetValue(state.TwoDimensionalIndices[^1]));
+                signature.GetValue(state.SignatureIndices));
             
-            state.BitsCount = vertexCount - 2 - state.TwoDimensionalIndices[^1];
+            var bitsCount = signatureLength - state.SignatureIndices[^1];
             
-            for (state.BitNumber = state.BitsCount - 1;
-                 state.BitNumber >= 0;
-                 --state.BitNumber)
+            for (var bitNumber = bitsCount - 1;
+                 bitNumber >= 0;
+                 --bitNumber)
             {
-                var currentBit = (currentSignatureValue >> state.BitNumber) & 1;
+                var currentBit = (currentSignatureValue >> bitNumber) & 1;
                 if (currentBit == 0)
                 {
-                    --state.ColumnIndex;
+                    --state.AdjacencyIndices[^1];
                 }
                 else
                 {
                     //filling the left side of the matrix relative to the domain separation boundary
-                    for (var currentRowColumnIndex = state.RowIndex + 1;
-                         currentRowColumnIndex <= state.ColumnIndex;
-                         ++currentRowColumnIndex)
+                    for (var columnIndex = state.AdjacencyIndices[^2] + 1;
+                         columnIndex <= state.AdjacencyIndices[^1];
+                         ++columnIndex)
                     {
-                        state.TwoDimensionalIndices.CopyTo(state.FullIndices, 0);
-                        state.FullIndices[^2] = state.RowIndex;
-                        state.FullIndices[^1] = currentRowColumnIndex;
-                        
-                        state.FullIndices.ForEachPermutation(
-                            setValueAction);
+                        var toPermute = (int[])state.AdjacencyIndices.Clone();
+                        toPermute[^1] = columnIndex;
+                        toPermute.ForEachPermutation(setValueAction);
                     }
 
-                    ++state.RowIndex;
+                    ++state.AdjacencyIndices[^2];
                 }
             }
         });

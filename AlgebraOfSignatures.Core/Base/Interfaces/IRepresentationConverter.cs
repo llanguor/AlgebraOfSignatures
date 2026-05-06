@@ -10,7 +10,7 @@ public interface IRepresentationConverter
 
     Signature ComputeSignatureFromAdjacency(
         Array adjacencyMatrix,
-        bool throwIfIncorrectAdjacencyMatrix = false);
+        bool isThrowIfIncorrectAdjacencyMatrix = false);
 
     Array ComputeIncidenceFromSignature(
         Signature signature,

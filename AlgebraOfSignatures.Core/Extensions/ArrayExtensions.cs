@@ -6,12 +6,8 @@ public static class ArrayExtensions
     
     public sealed class TraverseState
     {
-        public int RowIndex;
-        public int ColumnIndex;
-        public int BitNumber;
-        public int BitsCount;
-        public required int[] TwoDimensionalIndices;
-        public required int[] FullIndices;
+        public required int[] SignatureIndices;
+        public required int[] AdjacencyIndices;
     }
     
     #endregion
@@ -39,52 +35,71 @@ public static class ArrayExtensions
     
     #endregion
     
+
     #region Extensions
-    
+
     public static void TraverseSignature(
         this Array array,
         int vertexCount,
         int uniformityDegree,
         Action<TraverseState> delegateAction)
     {
+        var signatureLength = vertexCount - uniformityDegree + 1;
         var state = new TraverseState
         {
-            TwoDimensionalIndices = new int[uniformityDegree == 2 ? 1 : uniformityDegree-2],
-            FullIndices = new int[uniformityDegree]
+            SignatureIndices = new int[uniformityDegree == 2 ? 1 : uniformityDegree-2],
+            AdjacencyIndices = new int[uniformityDegree]
         };
 
-        for (var i = 1; i < state.TwoDimensionalIndices.Length; ++i)
+        for (var i = 1; i < state.AdjacencyIndices.Length - 2; ++i)
         {
-            state.TwoDimensionalIndices[i] = i;
+            state.AdjacencyIndices[i] = i;
         }
         
-        while (state.TwoDimensionalIndices[0] != 
-               vertexCount - 2)
+        while (state.SignatureIndices[0] != 
+               signatureLength)
         {
             //if we have reached the edge of dimension 'i+1', move to the next index in dimension 'i'
             for (var i = uniformityDegree - 3;
                  i > 0;
                  --i)
             {
-                if (state.TwoDimensionalIndices[i] != vertexCount - 2) 
+                //неверно что то. Были индексы 3, 3 при размере 3 в целом
+                if (state.SignatureIndices[i] != signatureLength) 
                     break;
                 
-                ++state.TwoDimensionalIndices[i-1];
-                state.TwoDimensionalIndices[i] = state.TwoDimensionalIndices[i-1] + 1;
-                if (i+1 != state.TwoDimensionalIndices.Length)
-                    state.TwoDimensionalIndices[i + 1] = state.TwoDimensionalIndices[i] + 1;
+                ++state.SignatureIndices[i-1];
+                state.SignatureIndices[i] = state.SignatureIndices[i-1];
+                if (i+1 != state.SignatureIndices.Length)
+                    state.SignatureIndices[i + 1] = state.SignatureIndices[i];
+                
+                ++state.AdjacencyIndices[i-1];
+                state.AdjacencyIndices[i] = state.AdjacencyIndices[i-1] + 1;
+                state.AdjacencyIndices[i + 1] = state.AdjacencyIndices[i] + 1;
+                
+                if (state.SignatureIndices[0] == signatureLength) 
+                    return;
             }
             
-            state.RowIndex = uniformityDegree == 2 ? 0 : state.TwoDimensionalIndices[^1] + 1;
-            state.ColumnIndex = vertexCount - 1;
+            state.AdjacencyIndices[^2] = uniformityDegree == 2 ? 0 : state.AdjacencyIndices[^3] + 1;
+            state.AdjacencyIndices[^1] = vertexCount - 1;
             
             delegateAction(state);
             
             if (uniformityDegree == 2)
                 break;
             
-            ++state.TwoDimensionalIndices[^1];
+            ++state.SignatureIndices[^1];
+            ++state.AdjacencyIndices[^3];
         }
+    }
+    
+    public static Type GetFinalElementType(this Array array)
+    {
+        var type = array.GetType();
+        while (type.IsArray)
+            type = type.GetElementType()!;
+        return type;
     }
     
     public static void ForEachPermutation(

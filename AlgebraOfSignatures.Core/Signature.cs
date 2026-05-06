@@ -1,4 +1,5 @@
 ﻿using AlgebraOfSignatures.Core.Base.Interfaces;
+using AlgebraOfSignatures.Core.Extensions;
 
 namespace AlgebraOfSignatures.Core;
 
@@ -24,7 +25,7 @@ public class Signature :
         get => _value;
         private init
         {
-            if (value.GetType().GetElementType() != typeof(long))
+            if (value.GetFinalElementType() != typeof(long))
                 throw new ArgumentException($"{nameof(value)} elements must be of type long");
             
             _value = value;
@@ -69,13 +70,10 @@ public class Signature :
         int vertexCount,
         int uniformityDegree)
     {
-        ThrowIfIncorrectSignature(
-            uniformityDegree,
-            vertexCount,
-            value);
-        
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
+        
+        ThrowIfIncorrectSignature(value);
         Value = value;
     }
     
@@ -106,10 +104,7 @@ public class Signature :
         Value.SetValue(value, indices);
         
         //todo: replace with ThrowIfIncorrectSetValue
-        ThrowIfIncorrectSignature(
-            UniformityDegree, 
-            VertexCount,
-            Value); 
+        ThrowIfIncorrectSignature(Value); 
     }
 
     /// <inheritdoc/>
@@ -123,7 +118,6 @@ public class Signature :
 
     private int CalculateBitLength(params int[] indices)
     {
-        //todo: k-signature
         return VertexCount - 2 - indices[^1];
     }
 
@@ -133,33 +127,7 @@ public class Signature :
         return value & ((1L << msb) - 1);
     }
 
-    #endregion
-    
-          
-    #region ThrowIf Methods
-
-    protected void ThrowIfIncorrectSignature(
-        int uniformityDegree,
-        int vertexCount,
-        Array value)
-    {
-        if (uniformityDegree == 2)
-            return;
-
-        if (uniformityDegree != 3) 
-            return;
-        
-        //todo: k-signature
-        for (var i = 1; i < vertexCount - 2; ++i)
-        {
-            ThrowIfIncorrectSignatureNextValue(
-                Convert.ToInt64(value.GetValue(i-1)),
-                Convert.ToInt64(value.GetValue(i)),
-                i);
-        }
-    }
-    
-    protected void ThrowIfIncorrectSignatureNextValue(
+    private int SignatureValueCompare(       
         long lastValue,
         long currValue,
         params int[] indices)
@@ -167,8 +135,9 @@ public class Signature :
         var totalBits = CalculateBitLength(indices);
         if (currValue >> totalBits != 0)
             throw new ArgumentException(
-                $"Such a signature cannot exist. The number is too large for this position in the array.");
-            
+                $"Such a signature cannot exist. The number is too large for this position in the array.",
+                nameof(currValue));
+        
         lastValue = TruncateValue(lastValue);
         var lastCount = 0;
         var currCount = 0;
@@ -177,13 +146,50 @@ public class Signature :
         {
             lastCount += (int)((lastValue >> bit) & 1L);
             currCount += (int)((currValue >> bit) & 1L);
-            
+
             if (currCount > lastCount)
-                throw new ArgumentException(
-                    "Such a signature cannot exist. A \"0\" cannot be followed by a \"1\" by the definition of extremity.");
+                return 1;
+        }
+        
+        return currCount == lastCount ? 0 : -1;
+    }
+
+    #endregion
+    
+          
+    #region ThrowIf Methods
+
+    protected void ThrowIfIncorrectSignature(Array value)
+    {
+        if (value.GetFinalElementType() != typeof(long))
+            throw new ArgumentException($"{nameof(value)} elements must be of type long");
+        
+        if (UniformityDegree == 2)
+            return;
+
+        if (UniformityDegree != 3) 
+            return;
+        
+        //todo: k-signature
+        for (var i = 1; i < VertexCount - 2; ++i)
+        {
+            ThrowIfIncorrectSignatureNextValue(
+                Convert.ToInt64(value.GetValue(i-1)),
+                Convert.ToInt64(value.GetValue(i)),
+                i);
         }
     }
-    
+
+    protected void ThrowIfIncorrectSignatureNextValue(
+        long lastValue,
+        long currValue,
+        params int[] indices)
+    {
+        if (SignatureValueCompare(lastValue, currValue, indices) == 1)
+            throw new ArgumentException(
+                "Such a signature cannot exist. A \"0\" cannot be followed by a \"1\" by the definition of extremity.");
+    }
+
     protected void ThrowIfVertexCountMismatch( 
         int vertexCount1,
         int vertexCount2)
@@ -207,104 +213,120 @@ public class Signature :
 
     public Signature Intersect(Signature other)
     {
-        /*
         ThrowIfUniformityDegreeMismatch(
             this.UniformityDegree, 
             other.UniformityDegree);
         
-        var signature1 = this.Value;
-        var signature2 = other.Value;
+        ThrowIfVertexCountMismatch(
+            this.VertexCount,
+            other.VertexCount);
         
-        if (signature1 == 0 && signature2 == 0) 
-            return this;
-        
-        var bitsCount =  Convert.ToInt32(
-            Math.Floor(Math.Log2(Math.Max(signature1, signature2))));
-
-        int onesCount1 = 0,
-            onesCount2 = 0;
-        
-        for(var currentBitNumber = bitsCount; 
-            currentBitNumber >= 0; 
-            --currentBitNumber)
+        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
         {
-            var bit1 = 
-                (signature1 >> currentBitNumber) & 1;
-            var bit2 = 
-                (signature2 >> currentBitNumber) & 1;
+            var signatureValue1 = this.GetValue(state.SignatureIndices);
+            var signatureValue2 = other.GetValue(state.SignatureIndices);
+            var signatureValueResult = 0L;
+            
+            if (signatureValue1 == 0 && signatureValue2 == 0)
+                return;
 
-            if (bit2 < bit1 &&
-                onesCount2 == onesCount1)
+            var bitsCount = Convert.ToInt32(
+                Math.Floor(Math.Log2(Math.Max(signatureValue1, signatureValue2))));
+
+            int onesCount1 = 0,
+                onesCount2 = 0;
+
+            for (var currentBitNumber = bitsCount;
+                 currentBitNumber >= 0;
+                 --currentBitNumber)
             {
-                (signature1, signature2) =
-                    (signature2, signature1);
-                (bit1, bit2) =
-                    (bit2, bit1);
+                var bit1 =
+                    (signatureValue1 >> currentBitNumber) & 1L;
+                var bit2 =
+                    (signatureValue2 >> currentBitNumber) & 1L;
+
+                if (bit2 < bit1 &&
+                    onesCount2 == onesCount1)
+                {
+                    (signatureValue1, signatureValue2) =
+                        (signatureValue2, signatureValue1);
+                    (bit1, bit2) =
+                        (bit2, bit1);
+                }
+
+                if (bit1 == 1)
+                    ++onesCount1;
+
+                if (bit2 == 1)
+                    ++onesCount2;
+
+                signatureValueResult =
+                    (signatureValueResult & ~(1L << currentBitNumber)) |
+                    (bit1 << currentBitNumber);
             }
             
-            if(bit1==1)
-                ++onesCount1;
-            
-            if(bit2==1)
-                ++onesCount2;
-            
-            Value =
-                (Value & ~(1L << currentBitNumber)) |
-                (bit1 << currentBitNumber);
-        }
-        */
+            this.Value.SetValue(signatureValueResult, state.SignatureIndices);
+        });
 
         return this;
     }
 
     public Signature Union(Signature other)
     {
-        /*
         ThrowIfUniformityDegreeMismatch(
             this.UniformityDegree, 
             other.UniformityDegree);
         
-        var signature1 = this.Value;
-        var signature2 = other.Value;
+        ThrowIfVertexCountMismatch(
+            this.VertexCount,
+            other.VertexCount);
         
-        if (signature1 == 0 && signature2 == 0) 
-            return this;
-        
-        var bitsCount =  Convert.ToInt32(
-            Math.Floor(Math.Log2(Math.Max(signature1, signature2))));
-
-        int onesCount1 = 0,
-            onesCount2 = 0;
-        
-        for(var currentBitNumber = bitsCount; 
-            currentBitNumber >= 0; 
-            --currentBitNumber)
+        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
         {
-            var bit1 = 
-                (signature1 >> currentBitNumber) & 1;
-            var bit2 = 
-                (signature2 >> currentBitNumber) & 1;
+            var signatureValue1 = this.GetValue(state.SignatureIndices);
+            var signatureValue2 = other.GetValue(state.SignatureIndices);
+            var signatureValueResult = 0L;
+            
+            if (signatureValue1 == 0 && signatureValue2 == 0)
+                return;
 
-            if (bit2 > bit1 &&
-                onesCount2 == onesCount1)
+            var bitsCount = Convert.ToInt32(
+                Math.Floor(Math.Log2(Math.Max(signatureValue1, signatureValue2))));
+
+            int onesCount1 = 0,
+                onesCount2 = 0;
+
+            for (var currentBitNumber = bitsCount;
+                 currentBitNumber >= 0;
+                 --currentBitNumber)
             {
-                (signature1, signature2) =
-                    (signature2, signature1);
-                (bit1, bit2) =
-                    (bit2, bit1);
+                var bit1 =
+                    (signatureValue1 >> currentBitNumber) & 1L;
+                var bit2 =
+                    (signatureValue2 >> currentBitNumber) & 1L;
+
+                if (bit2 > bit1 &&
+                    onesCount2 == onesCount1)
+                {
+                    (signatureValue1, signatureValue2) =
+                        (signatureValue2, signatureValue1);
+                    (bit1, bit2) =
+                        (bit2, bit1);
+                }
+
+                if (bit1 == 1)
+                    ++onesCount1;
+
+                if (bit2 == 1)
+                    ++onesCount2;
+
+                signatureValueResult =
+                    (signatureValueResult & ~(1L << currentBitNumber)) |
+                    (bit1 << currentBitNumber);
             }
             
-            if(bit1==1)
-                ++onesCount1;
-            
-            if(bit2==1)
-                ++onesCount2;
-            
-            Value =
-                (Value & ~(1L << currentBitNumber)) |
-                (bit1 << currentBitNumber);
-        }
-        */
+            this.Value.SetValue(signatureValueResult, state.SignatureIndices);
+        });
 
         return this;
     }
@@ -335,10 +357,17 @@ public class Signature :
 
     public Signature Add(long constant)
     {
-        /*
-        this.Value += constant;
-        this.Mod2N(VertexCount-1);
-        */
+        //todo: mod n. For Signature object or for long value?
+        //this.Value += constant;
+        //this.Mod2N(VertexCount-1);
+        
+        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        { 
+            this.Value.SetValue(
+                constant + this.GetValue(state.SignatureIndices), 
+                state.SignatureIndices);
+        });
+
         return this;
     }
 
@@ -357,10 +386,17 @@ public class Signature :
 
     public Signature Multiply(long constant)
     {
-        /*
-        this.Value *= constant;
-        this.Mod2N(VertexCount-1);
-        */
+        //todo: mod n. For Signature object or for long value?
+        //this.Value += constant;
+        //this.Mod2N(VertexCount-1);
+        
+        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        { 
+            this.Value.SetValue(
+                constant * this.GetValue(state.SignatureIndices), 
+                state.SignatureIndices);
+        });
+
         return this;
     }
     

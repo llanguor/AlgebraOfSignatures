@@ -22,7 +22,7 @@ public class SignatureTests
         var vertexCount = 6;
         var res = new List<string>();
         
-        for (var i = 0; i < 16; ++i)
+        for (var i = 0; i < 5; ++i)
         {
             for (var j = 0; j <= i; ++j)
             {

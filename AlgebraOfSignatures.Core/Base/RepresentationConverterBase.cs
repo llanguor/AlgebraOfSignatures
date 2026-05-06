@@ -117,7 +117,7 @@ public abstract class RepresentationConverterBase :
     
     protected void ThrowIfIllegalAdjacency(Array incidenceMatrix)
     {
-        // throw new NotImplementedException();
+        //todo: validate 
         
         if (incidenceMatrix.GetType().GetElementType() != typeof(bool))
             throw new ArgumentException($"{nameof(incidenceMatrix)} elements must be of type bool");
@@ -131,7 +131,7 @@ public abstract class RepresentationConverterBase :
 
     public abstract Signature ComputeSignatureFromAdjacency(
         Array adjacencyMatrix,
-        bool throwIfIncorrectAdjacencyMatrix = false);
+        bool isThrowIfIncorrectAdjacencyMatrix = false);
     
     public abstract Array ComputeAdjacencyFromSignature(
         Signature signature,
