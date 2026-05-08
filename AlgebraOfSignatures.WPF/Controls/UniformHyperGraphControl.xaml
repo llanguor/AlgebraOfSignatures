@@ -26,9 +26,9 @@
             UniformHyperGraph="{Binding UniformHyperGraph, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=TwoWay}"/>
-        <local:MatrixControl
+        <local:SignatureMatrixControl
             Grid.Row="1"
-            UniformHyperGraph="{Binding UniformHyperGraph, 
+            InputArray="{Binding UniformHyperGraph.Signature.Value, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=TwoWay}"/>
         

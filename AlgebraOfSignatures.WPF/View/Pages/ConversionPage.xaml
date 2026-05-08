@@ -6,9 +6,12 @@
       xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.View.Pages"
       xmlns:controls="clr-namespace:AlgebraOfSignatures.WPF.Controls"
       mc:Ignorable="d"
-      Title="ConversionPage">
+      Title="ConversionPage"
+      Background="#202020">
     <Grid>
-        <controls:MatrixControl
-            UniformHyperGraph="{Binding UniformHyperGraph, Mode=TwoWay}"/>
+        <controls:SignatureMatrixControl
+            ShowGraphCommand="{Binding ShowGraphCommand }"
+            IsReadOnly="False"
+            InputArray="{Binding UniformHyperGraph.Signature.Value, Mode=OneWay}"/>
     </Grid>
 </Page>

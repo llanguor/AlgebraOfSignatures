@@ -1,6 +1,8 @@
 ﻿using System.Windows;
+using AlgebraOfSignatures.WPF.View.Dialog;
 using AlgebraOfSignatures.WPF.View.Pages;
 using AlgebraOfSignatures.WPF.View.Windows;
+using AlgebraOfSignatures.WPF.ViewModel.Dialog;
 using AlgebraOfSignatures.WPF.ViewModel.Pages;
 using AlgebraOfSignatures.WPF.ViewModel.Windows;
 using DistributedSystems.LaboratoryWork.Nuget.Dialog;
@@ -87,6 +89,9 @@ public partial class App : Application
         Container.RegisterInstance(navigationManager);
         Container.RegisterMapping<IDialogAware, NavigationManagerDialogAware>();
 
+        navigationManager
+            .AddMapping<GraphDialog, GraphDialogViewModel>();
+            
         return this;
     }
 
@@ -131,11 +136,13 @@ public partial class App : Application
 
     private App RegisterDialogsViews()
     {
+        Container.Register<GraphDialog>(Reuse.Transient);
         return this;
     }
 
     private App RegisterDialogsViewModels()
     {
+        Container.Register<GraphDialogViewModel>(Reuse.Transient);
         return this;
     }
 

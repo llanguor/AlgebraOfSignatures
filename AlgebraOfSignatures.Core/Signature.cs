@@ -107,7 +107,7 @@ public class Signature :
         ThrowIfIncorrectSignature(Value); 
     }
     
-    public void SetValues(
+    private void SetValues(
         Array values,
         int vertexCount,
         int uniformityDegree)
@@ -115,6 +115,7 @@ public class Signature :
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
         
+        //todo: Check only the previous and next element on each axis
         ThrowIfIncorrectSignature(values);
         Value = values;
     }

@@ -1,4 +1,5 @@
-﻿using AlgebraOfSignatures.Core.Base;
+﻿using System.Runtime.InteropServices;
+using AlgebraOfSignatures.Core.Base;
 using AlgebraOfSignatures.Core.Extensions;
 
 namespace AlgebraOfSignatures.Core;
@@ -6,6 +7,96 @@ namespace AlgebraOfSignatures.Core;
 internal sealed class RepresentationConverter :
     RepresentationConverterBase
 {
+    public enum RepresentationType
+    {
+        Signature = 0,
+        AdjacencyMatrix = 1,
+        IncidenceMatrix = 2,
+    }
+
+    public void Convert(
+        RepresentationType from,
+        RepresentationType to,
+        object input, 
+        out object? output,
+        int? uniformityDegree,
+        int? vertexCount)
+    {
+        switch (from)
+        {
+            case RepresentationType.Signature:
+            {
+                ArgumentNullException.ThrowIfNull(uniformityDegree);
+                ArgumentNullException.ThrowIfNull(vertexCount);
+                
+                if (input is not Signature signature)
+                    throw new ArgumentException("Expected Signature", nameof(input));
+                
+                output = to switch
+                {
+                    RepresentationType.AdjacencyMatrix
+                        => ComputeAdjacencyFromSignature(signature, vertexCount!.Value, uniformityDegree!.Value),
+              
+                    RepresentationType.IncidenceMatrix 
+                        => ComputeIncidenceFromSignature(signature, vertexCount!.Value, uniformityDegree!.Value),
+                
+                    RepresentationType.Signature
+                        => input,
+                
+                    _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
+                };
+                break;
+            }
+            case RepresentationType.AdjacencyMatrix:
+            {
+                if (input is not Array adjacency)
+                    throw new ArgumentException("Expected Array", nameof(input));
+            
+                output = to switch
+                {
+                    RepresentationType.AdjacencyMatrix
+                        => input,
+                
+                    RepresentationType.IncidenceMatrix 
+                        => ComputeIncidenceFromAdjacency(adjacency),
+                
+                    RepresentationType.Signature
+                        => ComputeSignatureFromAdjacency(adjacency),
+                
+                    _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
+                };
+                break;
+            }
+            case RepresentationType.IncidenceMatrix:
+            {
+                ArgumentNullException.ThrowIfNull(uniformityDegree);
+                
+                if (input is not Array incidence)
+                    throw new ArgumentException("Expected Array", nameof(input));
+            
+                output = to switch
+                {
+                    RepresentationType.AdjacencyMatrix
+                        => ComputeAdjacencyFromIncidence(incidence, uniformityDegree!.Value),
+                
+                    RepresentationType.IncidenceMatrix 
+                        => input,
+                
+                    RepresentationType.Signature
+                        => ComputeSignatureFromIncidence(incidence, uniformityDegree!.Value),
+                
+                    _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
+                };
+                break;
+            }
+            
+            default:
+                throw new NotSupportedException(
+                    $"Unsupported type for convert: {from}");
+        }
+    }
+    
+    
     public override Signature ComputeSignatureFromAdjacency(
         Array adjacencyMatrix,
         bool isThrowIfIncorrectAdjacencyMatrix = false)
@@ -25,7 +116,7 @@ internal sealed class RepresentationConverter :
         
         signatureArray.TraverseSignature(vertexCount, uniformityDegree, state =>
         {
-            currentSignatureValue = Convert.ToInt64(
+            currentSignatureValue = System.Convert.ToInt64(
                 signatureArray.GetValue(state.SignatureIndices));
             
             var bitsCount = 
@@ -35,7 +126,7 @@ internal sealed class RepresentationConverter :
                  bitNumber >= 0;
                  --bitNumber)
             {
-                var value = Convert.ToBoolean(
+                var value = System.Convert.ToBoolean(
                     adjacencyMatrix.GetValue(state.AdjacencyIndices));
 
                 if (!value)
@@ -89,7 +180,7 @@ internal sealed class RepresentationConverter :
         
         adjacencyMatrix.TraverseSignature(vertexCount, uniformityDegree, state =>
         {
-            currentSignatureValue = Convert.ToInt64(
+            currentSignatureValue = System.Convert.ToInt64(
                 signature.GetValue(state.SignatureIndices));
             
             var bitsCount = signatureLength - state.SignatureIndices[^1];

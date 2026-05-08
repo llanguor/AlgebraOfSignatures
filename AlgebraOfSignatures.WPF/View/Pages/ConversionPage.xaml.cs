@@ -5,7 +5,8 @@ using DryIoc;
 
 namespace AlgebraOfSignatures.WPF.View.Pages;
 
-public partial class ConversionPage : Page
+public partial class ConversionPage : 
+    Page
 {
     public ConversionPage()
     {

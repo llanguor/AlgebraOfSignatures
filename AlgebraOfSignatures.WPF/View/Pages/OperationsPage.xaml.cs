@@ -4,7 +4,8 @@ using DryIoc;
 
 namespace AlgebraOfSignatures.WPF.View.Pages;
 
-public partial class OperationsPage : Page
+public partial class OperationsPage :
+    Page
 {
     public OperationsPage()
     {
