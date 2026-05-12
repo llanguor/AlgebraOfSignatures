@@ -8,19 +8,19 @@ public class GraphDialogViewModel :
 {
     #region Fields
 
-    private Array _inputArray = null!;
+    private Array _adjacencyMatrix = null!;
     
     #endregion
     
     #region Properties
 
-    public Array InputArray
+    public Array AdjacencyMatrix
     {
-        get => _inputArray;
+        get => _adjacencyMatrix;
         set
         {
-            _inputArray = value;
-            RaisePropertyChanged(nameof(InputArray));
+            _adjacencyMatrix = value;
+            RaisePropertyChanged(nameof(AdjacencyMatrix));
         }
     }
     
@@ -31,7 +31,7 @@ public class GraphDialogViewModel :
     protected override void HandleParameters(
         DialogAwareParameters parameters)
     {
-        InputArray = (parameters[Parameters.InputArray] as Array)!;
+        AdjacencyMatrix = (parameters[Parameters.AdjacencyMatrix] as Array)!;
     }
     
     #endregion
@@ -40,7 +40,7 @@ public class GraphDialogViewModel :
 
     public static class Parameters
     {
-        public const string InputArray = nameof(InputArray);
+        public const string AdjacencyMatrix = nameof(AdjacencyMatrix);
     }
 
     #endregion

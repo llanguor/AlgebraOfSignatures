@@ -8,7 +8,7 @@ using DistributedSystems.LaboratoryWork.Nuget.Command;
 
 namespace AlgebraOfSignatures.WPF.Controls;
 
-public partial class SignatureMatrixControl : 
+public partial class MatrixControl : 
     UserControl
 {
     #region Fields
@@ -41,7 +41,7 @@ public partial class SignatureMatrixControl :
     
     #region Constructors
     
-    public SignatureMatrixControl()
+    public MatrixControl()
     {
         InitializeComponent();
         
@@ -63,6 +63,19 @@ public partial class SignatureMatrixControl :
     
     #region Dependency Properties
     
+    public object? SelectedCellValue
+    {
+        get => GetValue(SelectedCellValueProperty);
+        set => SetValue(SelectedCellValueProperty, value);
+    }
+
+    public static readonly DependencyProperty SelectedCellValueProperty =
+        DependencyProperty.Register(
+            nameof(SelectedCellValue),
+            typeof(object),
+            typeof(MatrixControl),
+            new PropertyMetadata(null));
+    
     public ICommand ShowGraphCommand
     {
         get =>
@@ -76,7 +89,26 @@ public partial class SignatureMatrixControl :
         = DependencyProperty.Register(
             nameof(ShowGraphCommand),
             typeof(ICommand),
-            typeof(SignatureMatrixControl));
+            typeof(MatrixControl),
+            new PropertyMetadata(
+                null,
+                OnShowGraphCommandChanged));
+
+    public bool IsDrawGraphButtonVisible
+    {
+        get =>
+            (bool)GetValue(IsDrawGraphButtonVisibleProperty);
+
+        set =>
+            SetValue(IsDrawGraphButtonVisibleProperty, value);
+    }
+
+    public static readonly DependencyProperty IsDrawGraphButtonVisibleProperty
+        = DependencyProperty.Register(
+            nameof(IsDrawGraphButtonVisible),
+            typeof(bool),
+            typeof(MatrixControl));
+
     
     public bool IsReadOnly
     {
@@ -88,7 +120,7 @@ public partial class SignatureMatrixControl :
         DependencyProperty.Register(
             nameof(IsReadOnly),
             typeof(bool),
-            typeof(SignatureMatrixControl),
+            typeof(MatrixControl),
             new PropertyMetadata(false));
     
     public Array InputArray
@@ -101,7 +133,7 @@ public partial class SignatureMatrixControl :
         DependencyProperty.Register(
             nameof(InputArray),
             typeof(Array),
-            typeof(SignatureMatrixControl),
+            typeof(MatrixControl),
             new PropertyMetadata(null, OnInputArrayChanged));
 
     
@@ -115,23 +147,54 @@ public partial class SignatureMatrixControl :
         DependencyProperty.Register(
             nameof(MatrixDataTable),
             typeof(DataTable),
-            typeof(SignatureMatrixControl));
+            typeof(MatrixControl));
+    
+    
+    public Type? MatrixElementType
+    {
+        get => (Type)GetValue(MatrixElementTypeProperty);
+        set => SetValue(MatrixElementTypeProperty, value);
+    }
+
+    public static readonly DependencyProperty MatrixElementTypeProperty =
+        DependencyProperty.Register(
+            nameof(MatrixElementType),
+            typeof(Type),
+            typeof(MatrixControl));
     
     #endregion
     
     
-    #region Event Handlers
+    #region Callbacks
+    
+    
+    private static void OnShowGraphCommandChanged(
+        DependencyObject d,
+        DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not MatrixControl control)
+            return;
+        
+        if (e.NewValue is not ICommand drawGraphCommand) 
+            return;
+        
+        control.IsDrawGraphButtonVisible = 
+            drawGraphCommand.CanExecute(null) == true;
+    }
     
     private static void OnInputArrayChanged(
         DependencyObject d,
         DependencyPropertyChangedEventArgs e)
     {
-        if (d is not SignatureMatrixControl control)
+        if (d is not MatrixControl control)
             return;
         
         if (e.NewValue is not Array inputArray) 
             return;
 
+        control.MatrixElementType = 
+            inputArray.GetType().GetElementType();
+        
         control.Indices.Clear();
         for (var i = 0; i < inputArray.Rank-2; ++i)
         {
@@ -198,24 +261,33 @@ public partial class SignatureMatrixControl :
                 indices[^1] = j;
                 
                 var value = MatrixDataTable.Rows[i][j].ToString();
-
+                
                 if (!long.TryParse(value, out var parsedValue))
                 {
-                    throw new ArgumentException(
-                        $"Invalid value at [{i},{j}]. Expected a long, but got '{value}'.");
+                    if (MatrixElementType==typeof(bool))
+                        throw new ArgumentException(
+                            $"Invalid value at [{i},{j}]. Expected a 1 or 0, but got '{value}'.");
+                    else
+                        throw new ArgumentException(
+                            $"Invalid value at [{i},{j}]. Expected long value, but got '{value}'.");
                 }
-
-                InputArray.SetValue(parsedValue, indices);
+                
+                InputArray.SetValue(
+                    MatrixElementType == typeof(bool) ? 
+                        parsedValue == 1 : 
+                        parsedValue, 
+                    indices);
             }
         }
     }
 
     private void FillDataGrid()
     {
-        if (Indices.Count != InputArray.Rank-2)
+        var axisCount = InputArray.Rank == 1 ? 1 : 2;
+        if (Indices.Count != InputArray.Rank - axisCount)
             return;
         
-        var indices = new int[Indices.Count+2];
+        var indices = new int[Indices.Count+axisCount];
         for (var i = 0; i < Indices.Count; ++i)
         {
             indices[i] = Indices[i].Value;
@@ -225,18 +297,25 @@ public partial class SignatureMatrixControl :
         
         for (var i = 0; i < RowsCount; ++i)
         {
-            table.Columns.Add($"V{i}");
+            table.Columns.Add(
+                $"V{i}",
+                typeof(long));
         }
         
-        for (var i = 0; i < RowsCount; ++i)
+        for (var i = 0; i < (axisCount == 1 ? 1 : RowsCount); ++i)
         {
             var row = new object?[RowsCount]; 
             for (var j = 0; j < RowsCount; ++j)
             {
-                indices[^2] = i;
+                if (axisCount != 1)
+                    indices[^2] = i;
+                
                 indices[^1] = j;
-                row[j] = InputArray.GetValue(indices);
+                
+                var value = InputArray.GetValue(indices);
+                row[j] = value is bool b ? (b ? 1 : 0) : value;
             }
+            
             table.Rows.Add(row);
         }
         
@@ -290,4 +369,24 @@ public partial class SignatureMatrixControl :
     }
     
     #endregion
+
+    
+    //todo: replace with trigger
+    private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+    {
+        var grid = (DataGrid)sender;
+
+        var cell = grid.SelectedCells.FirstOrDefault();
+        if (cell == default)
+            return;
+
+        var content = cell.Column.GetCellContent(cell.Item);
+
+        string? value = null;
+
+        if (content is TextBlock tb)
+            value = tb.Text;
+
+        SelectedCellValue = value;
+    }
 }

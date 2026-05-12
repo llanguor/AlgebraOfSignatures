@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using AlgebraOfSignatures.Core;
 using DistributedSystems.LaboratoryWork.Nuget.ViewModel;
 
@@ -21,6 +22,31 @@ public partial class UniformHyperGraphControl :
     #endregion
     
     #region Dependency Properties
+    
+    public object? SelectedCellValue
+    {
+        get => GetValue(SelectedCellValueProperty);
+        set => SetValue(SelectedCellValueProperty, value);
+    }
+
+    public static readonly DependencyProperty SelectedCellValueProperty =
+        DependencyProperty.Register(
+            nameof(SelectedCellValue),
+            typeof(object),
+            typeof(UniformHyperGraphControl),
+            new PropertyMetadata(null));
+    
+    public Array InputArray
+    {
+        get => (Array)GetValue(InputArrayProperty);
+        set => SetValue(InputArrayProperty, value);
+    }
+
+    public static readonly DependencyProperty InputArrayProperty =
+        DependencyProperty.Register(
+            nameof(InputArray),
+            typeof(Array),
+            typeof(UniformHyperGraphControl));
 
     public Core.UniformHyperGraph UniformHyperGraph
     {
@@ -32,38 +58,53 @@ public partial class UniformHyperGraphControl :
         DependencyProperty.Register(
             nameof(UniformHyperGraph),
             typeof(Core.UniformHyperGraph),
-            typeof(UniformHyperGraphControl),
-            new PropertyMetadata(null, OnUniformHyperGraphChanged));
-
-    public long SignatureFirstValue
+            typeof(UniformHyperGraphControl));
+    
+    public ICommand ShowGraphCommand
     {
-        get => (long)GetValue(SignatureFirstValueProperty);
-        set => SetValue(SignatureFirstValueProperty, value);
+        get =>
+            (ICommand)GetValue(ShowGraphCommandProperty);
+
+        set =>
+            SetValue(ShowGraphCommandProperty, value);
     }
 
-    public static readonly DependencyProperty SignatureFirstValueProperty =
+    public static readonly DependencyProperty ShowGraphCommandProperty
+        = DependencyProperty.Register(
+            nameof(ShowGraphCommand),
+            typeof(ICommand),
+            typeof(UniformHyperGraphControl));
+    
+    public bool IsReadOnly
+    {
+        get => (bool)GetValue(IsReadOnlyProperty);
+        set => SetValue(IsReadOnlyProperty, value);
+    }
+
+    public static readonly DependencyProperty IsReadOnlyProperty =
         DependencyProperty.Register(
-            nameof(SignatureFirstValue),
-            typeof(long),
+            nameof(IsReadOnly),
+            typeof(bool),
             typeof(UniformHyperGraphControl),
-            new PropertyMetadata(0L, OnSignatureFirstValueChanged));
+            new PropertyMetadata(false));
+    
+    public UniformHyperGraph.RepresentationTypes RepresentationToVisualize
+    {
+        get => (UniformHyperGraph.RepresentationTypes)GetValue(RepresentationToVisualizeProperty);
+        set => SetValue(RepresentationToVisualizeProperty, value);
+    }
+
+    public static readonly DependencyProperty RepresentationToVisualizeProperty =
+        DependencyProperty.Register(
+            nameof(RepresentationToVisualize),
+            typeof(UniformHyperGraph.RepresentationTypes),
+            typeof(UniformHyperGraphControl));
 
     #endregion
     
-    
-    #region Event Handlers
-    private static void OnSignatureFirstValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        var control = (UniformHyperGraphControl)d;
-        control.UniformHyperGraph.Signature.Value.SetValue(e.NewValue, 0); 
-    }
+    #region Nested
 
-    private static void OnUniformHyperGraphChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        var control = (UniformHyperGraphControl)d;
-        if (e.NewValue is Core.UniformHyperGraph uh)
-            control.SignatureFirstValue = (long)uh.Signature.Value.GetValue(0)!;
-    }
+
     
     #endregion
 }

@@ -5,39 +5,34 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.Controls"
              xmlns:dg2d="http://gu.se/DataGrid2D"
+             xmlns:converters="clr-namespace:AlgebraOfSignatures.WPF.Converters"
              mc:Ignorable="d"
              SnapsToDevicePixels="True"
              UseLayoutRounding="True"
              Focusable="True"
              FocusManager.IsFocusScope="True"
-             BorderBrush="Blue"
-             BorderThickness="1"
              FontSize="15">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-
-        
-        <local:SignatureValueControl
-            Grid.Row="0"
-            UniformHyperGraph="{Binding UniformHyperGraph, 
+        <local:MatrixControl
+            SelectedCellValue="{Binding SelectedCellValue, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
-                Mode=TwoWay}"/>
-        <local:SignatureMatrixControl
-            Grid.Row="1"
-            InputArray="{Binding UniformHyperGraph.Signature.Value, 
-                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
-                Mode=TwoWay}"/>
-        
-        <TextBlock
-            Grid.Row="2"
-            Text="{Binding SignatureFirstValue, 
+                Mode=TwoWay}"
+            IsReadOnly="{Binding IsReadOnly, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}"
-            TextAlignment="Center"
-            Foreground="DimGray"/>
+            ShowGraphCommand="{Binding ShowGraphCommand, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=OneWay}">
+            <local:MatrixControl.InputArray>
+                 <MultiBinding Converter="{converters:RepresentationTypeToArrayConverter}">
+                     <Binding 
+                         Path="UniformHyperGraph" 
+                         RelativeSource="{RelativeSource AncestorType=local:UniformHyperGraphControl}"/> 
+                     <Binding 
+                         Path="RepresentationToVisualize" 
+                         RelativeSource="{RelativeSource AncestorType=local:UniformHyperGraphControl}"/>
+                 </MultiBinding>
+            </local:MatrixControl.InputArray>
+        </local:MatrixControl>
     </Grid>
 </UserControl>

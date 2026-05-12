@@ -266,4 +266,16 @@ public class UniformHyperGraph :
         Clone();
 
     #endregion
+
+    
+    #region Nested
+
+    public enum RepresentationTypes
+    {
+        Signature = 0,
+        AdjacencyMatrix = 1,
+        IncidenceMatrix = 2
+    }
+
+    #endregion
 }
