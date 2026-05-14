@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using AlgebraOfSignatures.WPF.ViewModel.Pages;
 using AlgebraOfSignatures.WPF.ViewModel.Windows;
 using DryIoc;
 

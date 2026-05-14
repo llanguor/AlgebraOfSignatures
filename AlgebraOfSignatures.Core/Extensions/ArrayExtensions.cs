@@ -64,14 +64,14 @@ public static class ArrayExtensions
                  i > 0;
                  --i)
             {
-                //неверно что то. Были индексы 3, 3 при размере 3 в целом
                 if (state.SignatureIndices[i] != signatureLength) 
                     break;
                 
                 ++state.SignatureIndices[i-1];
-                state.SignatureIndices[i] = state.SignatureIndices[i-1];
-                if (i+1 != state.SignatureIndices.Length)
-                    state.SignatureIndices[i + 1] = state.SignatureIndices[i];
+                state.SignatureIndices[i] =
+                    state.SignatureIndices[i - 1] == signatureLength
+                        ? state.SignatureIndices[i - 1] - 1
+                        : state.SignatureIndices[i - 1];
                 
                 ++state.AdjacencyIndices[i-1];
                 state.AdjacencyIndices[i] = state.AdjacencyIndices[i-1] + 1;

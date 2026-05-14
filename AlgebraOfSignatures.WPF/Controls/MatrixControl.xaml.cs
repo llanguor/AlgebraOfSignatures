@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using DistributedSystems.LaboratoryWork.Nuget.Command;
+using ArgumentException = System.ArgumentException;
 
 namespace AlgebraOfSignatures.WPF.Controls;
 
@@ -13,9 +14,13 @@ public partial class MatrixControl :
 {
     #region Fields
     
-    private readonly Lazy<ICommand> _saveCommand;
+    private readonly Lazy<ICommand> _saveGridCommand;
     
-    private readonly Lazy<ICommand> _loadCommand;
+    private readonly Lazy<ICommand> _loadGridCommand;
+    
+    private readonly Lazy<ICommand> _savePageCommand;
+    
+    private readonly Lazy<ICommand> _loadPageCommand;
     
     private readonly Lazy<int> _rowsCount;
     
@@ -24,14 +29,17 @@ public partial class MatrixControl :
     
     #region Properties
     
-    public ICommand SaveCommand =>
-        _saveCommand.Value;
+    public ICommand SaveGridCommand =>
+        _saveGridCommand.Value;
     
-    public ICommand LoadCommand =>
-        _loadCommand.Value;
+    public ICommand LoadGridCommand =>
+        _loadGridCommand.Value;
     
-    public int RowsCount =>
-        _rowsCount.Value;
+    public ICommand SavePageCommand =>
+        _savePageCommand.Value;
+    
+    public ICommand LoadPageCommand =>
+        _loadPageCommand.Value;
     
     public ObservableCollection<IntValue> Indices { get; set; } =
         [];
@@ -45,23 +53,39 @@ public partial class MatrixControl :
     {
         InitializeComponent();
         
-        _loadCommand = new Lazy<ICommand>(() =>
-            new RelayCommand(param => 
-                LoadCommandExecute(Convert.ToBoolean(param))));
-        
-        _saveCommand = new Lazy<ICommand>(() =>
+        _saveGridCommand = new Lazy<ICommand>(() =>
             new RelayCommand(
-                param => SaveCommandExecute(Convert.ToBoolean(param)),
+                SaveCommandExecute,
                 _ => !IsReadOnly));
-
-        _rowsCount = new Lazy<int>(
-            () => InputArray.GetLength(0));
+        
+        _loadGridCommand = new Lazy<ICommand>(() =>
+            new RelayCommand(LoadCommandExecute));
+        
+        _savePageCommand = new Lazy<ICommand>(() =>
+            new RelayCommand(
+                _ => SaveDataGrid(),
+                _ => !IsReadOnly));
+        
+        _loadPageCommand = new Lazy<ICommand>(() =>
+            new RelayCommand(_ => FillDataGrid()));
     }
     
     #endregion
     
     
     #region Dependency Properties
+    
+    public int RowsCount
+    {
+        get => (int) GetValue(RowsCountProperty);
+        set => SetValue(RowsCountProperty, value);
+    }
+
+    public static readonly DependencyProperty RowsCountProperty =
+        DependencyProperty.Register(
+            nameof(RowsCount),
+            typeof(int),
+            typeof(MatrixControl));
     
     public object? SelectedCellValue
     {
@@ -93,6 +117,36 @@ public partial class MatrixControl :
             new PropertyMetadata(
                 null,
                 OnShowGraphCommandChanged));
+    
+    public ICommand LoadFromFileCommand
+    {
+        get =>
+            (ICommand)GetValue(LoadFromFileCommandProperty);
+
+        set =>
+            SetValue(LoadFromFileCommandProperty, value);
+    }
+
+    public static readonly DependencyProperty LoadFromFileCommandProperty
+        = DependencyProperty.Register(
+            nameof(LoadFromFileCommand),
+            typeof(ICommand),
+            typeof(MatrixControl));
+    
+    public ICommand UpdateGraphCommand
+    {
+        get =>
+            (ICommand)GetValue(UpdateGraphCommandProperty);
+
+        set =>
+            SetValue(UpdateGraphCommandProperty, value);
+    }
+
+    public static readonly DependencyProperty UpdateGraphCommandProperty
+        = DependencyProperty.Register(
+            nameof(UpdateGraphCommand),
+            typeof(ICommand),
+            typeof(MatrixControl));
 
     public bool IsDrawGraphButtonVisible
     {
@@ -191,7 +245,10 @@ public partial class MatrixControl :
         
         if (e.NewValue is not Array inputArray) 
             return;
-
+        
+        control.RowsCount =
+            inputArray.GetLength(0);
+        
         control.MatrixElementType = 
             inputArray.GetType().GetElementType();
         
@@ -200,11 +257,15 @@ public partial class MatrixControl :
         {
             control.Indices.Add(
                 new IntValue(
-                    control.SaveCommand,
-                    control.LoadCommand) { Value = 0 });
+                    control.SavePageCommand,
+                    control.LoadPageCommand, 
+                    0));
         }
 
         control.FillDataGrid();
+        
+        control.IsDrawGraphButtonVisible = 
+            control.ShowGraphCommand.CanExecute(null) == true;
     }
     
     #endregion
@@ -212,53 +273,46 @@ public partial class MatrixControl :
     
     #region Methods
     
-    private void LoadCommandExecute(bool isMessageBoxShow)
+    private void LoadCommandExecute(object? _)
     {
         try
         {
             FillDataGrid();
         }
         catch (ArgumentException e)
-        {
-            if (isMessageBoxShow)
-                MessageBox.Show(e.Message, "Error");
+        { 
+            MessageBox.Show(e.Message, "Error");
         }
     }
 
-    private void SaveCommandExecute(bool isMessageBoxShow)
+    private void SaveCommandExecute(object? _)
     {
         try
         {
             SaveDataGrid();
-            if (isMessageBoxShow) 
-                MessageBox.Show("Данные сохранены");
+            UpdateGraphCommand.Execute(null);
         }
         catch (ArgumentException e)
         {
-            if (isMessageBoxShow) 
-                MessageBox.Show(e.Message, "Error");
+            MessageBox.Show(e.Message, "Error");
         }
     }
     
     private void SaveDataGrid()
     {
-        if (Indices.Count != InputArray.Rank-2)
-            return;
-
-        var indices = new int[Indices.Count + 2];
+        var fullIndices = new int[InputArray.Rank];
         for (var i = 0; i < Indices.Count; ++i)
         {
-            indices[i] = Indices[i].Value;
+            fullIndices[i] = Indices[i].Value;
         }
         
-        for (var i = 0; i < RowsCount; ++i)
+        for (var i = 0; i < (fullIndices.Length == 1 ? 1 : RowsCount); ++i)
         {
             for (var j = 0; j < RowsCount; ++j)
             {
-                //todo: throw if incorrect input
-                
-                indices[^2] = i;
-                indices[^1] = j;
+                if (fullIndices.Length > 1)
+                    fullIndices[^2] = i;
+                fullIndices[^1] = j;
                 
                 var value = MatrixDataTable.Rows[i][j].ToString();
                 
@@ -272,11 +326,15 @@ public partial class MatrixControl :
                             $"Invalid value at [{i},{j}]. Expected long value, but got '{value}'.");
                 }
                 
+                if (MatrixElementType==typeof(bool) &&
+                    parsedValue != 0 &&
+                    parsedValue != 1)
+                    throw new ArgumentException(
+                        $"Invalid value at [{i},{j}]. Expected a 1 or 0, but got '{value}'.");
+                
                 InputArray.SetValue(
-                    MatrixElementType == typeof(bool) ? 
-                        parsedValue == 1 : 
-                        parsedValue, 
-                    indices);
+                    MatrixElementType == typeof(bool) ? parsedValue == 1 : parsedValue, 
+                    fullIndices);
             }
         }
     }
@@ -299,7 +357,7 @@ public partial class MatrixControl :
         {
             table.Columns.Add(
                 $"V{i}",
-                typeof(long));
+                typeof(string));
         }
         
         for (var i = 0; i < (axisCount == 1 ? 1 : RowsCount); ++i)
@@ -320,6 +378,11 @@ public partial class MatrixControl :
         }
         
         MatrixDataTable = table;
+        SelectedCellValue = 
+            MatrixDataTable?.Rows.Count > 0 && 
+            MatrixDataTable.Columns.Count > 0
+            ? MatrixDataTable.Rows[0][0]
+            : 0;
     }
     
     #endregion
@@ -331,13 +394,17 @@ public partial class MatrixControl :
         INotifyPropertyChanged
     {
         private int _value;
-        private readonly ICommand _saveCommand;
-        private readonly ICommand _loadCommand;
+        private readonly ICommand _savePageCommand;
+        private readonly ICommand _loadPageCommand;
 
-        public IntValue(ICommand saveCommand, ICommand loadCommand)
+        public IntValue(
+            ICommand savePageCommand, 
+            ICommand loadPageCommand,
+            int value)
         {
-            _saveCommand = saveCommand;
-            _loadCommand = loadCommand;
+            _savePageCommand = savePageCommand;
+            _loadPageCommand = loadPageCommand;
+            _value = value;
         }
         
         public int Value
@@ -347,14 +414,14 @@ public partial class MatrixControl :
             {
                 try
                 {
-                    if (_saveCommand.CanExecute(false))
-                        _saveCommand.Execute(false);
+                    if (_savePageCommand.CanExecute(null))
+                        _savePageCommand.Execute(null);
 
                     _value = value;
                     OnPropertyChanged(nameof(Value));
                 
-                    if (_loadCommand.CanExecute(false))
-                        _loadCommand.Execute(false);
+                    if (_loadPageCommand.CanExecute(null))
+                        _loadPageCommand.Execute(null);
                 }
                 catch (ArgumentException e)
                 {
@@ -370,6 +437,8 @@ public partial class MatrixControl :
     
     #endregion
 
+    
+    #region Events
     
     //todo: replace with trigger
     private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
@@ -389,4 +458,15 @@ public partial class MatrixControl :
 
         SelectedCellValue = value;
     }
+
+    //todo: replace with trigger
+    private void DataGrid_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
+    {
+        if (e.EditingElement is TextBox tb)
+        {
+            SelectedCellValue = tb.Text;
+        }
+    }
+    
+    #endregion
 }

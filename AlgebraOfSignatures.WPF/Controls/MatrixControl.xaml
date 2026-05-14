@@ -45,6 +45,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
             <StackPanel
@@ -107,7 +108,31 @@
             </Button>
             <Button
                 Grid.Column="2"
-                Command="{Binding SaveCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}}"
+                Command="{Binding LoadFromFileCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}}"
+                CommandParameter="True"
+                FontSize="15"
+                FontWeight="Medium"
+                Foreground="Green"
+                Content="📂">
+                <Button.Visibility>
+                    <MultiBinding Converter="{converters:FromBoolConverter}">
+                        <Binding RelativeSource="{RelativeSource AncestorType=local:MatrixControl}" Path="IsReadOnly"/>
+                        <Binding>
+                            <Binding.Source>
+                                <Visibility>Collapsed</Visibility>
+                            </Binding.Source>
+                        </Binding>
+                        <Binding>
+                            <Binding.Source>
+                                <Visibility>Visible</Visibility>
+                            </Binding.Source>
+                        </Binding>
+                    </MultiBinding>
+                </Button.Visibility>
+            </Button>
+            <Button
+                Grid.Column="3"
+                Command="{Binding SaveGridCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}}"
                 CommandParameter="True"
                 FontSize="17"
                 FontWeight="SemiBold"
@@ -132,7 +157,9 @@
         </Grid>
         <DataGrid
             Grid.Row="2"
-            ItemsSource="{Binding MatrixDataTable, RelativeSource={RelativeSource AncestorType=local:MatrixControl}}"
+            ItemsSource="{
+                Binding MatrixDataTable,
+                RelativeSource={RelativeSource AncestorType=local:MatrixControl}}"
             HorizontalContentAlignment="Center"
             VerticalContentAlignment="Center"
             AutoGenerateColumns="True"
@@ -152,7 +179,8 @@
             VerticalAlignment="Top"
             SelectedItem="{Binding SelectedCellValue, RelativeSource={RelativeSource AncestorType=local:MatrixControl}, Mode=TwoWay}"
             Background="Transparent"
-            SelectedCellsChanged="DataGrid_SelectedCellsChanged">
+            SelectedCellsChanged="DataGrid_SelectedCellsChanged"
+            CellEditEnding="DataGrid_CellEditEnding">
             <DataGrid.RowHeaderStyle>
                 <Style TargetType="DataGridRowHeader">
                     <Setter Property="HorizontalContentAlignment" Value="Center"/>

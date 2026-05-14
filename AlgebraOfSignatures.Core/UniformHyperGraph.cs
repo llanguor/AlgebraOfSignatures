@@ -1,4 +1,5 @@
-﻿using AlgebraOfSignatures.Core.Base.Interfaces;
+﻿using System.Runtime.InteropServices;
+using AlgebraOfSignatures.Core.Base.Interfaces;
 
 namespace AlgebraOfSignatures.Core;
 
@@ -7,6 +8,12 @@ public class UniformHyperGraph :
     ICloneable
 {
     #region Fabric Methods
+
+    public static UniformHyperGraph FromFile(
+        string path)
+    {
+        return Empty(3, 2);
+    }
 
     public static UniformHyperGraph FromIncidenceMatrix(
         Array incidenceMatrix,
@@ -79,6 +86,18 @@ public class UniformHyperGraph :
             uniformityDegree,
             converter); 
     }
+    
+    public static UniformHyperGraph Empty(
+        int vertexCount,
+        int uniformityDegree,
+        IRepresentationConverter? converter = null)
+    {
+        return FromSignature(
+                Core.Signature.Empty(vertexCount, uniformityDegree),
+                vertexCount,
+                uniformityDegree,
+                converter); 
+    }
 
     #endregion
     
@@ -96,17 +115,34 @@ public class UniformHyperGraph :
     
     #region Properties
 
-    public Array IncidenceMatrix =>
-        _converter.ComputeIncidenceFromSignature(
-            Signature,
-            VertexCount,
-            UniformityDegree);
+    private Array? _cachedIncidenceMatrix = null;
+    private Array? _cachedAdjacencyMatrix = null;
 
-    public Array AdjacencyMatrix =>
-        _converter.ComputeAdjacencyFromSignature(
-            Signature,
-            VertexCount,
-            UniformityDegree);
+    public Array IncidenceMatrix
+    {
+        get
+        {
+            _cachedIncidenceMatrix ??= _converter.ComputeIncidenceFromSignature(
+                Signature,
+                VertexCount,
+                UniformityDegree);
+
+            return _cachedIncidenceMatrix!;
+        }
+    }
+
+    public Array AdjacencyMatrix
+    {
+        get
+        {
+            _cachedAdjacencyMatrix ??= _converter.ComputeAdjacencyFromSignature(
+                Signature,
+                VertexCount,
+                UniformityDegree);
+
+            return _cachedAdjacencyMatrix!;
+        }
+    }
 
     public Signature Signature { get; private init; }
 
@@ -275,6 +311,16 @@ public class UniformHyperGraph :
         Signature = 0,
         AdjacencyMatrix = 1,
         IncidenceMatrix = 2
+    }
+    
+    public enum OperationsTypes
+    {
+        Union = 0,
+        Intersection = 1,
+        Addition = 2,
+        AdditionConst = 3,
+        Multiply = 4,
+        MultiplyConst = 5
     }
 
     #endregion

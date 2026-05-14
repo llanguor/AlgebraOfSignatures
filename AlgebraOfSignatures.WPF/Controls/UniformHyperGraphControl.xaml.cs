@@ -35,18 +35,6 @@ public partial class UniformHyperGraphControl :
             typeof(object),
             typeof(UniformHyperGraphControl),
             new PropertyMetadata(null));
-    
-    public Array InputArray
-    {
-        get => (Array)GetValue(InputArrayProperty);
-        set => SetValue(InputArrayProperty, value);
-    }
-
-    public static readonly DependencyProperty InputArrayProperty =
-        DependencyProperty.Register(
-            nameof(InputArray),
-            typeof(Array),
-            typeof(UniformHyperGraphControl));
 
     public Core.UniformHyperGraph UniformHyperGraph
     {
@@ -58,6 +46,21 @@ public partial class UniformHyperGraphControl :
         DependencyProperty.Register(
             nameof(UniformHyperGraph),
             typeof(Core.UniformHyperGraph),
+            typeof(UniformHyperGraphControl));
+    
+    public ICommand UpdateGraphCommand
+    {
+        get =>
+            (ICommand)GetValue(UpdateGraphCommandProperty);
+
+        set =>
+            SetValue(UpdateGraphCommandProperty, value);
+    }
+
+    public static readonly DependencyProperty UpdateGraphCommandProperty
+        = DependencyProperty.Register(
+            nameof(UpdateGraphCommand),
+            typeof(ICommand),
             typeof(UniformHyperGraphControl));
     
     public ICommand ShowGraphCommand
@@ -72,6 +75,21 @@ public partial class UniformHyperGraphControl :
     public static readonly DependencyProperty ShowGraphCommandProperty
         = DependencyProperty.Register(
             nameof(ShowGraphCommand),
+            typeof(ICommand),
+            typeof(UniformHyperGraphControl));
+    
+    public ICommand LoadFromFileCommand
+    {
+        get =>
+            (ICommand)GetValue(LoadFromFileCommandProperty);
+
+        set =>
+            SetValue(LoadFromFileCommandProperty, value);
+    }
+
+    public static readonly DependencyProperty LoadFromFileCommandProperty
+        = DependencyProperty.Register(
+            nameof(LoadFromFileCommand),
             typeof(ICommand),
             typeof(UniformHyperGraphControl));
     
@@ -100,11 +118,5 @@ public partial class UniformHyperGraphControl :
             typeof(UniformHyperGraph.RepresentationTypes),
             typeof(UniformHyperGraphControl));
 
-    #endregion
-    
-    #region Nested
-
-
-    
     #endregion
 }

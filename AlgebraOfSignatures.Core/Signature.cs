@@ -1,4 +1,5 @@
-﻿using AlgebraOfSignatures.Core.Base.Interfaces;
+﻿using System.Linq.Expressions;
+using AlgebraOfSignatures.Core.Base.Interfaces;
 using AlgebraOfSignatures.Core.Extensions;
 
 namespace AlgebraOfSignatures.Core;
@@ -14,20 +15,20 @@ public class Signature :
     private int _uniformityDegree;
 
     private Array _value = null!;
-    
+
     #endregion
-    
-    
+
+
     #region Properties
 
     public Array Value
     {
         get => _value;
-        private set
+        set
         {
             if (value.GetFinalElementType() != typeof(long))
                 throw new ArgumentException($"{nameof(value)} elements must be of type long");
-            
+
             _value = value;
         }
     }
@@ -37,11 +38,11 @@ public class Signature :
         get => _vertexCount;
         private set
         {
-            if (value < 2)
+            if (value < 1)
                 throw new ArgumentException(
-                    "Vertex count cannot be less than 2.", 
+                    "Vertex count cannot be less than 2.",
                     nameof(VertexCount));
-            
+
             _vertexCount = value;
         }
     }
@@ -55,12 +56,66 @@ public class Signature :
                 throw new ArgumentException(
                     "Uniformity edge cannot be less than 2.",
                     nameof(UniformityDegree));
-            
+
             _uniformityDegree = value;
         }
     }
-    
+
     #endregion
+
+
+    #region Static Fabric Methods
+
+    public static Signature FromArray(
+        Array array,
+        int vertexCount,
+        int uniformityDegree)
+    {
+        return new Signature(
+            array,
+            vertexCount,
+            uniformityDegree);
+    }
+
+    public static Signature FromLongValue(
+        long value,
+        int vertexCount,
+        int uniformityDegree)
+    {
+        return new Signature(
+            value,
+            vertexCount);
+    }
+
+    public static Signature Empty(
+        int vertexCount,
+        int uniformityDegree)
+    {
+        if (vertexCount < 1)
+            throw new ArgumentException($"{nameof(vertexCount)} must be more than 0");
+        if (uniformityDegree < 1)
+            throw new ArgumentException($"{nameof(uniformityDegree)} must be more than 1");
+        
+        var arraySize = vertexCount - uniformityDegree + 1;
+        var arrayRank = uniformityDegree - 2;
+
+        if (uniformityDegree == 2)
+            arrayRank = arraySize = 1;
+        
+        if (!(uniformityDegree == 2 && vertexCount == 1) && 
+             vertexCount < uniformityDegree)
+        {
+            throw new ArgumentException($"{nameof(vertexCount)} must be more or equal to {nameof(uniformityDegree)}");
+        }
+            
+        return new Signature(
+            ArrayExtensions.CreateRankedArray<long>(arraySize, arrayRank),
+            vertexCount,
+            uniformityDegree);
+    }
+
+
+#endregion
     
     
     #region Constructors
@@ -70,23 +125,22 @@ public class Signature :
         int vertexCount,
         int uniformityDegree)
     {
-        SetValues(
-            value,
-            vertexCount, 
-            uniformityDegree);
+        VertexCount = vertexCount;
+        UniformityDegree = uniformityDegree;
+        
+        ThrowIfIncorrectSignature(value);
+        Value = value;
     }
     
     public Signature(
         long value,
         int vertexCount)
-    {
-        if (value < 0)
-            throw new ArgumentException("Value cannot be negative.", nameof(value));
-        
-        SetValues(
-            new [] { value },
+        : this(value < 0 ? 
+                throw new ArgumentException("Value cannot be negative.", nameof(value)) :
+                new[] { value }, 
             vertexCount, 
-            2);
+            2)
+    {
     }
     
     #endregion
@@ -103,22 +157,10 @@ public class Signature :
 
         Value.SetValue(value, indices);
         
-        //todo: replace with ThrowIfIncorrectSetValue
+        //todo: Replace with ThrowIfIncorrectSetValue. Check only the previous and next element on each axis
         ThrowIfIncorrectSignature(Value); 
     }
     
-    private void SetValues(
-        Array values,
-        int vertexCount,
-        int uniformityDegree)
-    {
-        VertexCount = vertexCount;
-        UniformityDegree = uniformityDegree;
-        
-        //todo: Check only the previous and next element on each axis
-        ThrowIfIncorrectSignature(values);
-        Value = values;
-    }
 
     /// <inheritdoc/>
     public long GetValue(params int[] indices)
@@ -357,14 +399,16 @@ public class Signature :
 
     public Signature Add(Signature other)
     {
+        //????
         /*
-        ThrowIfVertexCountMismatch(
-            this.VertexCount, 
-            other.VertexCount);
-
-        this.Value += other.Value;
-        this.Mod2N(VertexCount-1);
+        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        { 
+            this.Value.SetValue(
+                this.GetValue(state.SignatureIndices) + this.GetValue(state.SignatureIndices), 
+                state.SignatureIndices);
+        });
         */
+        
         return this;
     }
 

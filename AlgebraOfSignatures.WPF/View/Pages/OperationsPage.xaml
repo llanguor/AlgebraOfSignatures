@@ -4,9 +4,337 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.View.Pages"
+      xmlns:converters="clr-namespace:AlgebraOfSignatures.WPF.Converters"
+      xmlns:core="clr-namespace:AlgebraOfSignatures.Core;assembly=AlgebraOfSignatures.Core"
+      xmlns:controls="clr-namespace:AlgebraOfSignatures.WPF.Controls"
+      xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       mc:Ignorable="d"
-      Title="OperationsPage">
+      Title="OperationsPage"
+      FontSize="15"
+      Foreground="#111827"
+      Background="#FFFFFF">
+    <Page.Resources>
+        <Style TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1.2"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="#111827"/>
+        </Style>
+        <Style TargetType="xctk:IntegerUpDown">
+            <Setter Property="Width" Value="195"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="BorderBrush" Value="#94A3B8"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Width" Value="195"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+    </Page.Resources>
+
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="#FFFFFF"
+                BorderBrush="#94A3B8"
+                BorderThickness="1.3"
+                CornerRadius="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <WrapPanel Grid.Column="0">
+                    <StackPanel Margin="0,0,30,0">
+
+                        <TextBlock Text="Количество вершин"/>
+                        <xctk:IntegerUpDown 
+                            Value="{Binding VertexCount,
+                                    Mode=TwoWay,
+                                    UpdateSourceTrigger=PropertyChanged}"
+                            Minimum="{Binding UniformityDegree,
+                                Mode=OneWay,
+                                UpdateSourceTrigger=PropertyChanged}"
+                            Padding="0, 0, 4, 0"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,30,0">
+                        <TextBlock Text="Степень однородности"/>
+                        <xctk:IntegerUpDown 
+                            Minimum="2"
+                            Maximum="{Binding VertexCount,
+                                    Mode=OneWay,
+                                    UpdateSourceTrigger=PropertyChanged}"
+                            Value="{Binding UniformityDegree, 
+                                    Mode=TwoWay,
+                                    UpdateSourceTrigger=PropertyChanged}"
+                            Padding="0, 0, 4, 0"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,30,0">
+                        <TextBlock Text="Отобразить как"/>
+                        <ComboBox 
+                            ItemsSource="{Binding RepresentationTypesValues,
+                                        Mode=OneWay,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                            SelectedItem="{Binding SelectedRepresentationType,
+                                       Mode=TwoWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock
+                                        Text="{Binding Converter={converters:RepresentationTypeToDescriptionConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Операция"/>
+                        <ComboBox 
+                            ItemsSource="{Binding OperationTypesValues,
+                                        Mode=OneWay,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                            SelectedItem="{Binding SelectedOperationType,
+                                       Mode=TwoWay,
+                                       UpdateSourceTrigger=PropertyChanged}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock
+                                        Text="{Binding Converter={converters:OperationTypeToDescriptionConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                </WrapPanel>
+
+                <Button Grid.Column="1"
+                        Command="{Binding OperationPerformCommand,
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}"
+                        Content="Выполнить"
+                        Width="150"
+                        Height="35"
+                        Margin="24,20,0,0"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Right"
+                        Cursor="Hand"
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Foreground="White"
+                        Background="#16A34A"
+                        BorderBrush="#14532D"
+                        BorderThickness="1.5">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8">
+                                <ContentPresenter 
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#15803D"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#166534"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+            </Grid>
+        </Border>
         
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ══════════════ Левый операнд ══════════════ -->
+            <Border Grid.Column="0"
+                    BorderBrush="#94A3B8"
+                    BorderThickness="1.3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock 
+                        Grid.Row="0"
+                        Text="Левый операнд"
+                        FontSize="17"
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,18"
+                        Foreground="#0F172A"/>
+                    <controls:UniformHyperGraphControl 
+                        Grid.Row="1"
+                        SelectedCellValue="{Binding SelectedCellValueFrom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ShowGraphCommand="{Binding ShowLeftGraphCommand, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                        IsReadOnly="False"
+                        UniformHyperGraph="{Binding LeftOperand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        RepresentationToVisualize="{Binding SelectedRepresentationType, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                        UpdateGraphCommand="{Binding UpdateLeftGraphCommand, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+            </Border>
+
+            <GridSplitter Grid.Column="1"
+                          Width="6"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Background="Transparent"
+                          ShowsPreview="False"
+                          Cursor="SizeWE"/>
+
+            <!-- ══════════════ Правый операнд ══════════════ -->
+            <Border Grid.Column="2"
+                    BorderBrush="#94A3B8"
+                    BorderThickness="1.3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock 
+                        Grid.Row="0"
+                        Text="Правый операнд"
+                        FontSize="17"
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,18"
+                        Foreground="#0F172A"/>
+                    <controls:UniformHyperGraphControl
+                        Grid.Row="1"
+                        SelectedCellValue="{Binding SelectedCellValueTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ShowGraphCommand="{Binding ShowRightGraphCommand, Mode=OneWay}"
+                        IsReadOnly="False"
+                        UniformHyperGraph="{Binding RightOperand, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                        RepresentationToVisualize="{Binding SelectedRepresentationType, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                        UpdateGraphCommand="{Binding UpdateRightGraphCommand, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <StackPanel 
+                        Grid.Row="2"
+                        Orientation="Vertical"
+                        Margin="0,10,0,0">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding SelectedRepresentationTypeTo}"
+                                        Value="{x:Static core:UniformHyperGraph+RepresentationTypes.Signature}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Выбранное значение" Width="180"/>
+                            <TextBlock Text="{Binding SelectedCellValueTo,
+                                  Mode=OneWay,
+                                  UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0,6,0,0">
+                            <TextBlock Text="Битовое представление" Width="180"/>
+                            <TextBlock Text="{Binding SelectedCellValueTo,
+                                  Converter={converters:LongToBitsConverter},
+                                  Mode=OneWay,
+                                  UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <GridSplitter Grid.Column="3"
+                          Width="6"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Background="Transparent"
+                          ShowsPreview="False"
+                          Cursor="SizeWE"/>
+
+            <!-- ══════════════ Результат ══════════════ -->
+            <Border Grid.Column="4"
+                    BorderBrush="#94A3B8"
+                    BorderThickness="1.3">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock 
+                        Grid.Row="0"
+                        Text="Результат"
+                        FontSize="17"
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,18"
+                        Foreground="#0F172A"/>
+                    <controls:UniformHyperGraphControl
+                        Grid.Row="1"
+                        SelectedCellValue="{Binding SelectedCellValueResult, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ShowGraphCommand="{Binding ShowResultGraphCommand, Mode=OneWay}"
+                        IsReadOnly="True"
+                        UniformHyperGraph="{Binding Result, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                        RepresentationToVisualize="{Binding SelectedRepresentationType, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <StackPanel 
+                        Grid.Row="2"
+                        Orientation="Vertical"
+                        Margin="0,10,0,0">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding SelectedRepresentationTypeResult}"
+                                        Value="{x:Static core:UniformHyperGraph+RepresentationTypes.Signature}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Выбранное значение" Width="180"/>
+                            <TextBlock Text="{Binding SelectedCellValueResult,
+                                  Mode=OneWay,
+                                  UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0,6,0,0">
+                            <TextBlock Text="Битовое представление" Width="180"/>
+                            <TextBlock Text="{Binding SelectedCellValueResult,
+                                  Converter={converters:LongToBitsConverter},
+                                  Mode=OneWay,
+                                  UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </Grid>
     </Grid>
 </Page>
