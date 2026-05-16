@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using AlgebraOfSignatures.Core.Base;
 using AlgebraOfSignatures.Core.Base.Interfaces;
 
 namespace AlgebraOfSignatures.Core;
@@ -16,17 +17,17 @@ public class UniformHyperGraph :
     }
 
     public static UniformHyperGraph FromIncidenceMatrix(
-        Array incidenceMatrix,
+        Matrix<bool> incidenceMatrix,
         int uniformityDegree,
         IRepresentationConverter? converter = null)
     {
-        if (incidenceMatrix.GetType().GetElementType() != typeof(bool))
+        if (incidenceMatrix.ElementType != typeof(bool))
             throw new ArgumentException(
                 $"Expected {typeof(bool)} array", 
                 nameof(incidenceMatrix));
         
         converter ??= new RepresentationConverter();
-        var vertexCount = incidenceMatrix.GetLength(0);
+        var vertexCount = incidenceMatrix.Size;
         
         return new UniformHyperGraph(
             converter,
@@ -38,16 +39,16 @@ public class UniformHyperGraph :
     }
     
     public static UniformHyperGraph FromAdjacencyMatrix(
-        Array adjacencyMatrix,
+        Matrix<bool> adjacencyMatrix,
         IRepresentationConverter? converter = null)
     {
-        if (adjacencyMatrix.GetType().GetElementType() != typeof(bool))
+        if (adjacencyMatrix.ElementType != typeof(bool))
             throw new ArgumentException(
                 $"Expected {typeof(bool)} array",
                 nameof(adjacencyMatrix));
         
         converter ??= new RepresentationConverter();
-        var vertexCount = adjacencyMatrix.GetLength(0);
+        var vertexCount = adjacencyMatrix.Size;
         var uniformityDegree = adjacencyMatrix.Rank;
         
         return new UniformHyperGraph(
@@ -72,7 +73,7 @@ public class UniformHyperGraph :
     }
     
     public static UniformHyperGraph FromSignature(
-        Array signatureValue,
+        Matrix<long> signatureValue,
         int vertexCount,
         int uniformityDegree,
         IRepresentationConverter? converter = null)
@@ -104,6 +105,8 @@ public class UniformHyperGraph :
     
     #region Fields
 
+    private readonly Signature _signature;
+    
     private readonly int _uniformityDegree;
 
     private readonly int _vertexCount;
@@ -113,16 +116,23 @@ public class UniformHyperGraph :
     #endregion
     
     
+    #region Fields
+
+    private Matrix<bool>? _cachedIncidenceMatrix = null;
+    
+    private Matrix<bool>? _cachedAdjacencyMatrix = null;
+
+    #endregion
+    
+    
     #region Properties
-
-    private Array? _cachedIncidenceMatrix = null;
-    private Array? _cachedAdjacencyMatrix = null;
-
+    
+    
     /// <summary>
     /// Incidence matrix lazily computed from <see cref="Signature"/> and cached until invalidated.
     /// Mutating the returned value has no effect — modify <see cref="Signature"/> instead, then call <see cref="InvalidateCache"/>.
     /// </summary>
-    public Array IncidenceMatrix
+    public Matrix<bool> IncidenceMatrix
     {
         get
         {
@@ -139,7 +149,7 @@ public class UniformHyperGraph :
     /// Adjacency matrix lazily computed from <see cref="Signature"/> and cached until invalidated.
     /// Mutating the returned value has no effect — modify <see cref="Signature"/> instead, then call <see cref="InvalidateCache"/>.
     /// </summary>
-    public Array AdjacencyMatrix
+    public Matrix<bool> AdjacencyMatrix
     {
         get
         {
@@ -154,8 +164,14 @@ public class UniformHyperGraph :
 
     public Signature Signature
     {
-        get;
-        private init;
+        get => _signature;
+        private init
+        {
+            _signature = value;
+            UniformityDegree = value.UniformityDegree;
+            VertexCount = value.VertexCount;
+            InvalidateCache();
+        }
     }
 
     public int UniformityDegree
@@ -201,14 +217,25 @@ public class UniformHyperGraph :
         VertexCount = vertexCount;
         UniformityDegree = uniformityDegree;
         Signature = signature;
+        Signature.Value.OnSetValue += SignatureOnOnSetValue;
     }
 
+    #endregion
+    
+        
+    #region Event Handlers
+    
+    private void SignatureOnOnSetValue(int[] indices, long value)
+    {
+        InvalidateCache();
+    }
+    
     #endregion
 
 
     #region Methods
 
-    public void InvalidateCache()
+    private void InvalidateCache()
     {
         _cachedIncidenceMatrix = null;
         _cachedAdjacencyMatrix = null;

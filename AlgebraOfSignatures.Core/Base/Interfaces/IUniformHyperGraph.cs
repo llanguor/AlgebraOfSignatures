@@ -2,9 +2,9 @@
 
 public interface IUniformHyperGraph
 {
-    public Array IncidenceMatrix { get; }
+    public Matrix<bool> IncidenceMatrix { get; }
 
-    public Array AdjacencyMatrix { get; }
+    public Matrix<bool> AdjacencyMatrix { get; }
         
     public Signature Signature { get; }
     

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using AlgebraOfSignatures.Core.Base;
+using AlgebraOfSignatures.Core.Base.Interfaces;
 using AlgebraOfSignatures.Core.Extensions;
 
 namespace AlgebraOfSignatures.Core;
@@ -49,7 +50,7 @@ internal sealed class RepresentationConverter :
             }
             case RepresentationType.AdjacencyMatrix:
             {
-                if (input is not Array adjacency)
+                if (input is not Matrix<bool> adjacency)
                     throw new ArgumentException("Expected Array", nameof(input));
             
                 output = to switch
@@ -71,7 +72,7 @@ internal sealed class RepresentationConverter :
             {
                 ArgumentNullException.ThrowIfNull(uniformityDegree);
                 
-                if (input is not Array incidence)
+                if (input is not Matrix<bool> incidence)
                     throw new ArgumentException("Expected Array", nameof(input));
             
                 output = to switch
@@ -98,10 +99,10 @@ internal sealed class RepresentationConverter :
     
     
     public override Signature ComputeSignatureFromAdjacency(
-        Array adjacencyMatrix,
+        Matrix<bool> adjacencyMatrix,
         bool isThrowIfIncorrectAdjacencyMatrix = false)
     {
-        var vertexCount = adjacencyMatrix.GetLength(0);
+        var vertexCount = adjacencyMatrix.Size;
         var uniformityDegree = adjacencyMatrix.Rank;
         var signatureLength = vertexCount - uniformityDegree + 1;
         long currentSignatureValue = 0;
@@ -111,8 +112,8 @@ internal sealed class RepresentationConverter :
         
         var signatureArray = 
             uniformityDegree == 2 ? 
-            ArrayExtensions.CreateRankedArray<long>(1,1) : 
-            ArrayExtensions.CreateRankedArray<long>(signatureLength, uniformityDegree-2);
+            new Matrix<long>(1,1) : 
+            new Matrix<long>(signatureLength, uniformityDegree-2);
         
         signatureArray.TraverseSignature(vertexCount, uniformityDegree, state =>
         {
@@ -160,7 +161,7 @@ internal sealed class RepresentationConverter :
             uniformityDegree);
     }
     
-    public override Array ComputeAdjacencyFromSignature(
+    public override Matrix<bool> ComputeAdjacencyFromSignature(
         Signature signature, 
         int vertexCount,
         int uniformityDegree)
@@ -170,10 +171,9 @@ internal sealed class RepresentationConverter :
   
         var signatureLength = vertexCount - uniformityDegree + 1;
         long currentSignatureValue = 0;
-        var adjacencyMatrix =  
-            ArrayExtensions.CreateRankedArray<bool>(
-                vertexCount,
-                uniformityDegree);
+        var adjacencyMatrix =  new Matrix<bool>(
+            vertexCount,
+            uniformityDegree);
         
         Action<int[]> setValueAction = 
             array => adjacencyMatrix.SetValue(true, array);
@@ -214,14 +214,14 @@ internal sealed class RepresentationConverter :
         return adjacencyMatrix;
     }
     
-    public override Array ComputeIncidenceFromAdjacency(
-        Array adjacencyMatrix)
+    public override Matrix<bool> ComputeIncidenceFromAdjacency(
+        Matrix<bool> adjacencyMatrix)
     {
         throw new NotImplementedException();
     }
 
-    public override Array ComputeAdjacencyFromIncidence(
-        Array incidenceMatrix,
+    public override Matrix<bool> ComputeAdjacencyFromIncidence(
+        Matrix<bool> incidenceMatrix,
         int uniformityDegree)
     {
         throw new NotImplementedException();

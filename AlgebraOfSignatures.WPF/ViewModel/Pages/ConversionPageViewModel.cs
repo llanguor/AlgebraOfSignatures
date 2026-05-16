@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using AlgebraOfSignatures.Core;
+using AlgebraOfSignatures.Core.Base;
 using AlgebraOfSignatures.Core.Extensions;
 using AlgebraOfSignatures.WPF.ViewModel.Dialog;
 using DistributedSystems.LaboratoryWork.Nuget.Command;
@@ -52,8 +53,8 @@ public class ConversionPageViewModel :
         
         VertexCount = 6; 
         UniformityDegree = 3;
-        var array = ArrayExtensions.CreateRankedArray<long>
-            ( VertexCount - UniformityDegree + 1,
+        var array = new Matrix<long>(
+            VertexCount - UniformityDegree + 1,
                 UniformityDegree - 2);
         
         array.SetValue(11, 0);
@@ -123,7 +124,7 @@ public class ConversionPageViewModel :
         {
             UniformHyperGraph.RepresentationTypes.Signature => 
                 Core.UniformHyperGraph.FromSignature( 
-                    this.UniformHyperGraph.Signature.Value, 
+                    this.UniformHyperGraph.Signature, 
                     VertexCount, 
                     UniformityDegree),
             
@@ -225,6 +226,14 @@ public class ConversionPageViewModel :
         {
             _selectedRepresentationTypeTo = value; 
             RaisePropertyChanged(nameof(SelectedRepresentationTypeTo));
+            
+            if (SelectedRepresentationTypeFrom == SelectedRepresentationTypeTo)
+            {
+                SelectedRepresentationTypeFrom = 
+                    SelectedRepresentationTypeTo == UniformHyperGraph.RepresentationTypes.Signature ?
+                        UniformHyperGraph.RepresentationTypes.AdjacencyMatrix : 
+                        UniformHyperGraph.RepresentationTypes.Signature;
+            }
         } 
     }
     
@@ -236,8 +245,16 @@ public class ConversionPageViewModel :
         get => _selectedRepresentationTypeFrom;
         set
         {
-            _selectedRepresentationTypeFrom = value; 
+            _selectedRepresentationTypeFrom = value;
             RaisePropertyChanged(nameof(SelectedRepresentationTypeFrom));
+            
+            if (SelectedRepresentationTypeFrom == SelectedRepresentationTypeTo)
+            {
+                SelectedRepresentationTypeTo = 
+                    SelectedRepresentationTypeFrom == UniformHyperGraph.RepresentationTypes.Signature ?
+                        UniformHyperGraph.RepresentationTypes.AdjacencyMatrix : 
+                        UniformHyperGraph.RepresentationTypes.Signature;
+            }
         }
     }
 }

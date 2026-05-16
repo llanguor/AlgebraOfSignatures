@@ -5,28 +5,28 @@ public interface IRepresentationConverter
     #region Methods
     
     Signature ComputeSignatureFromIncidence(
-        Array incidenceMatrix,
+        Matrix<bool> incidenceMatrix,
         int uniformityDegree);
 
     Signature ComputeSignatureFromAdjacency(
-        Array adjacencyMatrix,
+        Matrix<bool> adjacencyMatrix,
         bool isThrowIfIncorrectAdjacencyMatrix = false);
 
-    Array ComputeIncidenceFromSignature(
+    Matrix<bool> ComputeIncidenceFromSignature(
         Signature signature,
         int vertexCount,
         int uniformityDegree);
     
-    Array ComputeIncidenceFromAdjacency(
-        Array adjacencyMatrix);
+    Matrix<bool> ComputeIncidenceFromAdjacency(
+        Matrix<bool> adjacencyMatrix);
 
-    Array ComputeAdjacencyFromSignature(
+    Matrix<bool> ComputeAdjacencyFromSignature(
         Signature signature,
         int vertexCount,
         int uniformityDegree);
     
-    Array ComputeAdjacencyFromIncidence(
-        Array incidenceMatrix,
+    Matrix<bool> ComputeAdjacencyFromIncidence(
+        Matrix<bool> incidenceMatrix,
         int uniformityDegree);
     
     #endregion

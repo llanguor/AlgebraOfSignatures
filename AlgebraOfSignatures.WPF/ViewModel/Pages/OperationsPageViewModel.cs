@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using AlgebraOfSignatures.Core;
+using AlgebraOfSignatures.Core.Base;
 using AlgebraOfSignatures.Core.Extensions;
 using AlgebraOfSignatures.WPF.ViewModel.Dialog;
 using DistributedSystems.LaboratoryWork.Nuget.Command;
@@ -72,8 +73,8 @@ public class OperationsPageViewModel : PageViewModelBase
         
         VertexCount = 6; 
         UniformityDegree = 3;
-        var array = ArrayExtensions.CreateRankedArray<long>
-            ( VertexCount - UniformityDegree + 1,
+        var array = new Matrix<long>( 
+            VertexCount - UniformityDegree + 1,
                 UniformityDegree - 2);
         
         array.SetValue(11, 0);
@@ -167,7 +168,7 @@ public class OperationsPageViewModel : PageViewModelBase
         {
             UniformHyperGraph.RepresentationTypes.Signature => 
                 Core.UniformHyperGraph.FromSignature( 
-                    operand.Signature.Value, 
+                    operand.Signature, 
                     VertexCount, 
                     UniformityDegree),
             

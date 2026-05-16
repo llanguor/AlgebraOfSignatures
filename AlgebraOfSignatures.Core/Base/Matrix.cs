@@ -3,13 +3,18 @@ using AlgebraOfSignatures.Core.Extensions;
 
 namespace AlgebraOfSignatures.Core.Base;
 
-public class MultiDimensionalArray<T> :
-    IMultiDimensionalArray,
-    ICloneable
+public class Matrix<T> :
+    IMatrix
 {
-    public event Action<int[], object?>? ValueChanged;
+    #region Actions
+    public event Action<int[], T?>? OnSetValue;
     
-    private MultiDimensionalArray(
+    #endregion
+    
+    
+    #region Constructors
+    
+    public Matrix(
         Array value)
     {
         if (value.GetType().GetElementType() != typeof(T))
@@ -20,12 +25,17 @@ public class MultiDimensionalArray<T> :
         Value = value;
     }
     
-    public MultiDimensionalArray(
+    public Matrix(
         int size,
         int rank)
     {
         Value = ArrayExtensions.CreateRankedArray<T>(size, rank);
     }
+    
+    #endregion
+    
+    
+    #region Properties
     
     public int Rank => 
         Value.Rank;
@@ -33,8 +43,8 @@ public class MultiDimensionalArray<T> :
     public int Size =>
         Value.GetLength(0);
     
-    public int Length => 
-        Value.Length;
+    public Type ElementType
+        => typeof(T);
 
     public Array Value
     {
@@ -42,18 +52,38 @@ public class MultiDimensionalArray<T> :
         private init;
     }
     
-    public object? GetValue(
+    #endregion
+    
+    #region Methods
+
+    public T? GetValue(
         params int[] indices)
-        => Value.GetValue(indices);
+        => (T?)Value.GetValue(indices);
     
     public void SetValue(
-        object? value,
+        T? value,
         params int[] indices)
     {
         Value?.SetValue(value, indices);
-        ValueChanged?.Invoke(indices, value);
+        OnSetValue?.Invoke(indices, value);
     }
+    
+    #endregion
+    
+    #region IGraphRepresentation implementation
+    
+    object? IGraphRepresentation.GetValue(params int[] indices)
+        => GetValue(indices);
 
+    void IGraphRepresentation.SetValue(object? value, params int[] indices)
+        => SetValue((T?)value, indices);
+    
+    #endregion
+
+    #region ICloneable implementation
+    
     public object Clone()
-        => new MultiDimensionalArray<T>((Array)Value.Clone());
+        => new Matrix<T>((Array)Value.Clone());
+    
+    #endregion
 }

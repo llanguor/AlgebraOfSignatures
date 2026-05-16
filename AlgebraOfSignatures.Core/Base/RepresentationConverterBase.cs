@@ -9,7 +9,7 @@ public abstract class RepresentationConverterBase :
     #region Methods
     
     public Signature ComputeSignatureFromIncidence(
-        Array incidenceMatrix,
+        Matrix<bool> incidenceMatrix,
         int uniformityDegree)
     {
         return ComputeSignatureFromAdjacency(
@@ -17,7 +17,7 @@ public abstract class RepresentationConverterBase :
                 incidenceMatrix, uniformityDegree));
     }
 
-    public Array ComputeIncidenceFromSignature(
+    public Matrix<bool> ComputeIncidenceFromSignature(
         Signature signature,
         int vertexCount,
         int uniformityDegree)
@@ -39,7 +39,7 @@ public abstract class RepresentationConverterBase :
         int rowIndex,
         int columnIndex,
         int [] adjacencyIndices,
-        Array adjacencyMatrix,
+        Matrix<bool> adjacencyMatrix,
         bool requiredValue)
     {
         for (var currentRowColumnIndex = rowIndex;
@@ -110,16 +110,16 @@ public abstract class RepresentationConverterBase :
         //throw new NotImplementedException();
     }
 
-    protected void ThrowIfIllegalIncidence(Array incidenceMatrix)
+    protected void ThrowIfIllegalIncidence(Matrix<bool> incidenceMatrix)
     {
         throw new NotImplementedException();
     }
     
-    protected void ThrowIfIllegalAdjacency(Array incidenceMatrix)
+    protected void ThrowIfIllegalAdjacency(Matrix<bool> incidenceMatrix)
     {
         //todo: validate 
         
-        if (incidenceMatrix.GetType().GetElementType() != typeof(bool))
+        if (incidenceMatrix.ElementType != typeof(bool))
             throw new ArgumentException($"{nameof(incidenceMatrix)} elements must be of type bool");
 
     }
@@ -130,19 +130,19 @@ public abstract class RepresentationConverterBase :
     #region Abstract Methods
 
     public abstract Signature ComputeSignatureFromAdjacency(
-        Array adjacencyMatrix,
+        Matrix<bool> adjacencyMatrix,
         bool isThrowIfIncorrectAdjacencyMatrix = false);
     
-    public abstract Array ComputeAdjacencyFromSignature(
+    public abstract Matrix<bool> ComputeAdjacencyFromSignature(
         Signature signature,
         int vertexCount,
         int uniformityDegree);
     
-    public abstract Array ComputeIncidenceFromAdjacency(
-        Array adjacencyMatrix);
+    public abstract Matrix<bool> ComputeIncidenceFromAdjacency(
+        Matrix<bool> adjacencyMatrix);
     
-    public abstract Array ComputeAdjacencyFromIncidence(
-        Array incidenceMatrix,
+    public abstract Matrix<bool> ComputeAdjacencyFromIncidence(
+        Matrix<bool> incidenceMatrix,
         int uniformityDegree);
     
     #endregion
