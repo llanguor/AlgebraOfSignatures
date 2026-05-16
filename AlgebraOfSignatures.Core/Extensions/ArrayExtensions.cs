@@ -2,16 +2,6 @@
 
 public static class ArrayExtensions
 {
-    #region Nested
-    
-    public sealed class TraverseState
-    {
-        public required int[] SignatureIndices;
-        public required int[] AdjacencyIndices;
-    }
-    
-    #endregion
-    
     #region Static Methods
     
     public static Array CreateRankedArray<T>(
@@ -37,70 +27,6 @@ public static class ArrayExtensions
     
 
     #region Extensions
-
-    public static void TraverseSignature(
-        this Array array,
-        int vertexCount,
-        int uniformityDegree,
-        Action<TraverseState> delegateAction)
-    {
-        var signatureLength = vertexCount - uniformityDegree + 1;
-        var state = new TraverseState
-        {
-            SignatureIndices = new int[uniformityDegree == 2 ? 1 : uniformityDegree-2],
-            AdjacencyIndices = new int[uniformityDegree]
-        };
-
-        for (var i = 1; i < state.AdjacencyIndices.Length - 2; ++i)
-        {
-            state.AdjacencyIndices[i] = i;
-        }
-        
-        while (state.SignatureIndices[0] != 
-               signatureLength)
-        {
-            //if we have reached the edge of dimension 'i+1', move to the next index in dimension 'i'
-            for (var i = uniformityDegree - 3;
-                 i > 0;
-                 --i)
-            {
-                if (state.SignatureIndices[i] != signatureLength) 
-                    break;
-                
-                ++state.SignatureIndices[i-1];
-                state.SignatureIndices[i] =
-                    state.SignatureIndices[i - 1] == signatureLength
-                        ? state.SignatureIndices[i - 1] - 1
-                        : state.SignatureIndices[i - 1];
-                
-                ++state.AdjacencyIndices[i-1];
-                state.AdjacencyIndices[i] = state.AdjacencyIndices[i-1] + 1;
-                state.AdjacencyIndices[i + 1] = state.AdjacencyIndices[i] + 1;
-                
-                if (state.SignatureIndices[0] == signatureLength) 
-                    return;
-            }
-            
-            state.AdjacencyIndices[^2] = uniformityDegree == 2 ? 0 : state.AdjacencyIndices[^3] + 1;
-            state.AdjacencyIndices[^1] = vertexCount - 1;
-            
-            delegateAction(state);
-            
-            if (uniformityDegree == 2)
-                break;
-            
-            ++state.SignatureIndices[^1];
-            ++state.AdjacencyIndices[^3];
-        }
-    }
-    
-    public static Type GetFinalElementType(this Array array)
-    {
-        var type = array.GetType();
-        while (type.IsArray)
-            type = type.GetElementType()!;
-        return type;
-    }
     
     public static void ForEachPermutation(
         this int[] array,

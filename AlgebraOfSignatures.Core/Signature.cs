@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using AlgebraOfSignatures.Core.Base;
 using AlgebraOfSignatures.Core.Base.Interfaces;
 using AlgebraOfSignatures.Core.Extensions;
 
@@ -6,27 +7,27 @@ namespace AlgebraOfSignatures.Core;
 
 public class Signature :
     ISignature,
-    ICloneable
+    IGraphRepresentation
 {
     #region Fields
 
-    private int _vertexCount;
+    private readonly int _vertexCount;
 
-    private int _uniformityDegree;
+    private readonly int _uniformityDegree;
 
-    private Array _value = null!;
+    private readonly Matrix<long> _value = null!;
 
     #endregion
 
 
     #region Properties
 
-    public Array Value
+    public Matrix<long> Value
     {
         get => _value;
         private init
         {
-            if (value.GetFinalElementType() != typeof(long))
+            if (value.ElementType != typeof(long))
                 throw new ArgumentException($"{nameof(value)} elements must be of type long");
 
             _value = value;
@@ -36,7 +37,7 @@ public class Signature :
     public int VertexCount
     {
         get => _vertexCount;
-        private set
+        private init
         {
             if (value < 1)
                 throw new ArgumentException(
@@ -50,7 +51,7 @@ public class Signature :
     public int UniformityDegree
     {
         get => _uniformityDegree;
-        private set
+        private init
         {
             if (value < 2)
                 throw new ArgumentException(
@@ -66,13 +67,13 @@ public class Signature :
 
     #region Static Fabric Methods
 
-    public static Signature FromArray(
-        Array array,
+    public static Signature FromGraphMatrix(
+        Matrix<long> matrix,
         int vertexCount,
         int uniformityDegree)
     {
         return new Signature(
-            array,
+            matrix,
             vertexCount,
             uniformityDegree);
     }
@@ -108,7 +109,7 @@ public class Signature :
         }
             
         return new Signature(
-            ArrayExtensions.CreateRankedArray<long>(arraySize, arrayRank),
+            new Matrix<long>(arraySize, arrayRank),
             vertexCount,
             uniformityDegree);
     }
@@ -119,7 +120,7 @@ public class Signature :
     #region Constructors
 
     public Signature(
-        Array value,
+        Matrix<long> value,
         int vertexCount,
         int uniformityDegree)
     {
@@ -129,18 +130,24 @@ public class Signature :
         ThrowIfIncorrectSignature(value);
         Value = value;
     }
-    
+
     public Signature(
         long value,
         int vertexCount)
         : this(value < 0 ? 
                 throw new ArgumentException("Value cannot be negative.", nameof(value)) :
-                new[] { value }, 
+                new Matrix<long>(new [] { value }),
             vertexCount, 
             2)
     {
     }
     
+    #endregion
+    
+    
+    #region Events Handlers
+    
+
     #endregion
     
     
@@ -181,9 +188,9 @@ public class Signature :
     private int SignatureValueCompare(       
         long lastValue,
         long currValue,
-        params int[] indices)
+        params int[] currValueIndices)
     {
-        var totalBits = CalculateBitLength(indices);
+        var totalBits = CalculateBitLength(currValueIndices);
         if (currValue >> totalBits != 0)
             throw new ArgumentException(
                 $"Such a signature cannot exist. The number is too large for this position in the array.",
@@ -214,14 +221,16 @@ public class Signature :
         long value, 
         params int[] indices)
     {
-        for(var i = 0; i < indices.Length - 1; ++i)
+        for(var i = 0; i < indices.Length; ++i)
         {
             if (indices[i] != VertexCount - 1)
             {
                 ++indices[i];
                 ThrowIfIncorrectSignatureNextValue(
                     value,
-                    Convert.ToInt64(Value.GetValue(indices)));
+                    Convert.ToInt64(Value.GetValue(indices)),
+                    i,
+                    indices);
                 --indices[i];
             }
 
@@ -230,41 +239,77 @@ public class Signature :
                 --indices[i];
                 ThrowIfIncorrectSignatureNextValue(
                     Convert.ToInt64(Value.GetValue(indices)),
-                    value);
+                    value,
+                    i,
+                    indices);
                 ++indices[i];
             }
         }
     }
 
-    protected void ThrowIfIncorrectSignature(Array value)
+    protected void ThrowIfIncorrectSignature(IMatrix value)
     {
-        if (value.GetFinalElementType() != typeof(long))
+        if (value.ElementType != typeof(long))
             throw new ArgumentException($"{nameof(value)} elements must be of type long");
         
-        if (UniformityDegree == 2)
-            return;
-
-        if (UniformityDegree != 3) 
-            return;
         
-        //todo: k-signature
-        for (var i = 1; i < VertexCount - 2; ++i)
+        
+        value.TraverseSignature(VertexCount, UniformityDegree, state =>
         {
-            ThrowIfIncorrectSignatureNextValue(
-                Convert.ToInt64(value.GetValue(i-1)),
-                Convert.ToInt64(value.GetValue(i)),
-                i);
-        }
+            var currValue = 
+                Convert.ToInt64(value.GetValue(state.SignatureIndices));
+            
+            for (var k = 0; k < state.SignatureIndices.Length - 1; ++k)
+            {
+                if (state.SignatureIndices[k] > state.SignatureIndices[k + 1])
+                    return;
+            }
+           
+            for (var i = 0; i < state.SignatureIndices.Length; ++i)
+            {
+                if (state.SignatureIndices[i] == state.SignatureArraySize - 1) 
+                    continue;
+                
+                ++state.SignatureIndices[i];
+                ThrowIfIncorrectSignatureNextValue(
+                    currValue, 
+                    Convert.ToInt64(value.GetValue(state.SignatureIndices)),
+                    i,
+                    state.SignatureIndices);
+                --state.SignatureIndices[i];
+            }
+        });
     }
 
     protected void ThrowIfIncorrectSignatureNextValue(
         long lastValue,
         long currValue,
+        int changedIndex,
         params int[] indices)
     {
-        if (SignatureValueCompare(lastValue, currValue, indices) == 1)
-            throw new ArgumentException(
-                "Such a signature cannot exist. A \"0\" cannot be followed by a \"1\" by the definition of extremity.");
+        if(SignatureValueCompare(lastValue, currValue, indices) != 1)
+            return;
+        
+        var signatureIndicesStrTo = string.Join(", ", indices);
+        var adjacencyIndices = new int[indices.Length];
+        for (var i = 0; i < indices.Length; ++i)
+        {
+            adjacencyIndices[i] = i + indices[i];
+        }
+        var adjacencyIndicesStrTo = string.Join(", ", adjacencyIndices);
+
+        --indices[changedIndex];
+        var signatureIndicesStrFrom = string.Join(", ", indices);
+        adjacencyIndices = new int[indices.Length];
+        for (var i = 0; i < indices.Length; ++i)
+        {
+            adjacencyIndices[i] = i + indices[i];
+        }
+        var adjacencyIndicesStrFrom = string.Join(", ", adjacencyIndices);
+
+        
+        throw new ArgumentException(
+            $"Invalid input. Domain partitioning rule violated by values:\nAdjacency section at:\t\t[{adjacencyIndicesStrFrom}] and [{adjacencyIndicesStrTo}]\nSignature at:\t\t[{signatureIndicesStrFrom}] and [{signatureIndicesStrTo}]\n");
     }
 
     protected void ThrowIfVertexCountMismatch( 
@@ -531,13 +576,35 @@ public class Signature :
     
     #endregion
     
+    
+    #region IGraphRepresentation Implementation
+    
+    object? IGraphRepresentation.GetValue(params int[] indices)
+        => GetValue(indices);
+
+    void IGraphRepresentation.SetValue(object? value, params int[] indices)
+        => SetValue(
+            (long)(value ?? throw new ArgumentNullException(nameof(value))), 
+            indices);
+
+    int IGraphRepresentation.Rank =>
+        Value.Rank;
+
+    int IGraphRepresentation.Size =>
+        Value.Size;
+
+    Type IGraphRepresentation.ElementType => 
+        Value.ElementType;
+    
+    #endregion
+    
 
     #region ICloneable Implementation
 
     public Signature Clone()
     {
         return new Signature(
-            (Array)Value.Clone(),
+            (Matrix<long>) Value.Clone(),
             VertexCount,
             UniformityDegree);
     }

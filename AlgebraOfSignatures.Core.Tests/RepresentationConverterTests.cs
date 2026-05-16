@@ -1,4 +1,5 @@
-﻿using AlgebraOfSignatures.Core.Extensions;
+﻿using AlgebraOfSignatures.Core.Base;
+using AlgebraOfSignatures.Core.Extensions;
 
 namespace AlgebraOfSignatures.Core.Tests;
 
@@ -14,7 +15,7 @@ public class RepresentationConverterTests
         int vertexCount = 6,
             uniformityDegree = 3;
       
-        var inputMatrix = ArrayExtensions.CreateRankedArray<bool>(
+        var inputMatrix = new Matrix<bool>(
             vertexCount, 
             uniformityDegree);
         
@@ -98,7 +99,7 @@ public class RepresentationConverterTests
             vertexCount, 
             uniformityDegree);
         
-        Assert.Equal(inputMatrix.Length, matrix.Length);
+        Assert.Equal(inputMatrix.Size, matrix.Size);
         for (var i = 0; i < vertexCount; ++i)
         {
             for (var j = 0; j < vertexCount; ++j)
@@ -140,7 +141,7 @@ public class RepresentationConverterTests
         int vertexCount = 6,
             uniformityDegree = 4;
       
-        var inputMatrix = ArrayExtensions.CreateRankedArray<bool>(
+        var inputMatrix = new Matrix<bool>(
             vertexCount, 
             uniformityDegree);
 
@@ -208,7 +209,7 @@ public class RepresentationConverterTests
         int vertexCount = 6,
             uniformityDegree = 5;
       
-        var inputMatrix = ArrayExtensions.CreateRankedArray<bool>(
+        var inputMatrix = new Matrix<bool>(
             vertexCount, 
             uniformityDegree);
 

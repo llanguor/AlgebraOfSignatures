@@ -1,4 +1,6 @@
-﻿namespace AlgebraOfSignatures.Core.Tests;
+﻿using AlgebraOfSignatures.Core.Base;
+
+namespace AlgebraOfSignatures.Core.Tests;
 
 public class SignatureTests
 {
@@ -30,7 +32,7 @@ public class SignatureTests
                 {
                     for (var l = 0; l <= k; ++l)
                     {
-                        var signatureValue = new long[] { i, j, k, l };
+                        var signatureValue = new Matrix<long>(new long[]{ i, j, k, l });
                         try
                         {
                             var signature = new Signature(signatureValue, vertexCount, uniformityDegree);

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using AlgebraOfSignatures.Core.Base.Interfaces;
 using DistributedSystems.LaboratoryWork.Nuget.Command;
 using ArgumentException = System.ArgumentException;
 
@@ -176,16 +177,16 @@ public partial class MatrixControl :
             typeof(MatrixControl),
             new PropertyMetadata(false));
     
-    public Array InputArray
+    public IMatrix InputArray
     {
-        get => (Array)GetValue(InputArrayProperty);
+        get => (IMatrix)GetValue(InputArrayProperty);
         set => SetValue(InputArrayProperty, value);
     }
 
     public static readonly DependencyProperty InputArrayProperty =
         DependencyProperty.Register(
             nameof(InputArray),
-            typeof(Array),
+            typeof(IMatrix),
             typeof(MatrixControl),
             new PropertyMetadata(null, OnInputArrayChanged));
 
@@ -255,14 +256,14 @@ public partial class MatrixControl :
         if (d is not MatrixControl control)
             return;
         
-        if (e.NewValue is not Array inputArray) 
+        if (e.NewValue is not IMatrix inputArray) 
             return;
         
         control.RowsCount =
-            inputArray.GetLength(0);
+            inputArray.Size;
         
         control.MatrixElementType = 
-            inputArray.GetType().GetElementType();
+            inputArray.ElementType;
 
         //todo: validate
         if (control.Indices.Count != inputArray.Rank - 2)
