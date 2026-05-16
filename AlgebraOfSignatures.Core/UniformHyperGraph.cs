@@ -118,6 +118,10 @@ public class UniformHyperGraph :
     private Array? _cachedIncidenceMatrix = null;
     private Array? _cachedAdjacencyMatrix = null;
 
+    /// <summary>
+    /// Incidence matrix lazily computed from <see cref="Signature"/> and cached until invalidated.
+    /// Mutating the returned value has no effect — modify <see cref="Signature"/> instead, then call <see cref="InvalidateCache"/>.
+    /// </summary>
     public Array IncidenceMatrix
     {
         get
@@ -131,6 +135,10 @@ public class UniformHyperGraph :
         }
     }
 
+    /// <summary>
+    /// Adjacency matrix lazily computed from <see cref="Signature"/> and cached until invalidated.
+    /// Mutating the returned value has no effect — modify <see cref="Signature"/> instead, then call <see cref="InvalidateCache"/>.
+    /// </summary>
     public Array AdjacencyMatrix
     {
         get
@@ -144,7 +152,11 @@ public class UniformHyperGraph :
         }
     }
 
-    public Signature Signature { get; private init; }
+    public Signature Signature
+    {
+        get;
+        private init;
+    }
 
     public int UniformityDegree
     {
@@ -190,7 +202,18 @@ public class UniformHyperGraph :
         UniformityDegree = uniformityDegree;
         Signature = signature;
     }
-    
+
+    #endregion
+
+
+    #region Methods
+
+    public void InvalidateCache()
+    {
+        _cachedIncidenceMatrix = null;
+        _cachedAdjacencyMatrix = null;
+    }
+
     #endregion
     
     
@@ -225,18 +248,6 @@ public class UniformHyperGraph :
         this.Signature.Add(constant);
         return this;
     }
-
-    public UniformHyperGraph Multiply(UniformHyperGraph other)
-    {
-        this.Signature.Multiply(other.Signature);
-        return this;
-    }
-
-    public UniformHyperGraph Multiply(long constant)
-    {
-        this.Signature.Multiply(constant);
-        return this;
-    }
     
     #endregion
     
@@ -255,12 +266,9 @@ public class UniformHyperGraph :
     public static UniformHyperGraph Add(UniformHyperGraph a, long constant) =>
         a.Clone().Add(constant);
 
-    public static UniformHyperGraph Multiply(UniformHyperGraph a, UniformHyperGraph b) =>
-        a.Clone().Multiply(b);
+    public static UniformHyperGraph Mod2N(UniformHyperGraph a, int n) =>
+        a.Clone().Mod2N(n);
 
-    public static UniformHyperGraph Multiply(UniformHyperGraph a, long constant) =>
-        a.Clone().Multiply(constant);
-    
     #endregion
     
     
@@ -277,12 +285,6 @@ public class UniformHyperGraph :
 
     public static UniformHyperGraph operator +(UniformHyperGraph a, long constant) =>
         UniformHyperGraph.Add(a, constant);
-
-    public static UniformHyperGraph operator *(UniformHyperGraph a, UniformHyperGraph b) =>
-        UniformHyperGraph.Multiply(a, b);
-
-    public static UniformHyperGraph operator *(UniformHyperGraph a, long constant) =>
-        UniformHyperGraph.Multiply(a, constant);
     
     #endregion
     
@@ -318,9 +320,7 @@ public class UniformHyperGraph :
         Union = 0,
         Intersection = 1,
         Addition = 2,
-        AdditionConst = 3,
-        Multiply = 4,
-        MultiplyConst = 5
+        AdditionConst = 3
     }
 
     #endregion

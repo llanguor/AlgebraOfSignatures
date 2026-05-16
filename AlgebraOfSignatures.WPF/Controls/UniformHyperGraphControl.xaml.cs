@@ -3,8 +3,10 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using AlgebraOfSignatures.Core;
+using AlgebraOfSignatures.WPF.Converters.DataGridAppearance;
 using DistributedSystems.LaboratoryWork.Nuget.ViewModel;
 
 namespace AlgebraOfSignatures.WPF.Controls;

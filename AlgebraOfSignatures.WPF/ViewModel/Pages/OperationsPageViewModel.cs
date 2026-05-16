@@ -201,13 +201,6 @@ public class OperationsPageViewModel : PageViewModelBase
             UniformHyperGraph.OperationsTypes.AdditionConst =>
                 LeftOperand + RightOperand,
 
-            UniformHyperGraph.OperationsTypes.Multiply =>
-                LeftOperand * RightOperand,
-
-            //todo: const
-            UniformHyperGraph.OperationsTypes.MultiplyConst =>
-                LeftOperand * RightOperand,
-
             _ => throw new ArgumentOutOfRangeException()
         };
     }

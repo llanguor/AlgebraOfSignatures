@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using DistributedSystems.LaboratoryWork.Nuget.Command;
 using ArgumentException = System.ArgumentException;
@@ -21,8 +22,6 @@ public partial class MatrixControl :
     private readonly Lazy<ICommand> _savePageCommand;
     
     private readonly Lazy<ICommand> _loadPageCommand;
-    
-    private readonly Lazy<int> _rowsCount;
     
     #endregion
     
@@ -216,6 +215,19 @@ public partial class MatrixControl :
             typeof(Type),
             typeof(MatrixControl));
     
+    
+    public IMultiValueConverter BackgroundMultiValueConverter
+    {
+        get => (IMultiValueConverter)GetValue(BackgroundMultiValueConverterProperty);
+        set => SetValue(BackgroundMultiValueConverterProperty, value);
+    }
+
+    public static readonly DependencyProperty BackgroundMultiValueConverterProperty =
+        DependencyProperty.Register(
+            nameof(BackgroundMultiValueConverter),
+            typeof(IMultiValueConverter),
+            typeof(MatrixControl));
+    
     #endregion
     
     
@@ -251,15 +263,19 @@ public partial class MatrixControl :
         
         control.MatrixElementType = 
             inputArray.GetType().GetElementType();
-        
-        control.Indices.Clear();
-        for (var i = 0; i < inputArray.Rank-2; ++i)
+
+        //todo: validate
+        if (control.Indices.Count != inputArray.Rank - 2)
         {
-            control.Indices.Add(
-                new IntValue(
-                    control.SavePageCommand,
-                    control.LoadPageCommand, 
-                    0));
+            control.Indices.Clear();
+            for (var i = 0; i < inputArray.Rank - 2; ++i)
+            {
+                control.Indices.Add(
+                    new IntValue(
+                        control.SavePageCommand,
+                        control.LoadPageCommand,
+                        0));
+            }
         }
 
         control.FillDataGrid();

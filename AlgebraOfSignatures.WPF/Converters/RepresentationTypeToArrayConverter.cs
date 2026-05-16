@@ -29,7 +29,7 @@ public class RepresentationTypeToArrayConverter :
         return type switch
         {
             UniformHyperGraph.RepresentationTypes.Signature =>
-                uh.Signature?.Value,
+                uh.Signature.Value,
 
             UniformHyperGraph.RepresentationTypes.AdjacencyMatrix =>
                 uh.AdjacencyMatrix,

@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.Controls"
              xmlns:dg2d="http://gu.se/DataGrid2D"
              xmlns:converters="clr-namespace:AlgebraOfSignatures.WPF.Converters"
+             xmlns:dataGridAppearanceConverters="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridAppearance"
              mc:Ignorable="d"
              SnapsToDevicePixels="True"
              UseLayoutRounding="True"
@@ -29,6 +30,20 @@
             LoadFromFileCommand="{Binding LoadFromFileCommand, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}">
+            <local:MatrixControl.BackgroundMultiValueConverter>
+                <MultiBinding Converter="{dataGridAppearanceConverters:RepresentationTypeToBackgroundConverterConverter}">
+                    <Binding 
+                        Path="RepresentationToVisualize" 
+                        RelativeSource="{RelativeSource AncestorType=local:UniformHyperGraphControl}"
+                        UpdateSourceTrigger="PropertyChanged"/> 
+                    <Binding 
+                        Source="{dataGridAppearanceConverters:Signature_CellValueToBackgroundConverter}"/>
+                    <Binding 
+                        Source="{dataGridAppearanceConverters:Adjacency_CellValueToBackgroundConverter}"/>
+                    <Binding 
+                        Source="{dataGridAppearanceConverters:Incidence_CellValueToBackgroundConverter}"/>
+                </MultiBinding>
+            </local:MatrixControl.BackgroundMultiValueConverter>
             <local:MatrixControl.InputArray>
                  <MultiBinding Converter="{converters:RepresentationTypeToArrayConverter}">
                      <Binding 

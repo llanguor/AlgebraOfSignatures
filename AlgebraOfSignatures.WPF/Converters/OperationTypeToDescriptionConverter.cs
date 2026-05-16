@@ -24,12 +24,6 @@ public class OperationTypeToDescriptionConverter :
             
             UniformHyperGraph.OperationsTypes.AdditionConst 
                 => "Сложение с константой",
-            
-            UniformHyperGraph.OperationsTypes.Multiply 
-                => "Умножение",
-            
-            UniformHyperGraph.OperationsTypes.MultiplyConst
-                => "Умножение на константу",
                 
             _ => string.Empty
         };

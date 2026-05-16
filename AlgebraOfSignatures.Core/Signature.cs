@@ -24,7 +24,7 @@ public class Signature :
     public Array Value
     {
         get => _value;
-        set
+        private init
         {
             if (value.GetFinalElementType() != typeof(long))
                 throw new ArgumentException($"{nameof(value)} elements must be of type long");
@@ -79,8 +79,7 @@ public class Signature :
 
     public static Signature FromLongValue(
         long value,
-        int vertexCount,
-        int uniformityDegree)
+        int vertexCount)
     {
         return new Signature(
             value,
@@ -114,8 +113,7 @@ public class Signature :
             uniformityDegree);
     }
 
-
-#endregion
+    #endregion
     
     
     #region Constructors
@@ -155,10 +153,8 @@ public class Signature :
         if (indices.Length == 0)
             indices = [0];
 
+        ThrowIfSetIncorrectValueToSignature(value, indices); 
         Value.SetValue(value, indices);
-        
-        //todo: Replace with ThrowIfIncorrectSetValue. Check only the previous and next element on each axis
-        ThrowIfIncorrectSignature(Value); 
     }
     
 
@@ -213,6 +209,32 @@ public class Signature :
     
           
     #region ThrowIf Methods
+
+    protected void ThrowIfSetIncorrectValueToSignature(
+        long value, 
+        params int[] indices)
+    {
+        for(var i = 0; i < indices.Length - 1; ++i)
+        {
+            if (indices[i] != VertexCount - 1)
+            {
+                ++indices[i];
+                ThrowIfIncorrectSignatureNextValue(
+                    value,
+                    Convert.ToInt64(Value.GetValue(indices)));
+                --indices[i];
+            }
+
+            if (indices[i] != 0)
+            {
+                --indices[i];
+                ThrowIfIncorrectSignatureNextValue(
+                    Convert.ToInt64(Value.GetValue(indices)),
+                    value);
+                ++indices[i];
+            }
+        }
+    }
 
     protected void ThrowIfIncorrectSignature(Array value)
     {
@@ -388,6 +410,10 @@ public class Signature :
 
     public Signature Mod2N(int n)
     {
+        //отбрасывать старшие разряды? 
+        //у каждого числа?
+        //прохрдить по краю и уменьшать на один разряд
+        
         /*
         if (n <= 0) 
             return this;
@@ -399,6 +425,44 @@ public class Signature :
 
     public Signature Add(Signature other)
     {
+        //сигнатура с сигнатурой: поразрядное добавления одной суммы к другой по сложению КОЛВА ячеек к другому КОЛВУ ячеек
+        //на каждом слое определить какое колво ячеек закрашено и добавить их к другой сигнатуре (КОЛВО (ЧИСЛО ЦЕЛОЕ))
+        //делегировать к след
+        
+        
+        //ЕСЛИ СЛОЖЕНИЕ обычное то переводим остаток на след
+        //если по модулю на следующий слой не переносим?
+        //сложение двух слоев можно отдельно операцию определить
+        
+        //послойное сложение и отдельное
+        //сверху вниз и слева направо
+        //разные варианты
+        
+        //проверить коммутативность, ассоциативность
+        //определить выполняются ли свойства при совершении операций всех
+        //есть ли единичный элемент?
+        
+        //есть единичный но все не получим. (состояния могут переходить только в конкретные)
+        
+        
+        //операции: 
+        //1. единичек: слева направо и сверху вниз
+        //2. послойную (==сложения по модулю)
+        //3. сложения двух сигнатур (все слои)
+        
+        //в сигнатуре есть свойство длины. использовать
+        
+        
+        //!!!!!!!!!!
+        //все это побитово
+        //колво единиц при прибавлении увеличивается. Не может быть сначала 2 елиницы потом 3
+        //смотреть фото
+        //сдвиг бита просто во втором варианте единичного. Просто ползет влево
+        
+        //также техническип роверить что все состояния достижимы при нашем сложении (из состояния в состояния)
+        
+        //11, 3, 1, 0
+        // 1100, 100, 10, 1
         //????
         /*
         Value.TraverseSignature(VertexCount, UniformityDegree, state =>
@@ -428,35 +492,6 @@ public class Signature :
         return this;
     }
 
-    public Signature Multiply(Signature other)
-    {
-        /*
-        ThrowIfVertexCountMismatch(
-            this.VertexCount, 
-            other.VertexCount);
-                   
-        this.Value *= other.Value;
-        this.Mod2N(VertexCount-1);
-        */
-        return this;
-    }
-
-    public Signature Multiply(long constant)
-    {
-        //todo: mod n. For Signature object or for long value?
-        //this.Value += constant;
-        //this.Mod2N(VertexCount-1);
-        
-        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
-        { 
-            this.Value.SetValue(
-                constant * this.GetValue(state.SignatureIndices), 
-                state.SignatureIndices);
-        });
-
-        return this;
-    }
-    
     #endregion
     
     
@@ -474,11 +509,8 @@ public class Signature :
     public static Signature Add(Signature a, long constant) =>
         a.Clone().Add(constant);
 
-    public static Signature Multiply(Signature a, Signature b) =>
-        a.Clone().Multiply(b);
-
-    public static Signature Multiply(Signature a, long constant) =>
-        a.Clone().Multiply(constant);
+    public static Signature Mod2N(Signature a, int n) =>
+        a.Clone().Mod2N(n);
     
     #endregion
     
@@ -496,12 +528,6 @@ public class Signature :
 
     public static Signature operator +(Signature a, long constant) =>
         Signature.Add(a, constant);
-
-    public static Signature operator *(Signature a, Signature b) =>
-        Signature.Multiply(a, b);
-
-    public static Signature operator *(Signature a, long constant) =>
-        Signature.Multiply(a, constant);
     
     #endregion
     

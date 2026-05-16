@@ -5,11 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.Controls"
              xmlns:converters="clr-namespace:DistributedSystems.LaboratoryWork.Nuget.Converters;assembly=DistributedSystems.LaboratoryWork.Nuget"
+             xmlns:dataGridAppearanceConverters="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridAppearance"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:multiValueConverterProxy="clr-namespace:AlgebraOfSignatures.WPF.Packages.MultiValueConverterProxy"
              mc:Ignorable="d"
              FontSize="17">
-    <UserControl.Resources>
+<UserControl.Resources>
+        <multiValueConverterProxy:MultiValueConverterProxy
+            x:Key="BgConverterProxy"
+            Converter="{Binding BackgroundMultiValueConverter,
+                    RelativeSource={RelativeSource AncestorType=local:MatrixControl}}"/>
         <Style TargetType="xctk:IntegerUpDown">
             <Setter Property="Width" Value="42"/>
             <Setter Property="Height" Value="25"/>
@@ -204,6 +210,44 @@
                     <Setter Property="HorizontalContentAlignment" Value="Center"/>
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
                     <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource BgConverterProxy}">
+                                <Binding 
+                                    Path="Indices"
+                                    RelativeSource="{RelativeSource AncestorType=local:MatrixControl}"
+                                    Mode="OneWay"/>
+                                <Binding
+                                    Path="(ItemsControl.AlternationIndex)"
+                                    RelativeSource="{RelativeSource AncestorType=DataGridRow}"
+                                    Mode="OneWay"/>
+                                <Binding
+                                    Path="Column.DisplayIndex"
+                                    RelativeSource="{RelativeSource Self}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Foreground">
+                        <Setter.Value>
+                            <MultiBinding Converter="{dataGridAppearanceConverters:BackgroundToChangedValueConverter}">
+                                <Binding Path="Background" RelativeSource="{RelativeSource Self}"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{x:Static SystemColors.HighlightBrush}"/>
+                                    <Setter Property="Foreground" Value="{x:Static SystemColors.HighlightTextBrush}"/>
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                        <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Background" Value="{x:Static SystemColors.InactiveSelectionHighlightBrush}"/>
+                                    <Setter Property="Foreground" Value="{x:Static SystemColors.InactiveSelectionHighlightTextBrush}"/>
+                                </MultiTrigger>
+                            </Style.Triggers>
                 </Style>
             </DataGrid.CellStyle>
             <DataGrid.ColumnHeaderStyle>
