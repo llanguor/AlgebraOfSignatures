@@ -14,46 +14,72 @@ public class UniformHyperGraph :
     public static UniformHyperGraph FromFile(
         string path)
     {
-        Array ToArray(System.Text.Json.Nodes.JsonArray node)
+        if (!File.Exists(path))
+            throw new FileNotFoundException(
+                "File not found.",
+                path);
+
+        var lines = File.ReadAllLines(path);
+
+        string? representationType = null;
+        int uniformityDegree = 0;
+        int vertexCount = 0;
+
+        var arrayBuilder = new System.Text.StringBuilder();
+        var readingArray = false;
+
+        foreach (var rawLine in lines)
         {
-            if (node[0] is System.Text.Json.Nodes.JsonValue)
+            var line = rawLine.Trim();
+
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+
+            if (readingArray)
             {
-                var flat = Array.CreateInstance(typeof(long), node.Count);
-                for (var i = 0; i < node.Count; i++)
-                    flat.SetValue(node[i]!.GetValue<long>(), i);
-                return flat;
+                arrayBuilder.Append(line);
+                continue;
             }
- 
-            var subs    = node.Select(n => ToArray(n!.AsArray())).ToArray();
-            var lengths = new[] { subs.Length }.Concat(Enumerable.Range(0, subs[0].Rank).Select(subs[0].GetLength)).ToArray();
-            var result  = Array.CreateInstance(typeof(long), lengths);
-            var idx     = new int[lengths.Length];
- 
-            void Copy(Array src, int dim)
+
+            if (line.StartsWith("RepresentationType="))
             {
-                for (var i = 0; i < src.GetLength(dim - 1); i++)
-                {
-                    idx[dim] = i;
-                    if (dim == src.Rank)
-                    {
-                        var srcIdx = idx[1..];
-                        result.SetValue(src.GetValue(srcIdx), idx);
-                    }
-                    else Copy(src, dim + 1);
-                }
+                representationType =
+                    line.Substring("RepresentationType=".Length).Trim();
             }
- 
-            for (var i = 0; i < subs.Length; i++) { idx[0] = i; Copy(subs[i], 1); }
- 
-            return result;
+            else if (line.StartsWith("UniformityDegree="))
+            {
+                uniformityDegree = int.Parse(
+                    line.Substring("UniformityDegree=".Length).Trim());
+            }
+            else if (line.StartsWith("VertexCount="))
+            {
+                vertexCount = int.Parse(
+                    line.Substring("VertexCount=".Length).Trim());
+            }
+            else if (line.StartsWith("Array="))
+            {
+                readingArray = true;
+            }
         }
- 
-        var doc = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))!;
- 
+
+        if (representationType != nameof(RepresentationTypes.Signature))
+            throw new NotSupportedException(
+                $"Unsupported representation type: {representationType}");
+
+        var arrayText = arrayBuilder.ToString();
+
+        if (string.IsNullOrWhiteSpace(arrayText))
+            throw new FormatException("Array section is empty.");
+
+        var parsedArray =
+            FileHelpersMethods.ParseLongArray(arrayText);
+
+        var matrix = new Matrix<long>(parsedArray);
+
         return FromSignature(
-            new Matrix<long>(ToArray(doc["Array"]!.AsArray())),
-            doc["VertexCount"]!.GetValue<int>(),
-            doc["UniformityDegree"]!.GetValue<int>());
+            matrix,
+            vertexCount,
+            uniformityDegree);
     }
 
     public static UniformHyperGraph FromIncidenceMatrix(
@@ -522,5 +548,187 @@ public class UniformHyperGraph :
                 _vertexCount);
     }
     
+    #endregion
+
+    #region Nested
+
+    private static class FileHelpersMethods
+    {
+         public static Array ParseLongArray(
+        string text)
+    {
+        var index = 0;
+
+        SkipWhitespace(text, ref index);
+
+        var parsed =
+            ParseArrayRecursive(text, ref index);
+
+        var rank =
+            GetArrayRank(parsed);
+
+        var lengths =
+            GetLengths(parsed, rank);
+
+        var result =
+            Array.CreateInstance(typeof(long), lengths);
+
+        FillArray(
+            result,
+            parsed,
+            new int[rank],
+            0);
+
+        return result;
+    }
+
+    private static object ParseArrayRecursive(
+        string text,
+        ref int index)
+    {
+        SkipWhitespace(text, ref index);
+
+        if (text[index] != '{')
+            throw new FormatException($"Expected '{{' at position {index}");
+
+        ++index;
+
+        var items = new List<object>();
+
+        while (index < text.Length)
+        {
+            SkipWhitespace(text, ref index);
+
+            if (text[index] == '{')
+            {
+                items.Add(
+                    ParseArrayRecursive(text, ref index));
+            }
+            else if (char.IsDigit(text[index]) || text[index] == '-')
+            {
+                items.Add(
+                    ParseNumber(text, ref index));
+            }
+
+            SkipWhitespace(text, ref index);
+
+            if (text[index] == ',')
+            {
+                ++index;
+                continue;
+            }
+
+            if (text[index] == '}')
+            {
+                ++index;
+                break;
+            }
+        }
+
+        return items;
+    }
+
+    private static long ParseNumber(
+        string text,
+        ref int index)
+    {
+        var start = index;
+
+        if (text[index] == '-')
+            ++index;
+
+        while (index < text.Length &&
+               char.IsDigit(text[index]))
+        {
+            ++index;
+        }
+
+        return long.Parse(
+            text.Substring(start, index - start));
+    }
+
+    private static void SkipWhitespace(
+        string text,
+        ref int index)
+    {
+        while (index < text.Length &&
+               char.IsWhiteSpace(text[index]))
+        {
+            ++index;
+        }
+    }
+
+    private static int GetArrayRank(
+        object node)
+    {
+        if (node is long)
+            return 0;
+
+        var list = (List<object>)node;
+
+        if (list.Count == 0)
+            return 1;
+
+        return 1 + GetArrayRank(list[0]);
+    }
+
+    private static int[] GetLengths(
+        object node,
+        int rank)
+    {
+        var lengths = new int[rank];
+
+        var current = node;
+
+        for (var i = 0; i < rank; ++i)
+        {
+            var list = (List<object>)current;
+
+            lengths[i] = list.Count;
+
+            if (list.Count > 0)
+                current = list[0];
+        }
+
+        return lengths;
+    }
+
+    private static void FillArray(
+        Array target,
+        object node,
+        int[] indices,
+        int dimension)
+    {
+        if (dimension == target.Rank - 1)
+        {
+            var values = (List<object>)node;
+
+            for (var i = 0; i < values.Count; ++i)
+            {
+                indices[dimension] = i;
+
+                target.SetValue(
+                    (long)values[i],
+                    indices);
+            }
+
+            return;
+        }
+
+        var nested = (List<object>)node;
+
+        for (var i = 0; i < nested.Count; ++i)
+        {
+            indices[dimension] = i;
+
+            FillArray(
+                target,
+                nested[i],
+                indices,
+                dimension + 1);
+        }
+    }
+    }
+
     #endregion
 }

@@ -19,7 +19,7 @@ public static class MultiDimensionalArrayExtensions
     
     #region Extensions
 
-    public static void TraverseSignature(
+    public static void Traverse(
         this IMatrix array,
         int vertexCount,
         int uniformityDegree,
