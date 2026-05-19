@@ -25,6 +25,9 @@ public class RepresentationTypeToDescriptionConverter :
             UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
                 => "Матрица инцидентности",
             
+            UniformHyperGraph.RepresentationTypes.VertexDegreeVector
+                => "Вектор степеней вершин",
+            
             _ => string.Empty
         };
     }

@@ -8,16 +8,9 @@ namespace AlgebraOfSignatures.Core;
 internal sealed class RepresentationConverter :
     RepresentationConverterBase
 {
-    public enum RepresentationType
-    {
-        Signature = 0,
-        AdjacencyMatrix = 1,
-        IncidenceMatrix = 2,
-    }
-
     public void Convert(
-        RepresentationType from,
-        RepresentationType to,
+        UniformHyperGraph.RepresentationTypes from,
+        UniformHyperGraph.RepresentationTypes to,
         object input, 
         out object? output,
         int? uniformityDegree,
@@ -25,7 +18,7 @@ internal sealed class RepresentationConverter :
     {
         switch (from)
         {
-            case RepresentationType.Signature:
+            case UniformHyperGraph.RepresentationTypes.Signature:
             {
                 ArgumentNullException.ThrowIfNull(uniformityDegree);
                 ArgumentNullException.ThrowIfNull(vertexCount);
@@ -35,40 +28,46 @@ internal sealed class RepresentationConverter :
                 
                 output = to switch
                 {
-                    RepresentationType.AdjacencyMatrix
-                        => ComputeAdjacencyFromSignature(signature, vertexCount!.Value, uniformityDegree!.Value),
+                    UniformHyperGraph.RepresentationTypes.AdjacencyMatrix
+                        => ComputeAdjacencyFromSignature(signature),
               
-                    RepresentationType.IncidenceMatrix 
-                        => ComputeIncidenceFromSignature(signature, vertexCount!.Value, uniformityDegree!.Value),
+                    UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
+                        => ComputeIncidenceFromSignature(signature),
                 
-                    RepresentationType.Signature
+                    UniformHyperGraph.RepresentationTypes.Signature
                         => input,
+                    
+                    UniformHyperGraph.RepresentationTypes.VertexDegreeVector
+                        => ComputeVertexDegreeVectorFromSignature(signature),
                 
                     _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
                 };
                 break;
             }
-            case RepresentationType.AdjacencyMatrix:
+            case UniformHyperGraph.RepresentationTypes.AdjacencyMatrix:
             {
                 if (input is not Matrix<bool> adjacency)
                     throw new ArgumentException("Expected Array", nameof(input));
             
                 output = to switch
                 {
-                    RepresentationType.AdjacencyMatrix
+                    UniformHyperGraph.RepresentationTypes.AdjacencyMatrix
                         => input,
                 
-                    RepresentationType.IncidenceMatrix 
+                    UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
                         => ComputeIncidenceFromAdjacency(adjacency),
                 
-                    RepresentationType.Signature
+                    UniformHyperGraph.RepresentationTypes.Signature
                         => ComputeSignatureFromAdjacency(adjacency),
+                    
+                    UniformHyperGraph.RepresentationTypes.VertexDegreeVector
+                        => ComputeVertexDegreeVectorFromAdjacency(adjacency),
                 
                     _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
                 };
                 break;
             }
-            case RepresentationType.IncidenceMatrix:
+            case UniformHyperGraph.RepresentationTypes.IncidenceMatrix:
             {
                 ArgumentNullException.ThrowIfNull(uniformityDegree);
                 
@@ -77,14 +76,40 @@ internal sealed class RepresentationConverter :
             
                 output = to switch
                 {
-                    RepresentationType.AdjacencyMatrix
+                    UniformHyperGraph.RepresentationTypes.AdjacencyMatrix
                         => ComputeAdjacencyFromIncidence(incidence, uniformityDegree!.Value),
                 
-                    RepresentationType.IncidenceMatrix 
+                    UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
                         => input,
                 
-                    RepresentationType.Signature
+                    UniformHyperGraph.RepresentationTypes.Signature
                         => ComputeSignatureFromIncidence(incidence, uniformityDegree!.Value),
+                    
+                    UniformHyperGraph.RepresentationTypes.VertexDegreeVector
+                        => ComputeVertexDegreeVectorFromIncidence(incidence, uniformityDegree!.Value),
+                
+                    _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
+                };
+                break;
+            }
+            case UniformHyperGraph.RepresentationTypes.VertexDegreeVector:
+            {
+                if (input is not Matrix<int> vector)
+                    throw new ArgumentException("Expected Array", nameof(input));
+            
+                output = to switch
+                {
+                    UniformHyperGraph.RepresentationTypes.AdjacencyMatrix
+                        => ComputeAdjacencyFromVertexDegreeVector(vector),
+                
+                    UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
+                        => ComputeIncidenceFromVertexDegreeVector(vector),
+                
+                    UniformHyperGraph.RepresentationTypes.Signature
+                        => ComputeSignatureFromVertexDegreeVector(vector),
+                    
+                    UniformHyperGraph.RepresentationTypes.VertexDegreeVector
+                        => input,
                 
                     _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
                 };
@@ -162,23 +187,18 @@ internal sealed class RepresentationConverter :
     }
     
     public override Matrix<bool> ComputeAdjacencyFromSignature(
-        Signature signature, 
-        int vertexCount,
-        int uniformityDegree)
+        Signature signature)
     {
-        ThrowIfIllegalGraphParameters(vertexCount, uniformityDegree);
-        ThrowIfIllegalSignature(signature, vertexCount);
-  
-        var signatureLength = vertexCount - uniformityDegree + 1;
+        var signatureLength = signature.VertexCount -  signature.UniformityDegree + 1;
         long currentSignatureValue = 0;
         var adjacencyMatrix =  new Matrix<bool>(
-            vertexCount,
-            uniformityDegree);
+            signature.VertexCount,
+            signature.UniformityDegree);
         
         Action<int[]> setValueAction = 
             array => adjacencyMatrix.SetValue(true, array);
         
-        adjacencyMatrix.TraverseSignature(vertexCount, uniformityDegree, state =>
+        adjacencyMatrix.TraverseSignature(signature.VertexCount,  signature.UniformityDegree, state =>
         {
             currentSignatureValue = System.Convert.ToInt64(
                 signature.GetValue(state.SignatureIndices));
@@ -223,6 +243,16 @@ internal sealed class RepresentationConverter :
     public override Matrix<bool> ComputeAdjacencyFromIncidence(
         Matrix<bool> incidenceMatrix,
         int uniformityDegree)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Signature ComputeSignatureFromVertexDegreeVector(Matrix<int> vertexDegreeVector)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Matrix<int> ComputeVertexDegreeVectorFromSignature(Signature signature)
     {
         throw new NotImplementedException();
     }

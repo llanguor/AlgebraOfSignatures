@@ -95,9 +95,7 @@ public class RepresentationConverterTests
         Assert.Equal(0, signature.GetValue(3));
        
         var matrix = _converter.ComputeAdjacencyFromSignature(
-            signature,
-            vertexCount, 
-            uniformityDegree);
+            signature);
         
         Assert.Equal(inputMatrix.Size, matrix.Size);
         for (var i = 0; i < vertexCount; ++i)
@@ -125,9 +123,7 @@ public class RepresentationConverterTests
         inputSignature.SetValue(459);
         
         var matrix = _converter.ComputeAdjacencyFromSignature(
-            inputSignature,
-            vertexCount, 
-            uniformityDegree);
+            inputSignature);
         
         var signature = _converter.ComputeSignatureFromAdjacency(matrix);
         Assert.Equal(inputSignature.GetValue(), signature.GetValue());
@@ -179,9 +175,7 @@ public class RepresentationConverterTests
         Assert.Equal(0, signature.GetValue(2, 2));
         
         var matrix = _converter.ComputeAdjacencyFromSignature(
-            signature,
-            vertexCount, 
-            uniformityDegree);
+            signature);
         
         for (var i = 0; i < vertexCount; ++i)
         {
@@ -237,9 +231,7 @@ public class RepresentationConverterTests
         Assert.Equal(0, signature.GetValue(1, 1, 1));
         
         var matrix = _converter.ComputeAdjacencyFromSignature(
-            signature,
-            vertexCount, 
-            uniformityDegree);
+            signature);
         
         for (var i = 0; i < vertexCount; ++i)
         {

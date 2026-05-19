@@ -6,14 +6,54 @@ namespace AlgebraOfSignatures.Core;
 
 public class UniformHyperGraph :
     IUniformHyperGraph, 
-    ICloneable
+    ICloneable,
+    IEquatable<UniformHyperGraph>
 {
     #region Fabric Methods
 
     public static UniformHyperGraph FromFile(
         string path)
     {
-        return Empty(3, 2);
+        Array ToArray(System.Text.Json.Nodes.JsonArray node)
+        {
+            if (node[0] is System.Text.Json.Nodes.JsonValue)
+            {
+                var flat = Array.CreateInstance(typeof(long), node.Count);
+                for (var i = 0; i < node.Count; i++)
+                    flat.SetValue(node[i]!.GetValue<long>(), i);
+                return flat;
+            }
+ 
+            var subs    = node.Select(n => ToArray(n!.AsArray())).ToArray();
+            var lengths = new[] { subs.Length }.Concat(Enumerable.Range(0, subs[0].Rank).Select(subs[0].GetLength)).ToArray();
+            var result  = Array.CreateInstance(typeof(long), lengths);
+            var idx     = new int[lengths.Length];
+ 
+            void Copy(Array src, int dim)
+            {
+                for (var i = 0; i < src.GetLength(dim - 1); i++)
+                {
+                    idx[dim] = i;
+                    if (dim == src.Rank)
+                    {
+                        var srcIdx = idx[1..];
+                        result.SetValue(src.GetValue(srcIdx), idx);
+                    }
+                    else Copy(src, dim + 1);
+                }
+            }
+ 
+            for (var i = 0; i < subs.Length; i++) { idx[0] = i; Copy(subs[i], 1); }
+ 
+            return result;
+        }
+ 
+        var doc = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path))!;
+ 
+        return FromSignature(
+            new Matrix<long>(ToArray(doc["Array"]!.AsArray())),
+            doc["VertexCount"]!.GetValue<int>(),
+            doc["UniformityDegree"]!.GetValue<int>());
     }
 
     public static UniformHyperGraph FromIncidenceMatrix(
@@ -54,6 +94,26 @@ public class UniformHyperGraph :
         return new UniformHyperGraph(
             converter,
             converter.ComputeSignatureFromAdjacency(adjacencyMatrix),
+            vertexCount,
+            uniformityDegree);
+    }
+    
+    public static UniformHyperGraph FromVertexDegreeVector(
+        Matrix<int> vertexDegreeVector,
+        IRepresentationConverter? converter = null)
+    {
+        if (vertexDegreeVector.ElementType != typeof(int))
+            throw new ArgumentException(
+                $"Expected {typeof(int)} array",
+                nameof(vertexDegreeVector));
+        
+        converter ??= new RepresentationConverter();
+        var vertexCount = vertexDegreeVector.Size;
+        var uniformityDegree = vertexDegreeVector.Rank;
+        
+        return new UniformHyperGraph(
+            converter,
+            converter.ComputeSignatureFromVertexDegreeVector(vertexDegreeVector),
             vertexCount,
             uniformityDegree);
     }
@@ -121,6 +181,8 @@ public class UniformHyperGraph :
     private Matrix<bool>? _cachedIncidenceMatrix = null;
     
     private Matrix<bool>? _cachedAdjacencyMatrix = null;
+    
+    private Matrix<int>? _cachedVertexDegreeVector = null;
 
     #endregion
     
@@ -137,9 +199,7 @@ public class UniformHyperGraph :
         get
         {
             _cachedIncidenceMatrix ??= _converter.ComputeIncidenceFromSignature(
-                Signature,
-                VertexCount,
-                UniformityDegree);
+                Signature);
 
             return _cachedIncidenceMatrix!;
         }
@@ -154,11 +214,24 @@ public class UniformHyperGraph :
         get
         {
             _cachedAdjacencyMatrix ??= _converter.ComputeAdjacencyFromSignature(
-                Signature,
-                VertexCount,
-                UniformityDegree);
+                Signature);
 
             return _cachedAdjacencyMatrix!;
+        }
+    }
+    
+    /// <summary>
+    /// Incidence matrix lazily computed from <see cref="Signature"/> and cached until invalidated.
+    /// Mutating the returned value has no effect — modify <see cref="Signature"/> instead, then call <see cref="InvalidateCache"/>.
+    /// </summary>
+    public Matrix<int> VertexDegreeVector
+    {
+        get
+        {
+            _cachedVertexDegreeVector ??= _converter.ComputeVertexDegreeVectorFromSignature(
+                Signature);
+
+            return _cachedVertexDegreeVector!;
         }
     }
 
@@ -239,6 +312,52 @@ public class UniformHyperGraph :
     {
         _cachedIncidenceMatrix = null;
         _cachedAdjacencyMatrix = null;
+        _cachedVertexDegreeVector = null;
+    }
+
+    public void SaveToFile(string path)
+    {
+        var sb = new System.Text.StringBuilder();
+
+        sb.AppendLine("RepresentationType=Signature");
+        sb.AppendLine($"UniformityDegree={UniformityDegree}");
+        sb.AppendLine($"VertexCount={VertexCount}");
+        sb.AppendLine("Array=");
+        AppendArray(sb, Signature.Value.Value, new int[Signature.Value.Rank], 0);
+
+        File.WriteAllText(path, sb.ToString());
+    }
+
+    private void AppendArray(
+        System.Text.StringBuilder sb,
+        Array array, 
+        int[] indices,
+        int dimension)
+    {
+        var size = array.GetLength(dimension);
+        var isLast = dimension == array.Rank - 1;
+
+        sb.Append('{');
+
+        for (var i = 0; i < size; i++)
+        {
+            indices[dimension] = i;
+
+            if (isLast)
+            {
+                sb.Append(array.GetValue(indices));
+                if (i < size - 1)
+                    sb.Append(", ");
+            }
+            else
+            {
+                AppendArray(sb, array, indices, dimension + 1);
+                if (i < size - 1)
+                    sb.AppendLine(",");
+            }
+        }
+
+        sb.Append('}');
     }
 
     #endregion
@@ -264,15 +383,15 @@ public class UniformHyperGraph :
         return this;
     }
 
-    public UniformHyperGraph Add(UniformHyperGraph other)
+    public UniformHyperGraph Add(UniformHyperGraph other, Signature.AddType type)
     {
-        this.Signature.Add(other.Signature);
+        this.Signature.Add(other.Signature, type);
         return this;
     }
 
-    public UniformHyperGraph Add(long constant)
+    public UniformHyperGraph Add(long constant, Signature.AddType type)
     {
-        this.Signature.Add(constant);
+        this.Signature.Add(constant, type);
         return this;
     }
     
@@ -287,11 +406,11 @@ public class UniformHyperGraph :
     public static UniformHyperGraph Union(UniformHyperGraph a, UniformHyperGraph b) => 
         a.Clone().Union(b);
     
-    public static UniformHyperGraph Add(UniformHyperGraph a, UniformHyperGraph b) =>
-        a.Clone().Add(b);
+    public static UniformHyperGraph Add(UniformHyperGraph a, UniformHyperGraph b, Signature.AddType type) =>
+        a.Clone().Add(b, type);
 
-    public static UniformHyperGraph Add(UniformHyperGraph a, long constant) =>
-        a.Clone().Add(constant);
+    public static UniformHyperGraph Add(UniformHyperGraph a, long constant, Signature.AddType type) =>
+        a.Clone().Add(constant, type);
 
     public static UniformHyperGraph Mod2N(UniformHyperGraph a, int n) =>
         a.Clone().Mod2N(n);
@@ -308,10 +427,28 @@ public class UniformHyperGraph :
         UniformHyperGraph.Union(a, b);
     
     public static UniformHyperGraph operator +(UniformHyperGraph a, UniformHyperGraph b) =>
-        UniformHyperGraph.Add(a, b);
+        UniformHyperGraph.Add(a, b, Signature.AddType.Vertical);
 
     public static UniformHyperGraph operator +(UniformHyperGraph a, long constant) =>
-        UniformHyperGraph.Add(a, constant);
+        UniformHyperGraph.Add(a, constant, Signature.AddType.Vertical);
+    
+    public static bool operator ==(UniformHyperGraph? a, UniformHyperGraph? b) =>
+        a?.Equals(b) ?? b is null;
+
+    public static bool operator !=(UniformHyperGraph? a, UniformHyperGraph? b) =>
+        !(a == b);
+
+    public static bool operator <(UniformHyperGraph a, UniformHyperGraph b) =>
+        a._signature.CompareTo(b._signature) < 0;
+
+    public static bool operator >(UniformHyperGraph a, UniformHyperGraph b) =>
+        a._signature.CompareTo(b._signature) > 0;
+
+    public static bool operator <=(UniformHyperGraph a, UniformHyperGraph b) =>
+        a._signature.CompareTo(b._signature) <= 0;
+
+    public static bool operator >=(UniformHyperGraph a, UniformHyperGraph b) =>
+        a._signature.CompareTo(b._signature) >= 0;
     
     #endregion
     
@@ -339,16 +476,51 @@ public class UniformHyperGraph :
     {
         Signature = 0,
         AdjacencyMatrix = 1,
-        IncidenceMatrix = 2
-    }
-    
-    public enum OperationsTypes
-    {
-        Union = 0,
-        Intersection = 1,
-        Addition = 2,
-        AdditionConst = 3
+        IncidenceMatrix = 2,
+        VertexDegreeVector = 3
     }
 
+    #endregion
+    
+    
+    #region IEquatable<UniformHyperGraph> Implementation
+
+    public bool Equals(UniformHyperGraph? other)
+    {
+        if (other is null) 
+            return false;
+        
+        if (ReferenceEquals(this, other)) 
+            return true;
+        
+        return
+            _uniformityDegree == other._uniformityDegree &&
+            _vertexCount == other._vertexCount &&
+            _signature.Equals(other._signature);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+            return false;
+        
+        if (ReferenceEquals(this, obj)) 
+            return true;
+        
+        if (obj.GetType() != GetType())
+            return false;
+        
+        return Equals((UniformHyperGraph)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return 
+            HashCode.Combine(
+                _signature,
+                _uniformityDegree, 
+                _vertexCount);
+    }
+    
     #endregion
 }

@@ -1,4 +1,7 @@
 ﻿using System.Linq.Expressions;
+using System.Numerics;
+using System.Reflection.Metadata;
+using System.Text.Unicode;
 using AlgebraOfSignatures.Core.Base;
 using AlgebraOfSignatures.Core.Base.Interfaces;
 using AlgebraOfSignatures.Core.Extensions;
@@ -7,7 +10,9 @@ namespace AlgebraOfSignatures.Core;
 
 public class Signature :
     ISignature,
-    IGraphRepresentation
+    IGraphRepresentation,
+    IEquatable<Signature>,
+    IComparable<Signature>
 {
     #region Fields
 
@@ -145,12 +150,6 @@ public class Signature :
     #endregion
     
     
-    #region Events Handlers
-    
-
-    #endregion
-    
-    
     #region Methods
     
     public void SetValue(
@@ -176,7 +175,7 @@ public class Signature :
 
     private int CalculateBitLength(params int[] indices)
     {
-        return VertexCount - 2 - indices[^1];
+        return VertexCount - UniformityDegree + 1 - indices[^1];
     }
 
     private long TruncateValue(long value)
@@ -188,19 +187,16 @@ public class Signature :
     private int SignatureValueCompare(       
         long lastValue,
         long currValue,
-        params int[] currValueIndices)
+        int currValueBitLength)
     {
-        var totalBits = CalculateBitLength(currValueIndices);
-        if (currValue >> totalBits != 0)
-            throw new ArgumentException(
-                $"Such a signature cannot exist. The number is too large for this position in the array.",
-                nameof(currValue));
+        ThrowIfLargeValue(currValue, currValueBitLength);
+        
         
         lastValue = TruncateValue(lastValue);
         var lastCount = 0;
         var currCount = 0;
         
-        for (var bit = totalBits-1; bit >= 0; --bit)
+        for (var bit = currValueBitLength-1; bit >= 0; --bit)
         {
             lastCount += (int)((lastValue >> bit) & 1L);
             currCount += (int)((currValue >> bit) & 1L);
@@ -211,7 +207,68 @@ public class Signature :
         
         return currCount == lastCount ? 0 : -1;
     }
+   
+    protected long GetNextLongValueFromLeftToRight(
+        long value,
+        int maxBitLength)
+    {
+        if (value == (1L << maxBitLength) - 1)
+            throw new ArgumentException(
+                "No next value: current value is the maximum for the given bit length.",
+                nameof(value));
+        
+        var onesIndex = -1;
+        var passedLeadingOnes = false;
+        
+        for (var i = maxBitLength - 1; i >= 0; i--)
+        {
+            bool bitIsSet = ((value >> i) & 1L) == 1L;
+            
+            if (!passedLeadingOnes)
+            {
+                if (!bitIsSet) 
+                    passedLeadingOnes = true;
+            }
+            else if (bitIsSet)
+            {
+                onesIndex = i;
+                break;
+            }
+        }
 
+        if (onesIndex == -1)
+        {
+            value |= 1L;
+        }
+        else
+        {
+            value &= ~(1L << onesIndex);
+            value |= 1L << (onesIndex + 1);
+        }
+        
+        return value;
+    }
+
+    protected long GetNextLongValueFromTopToBottom(
+        long value,
+        int maxBitLength)
+    {
+        if (value == (1L << maxBitLength) - 1)
+            throw new ArgumentException(
+                "No next value: current value is the maximum for the given bit length.",
+                nameof(value));
+        
+        var minimalOnesCount = BitOperations.PopCount((ulong)value);
+
+        do
+        {
+            ++value;
+        }
+        while(BitOperations.PopCount((ulong)value) < minimalOnesCount);
+        
+        return value;
+    }
+    
     #endregion
     
           
@@ -221,6 +278,10 @@ public class Signature :
         long value, 
         params int[] indices)
     {
+        ThrowIfLargeValue(
+            value,
+            CalculateBitLength(indices));
+        
         for(var i = 0; i < indices.Length; ++i)
         {
             if (indices[i] != VertexCount - 1)
@@ -252,13 +313,16 @@ public class Signature :
         if (value.ElementType != typeof(long))
             throw new ArgumentException($"{nameof(value)} elements must be of type long");
         
-        
-        
         value.TraverseSignature(VertexCount, UniformityDegree, state =>
         {
             var currValue = 
                 Convert.ToInt64(value.GetValue(state.SignatureIndices));
             
+            var currBitLength =
+                CalculateBitLength(state.SignatureIndices);
+            
+            ThrowIfLargeValue(currValue, currBitLength);
+                    
             for (var k = 0; k < state.SignatureIndices.Length - 1; ++k)
             {
                 if (state.SignatureIndices[k] > state.SignatureIndices[k + 1])
@@ -281,13 +345,25 @@ public class Signature :
         });
     }
 
+    protected void ThrowIfLargeValue(
+        long value, 
+        int bitLength)
+    {
+        if (value >= (1L << bitLength))
+            throw new ArgumentException(
+                $"Such a signature cannot exist. The number {value} is too large for this position in the array.", nameof(value));
+    }
+
     protected void ThrowIfIncorrectSignatureNextValue(
         long lastValue,
         long currValue,
         int changedIndex,
         params int[] indices)
     {
-        if(SignatureValueCompare(lastValue, currValue, indices) != 1)
+        if(1 != SignatureValueCompare(
+               lastValue, 
+               currValue, 
+               CalculateBitLength(indices)))
             return;
         
         var signatureIndicesStrTo = string.Join(", ", indices);
@@ -468,72 +544,55 @@ public class Signature :
         return this;
     }
 
-    public Signature Add(Signature other)
+    public Signature Add(Signature other, AddType type)
     {
-        //сигнатура с сигнатурой: поразрядное добавления одной суммы к другой по сложению КОЛВА ячеек к другому КОЛВУ ячеек
-        //на каждом слое определить какое колво ячеек закрашено и добавить их к другой сигнатуре (КОЛВО (ЧИСЛО ЦЕЛОЕ))
-        //делегировать к след
+        //получить вектор степеней вершин. Сложить все числа там. Получится ровно колво единиц
+        //это оно и есть
+        //тогда ассоциативность выполнится
         
+        var toAdd = 0;
+        var counter = Signature.Empty(VertexCount, UniformityDegree);
+        while (counter < other)
+        {
+            ++toAdd;
+            counter.Add(1, type);   
+        }
         
-        //ЕСЛИ СЛОЖЕНИЕ обычное то переводим остаток на след
-        //если по модулю на следующий слой не переносим?
-        //сложение двух слоев можно отдельно операцию определить
-        
-        //послойное сложение и отдельное
-        //сверху вниз и слева направо
-        //разные варианты
-        
-        //проверить коммутативность, ассоциативность
-        //определить выполняются ли свойства при совершении операций всех
-        //есть ли единичный элемент?
-        
-        //есть единичный но все не получим. (состояния могут переходить только в конкретные)
-        
-        
-        //операции: 
-        //1. единичек: слева направо и сверху вниз
-        //2. послойную (==сложения по модулю)
-        //3. сложения двух сигнатур (все слои)
-        
-        //в сигнатуре есть свойство длины. использовать
-        
-        
-        //!!!!!!!!!!
-        //все это побитово
-        //колво единиц при прибавлении увеличивается. Не может быть сначала 2 елиницы потом 3
-        //смотреть фото
-        //сдвиг бита просто во втором варианте единичного. Просто ползет влево
-        
-        //также техническип роверить что все состояния достижимы при нашем сложении (из состояния в состояния)
-        
-        //11, 3, 1, 0
-        // 1100, 100, 10, 1
-        //????
-        /*
-        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
-        { 
-            this.Value.SetValue(
-                this.GetValue(state.SignatureIndices) + this.GetValue(state.SignatureIndices), 
-                state.SignatureIndices);
-        });
-        */
-        
+        this.Add(toAdd, type);
         return this;
     }
 
-    public Signature Add(long constant)
+    public Signature Add(long constant, AddType type)
     {
-        //todo: mod n. For Signature object or for long value?
-        //this.Value += constant;
-        //this.Mod2N(VertexCount-1);
-        
-        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
-        { 
-            this.Value.SetValue(
-                constant + this.GetValue(state.SignatureIndices), 
-                state.SignatureIndices);
-        });
+        this.Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        {
+            var bitLen = CalculateBitLength(state.SignatureIndices);
+            var maxValue = (1L << bitLen) - 1;
+            var currentValue = System.Convert.ToInt64(
+                Value.GetValue(state.SignatureIndices));
+            
+            while (constant != 0 &&
+                   currentValue != maxValue)
+            {
+                --constant;
+                currentValue = type switch
+                {
+                    AddType.Vertical => 
+                        GetNextLongValueFromTopToBottom(currentValue, bitLen),
+                    
+                    AddType.Horizontal =>
+                        GetNextLongValueFromLeftToRight(currentValue, bitLen),
 
+                    _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+                };
+            }
+            
+            Value.SetValue(currentValue, state.SignatureIndices);
+        });
+        
+        if (constant != 0)
+            throw new ArgumentException("The value passed is too large. The signature is full.");
+        
         return this;
     }
 
@@ -548,11 +607,11 @@ public class Signature :
     public static Signature Union(Signature a, Signature b) => 
         a.Clone().Union(b);
     
-    public static Signature Add(Signature a, Signature b) =>
-        a.Clone().Add(b);
+    public static Signature Add(Signature a, Signature b, AddType type) =>
+        a.Clone().Add(b, type);
 
-    public static Signature Add(Signature a, long constant) =>
-        a.Clone().Add(constant);
+    public static Signature Add(Signature a, long constant, AddType type) =>
+        a.Clone().Add(constant, type);
 
     public static Signature Mod2N(Signature a, int n) =>
         a.Clone().Mod2N(n);
@@ -569,11 +628,50 @@ public class Signature :
         Signature.Union(a, b);
     
     public static Signature operator +(Signature a, Signature b) =>
-        Signature.Add(a, b);
+        Signature.Add(a, b, AddType.Vertical);
 
     public static Signature operator +(Signature a, long constant) =>
-        Signature.Add(a, constant);
+        Signature.Add(a, constant, AddType.Vertical);
     
+    public static bool operator ==(Signature? a, Signature? b) =>
+        a?.Equals(b) ?? b is null;
+
+    public static bool operator !=(Signature? a, Signature? b) =>
+        !(a == b);
+
+    public static bool operator <(Signature a, Signature b) =>
+        a.CompareTo(b) < 0;
+
+    public static bool operator >(Signature a, Signature b) =>
+        a.CompareTo(b) > 0;
+
+    public static bool operator <=(Signature a, Signature b) =>
+        a.CompareTo(b) <= 0;
+
+    public static bool operator >=(Signature a, Signature b) =>
+        a.CompareTo(b) >= 0;
+    
+    #endregion
+
+
+    #region Nested
+
+    public enum AddType
+    {
+        Vertical = 0,
+        Horizontal = 1
+    }
+    
+    public enum OperationsTypes
+    {
+        Union = 0,
+        Intersection = 1,
+        AdditionVertical = 2,
+        AdditionHorizontal = 3,
+        AdditionVerticalConst = 4,
+        AdditionHorizontalConst = 5
+    }
+
     #endregion
     
     
@@ -611,6 +709,86 @@ public class Signature :
 
     object ICloneable.Clone() => 
         Clone();
+
+    #endregion
+
+    
+    #region IEquatable<Signature> Implementation
+
+    public bool Equals(Signature? other)
+    {
+        if (other is null) 
+            return false;
+        
+        if (ReferenceEquals(this, other)) 
+            return true;
+        
+        return 
+            _vertexCount == other._vertexCount &&
+            _uniformityDegree == other._uniformityDegree &&
+            _value.Equals(other._value);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null)
+            return false;
+        
+        if (ReferenceEquals(this, obj)) 
+            return true;
+        
+        if (obj.GetType() != GetType())
+            return false;
+        
+        return Equals((Signature)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(
+            _vertexCount, 
+            _uniformityDegree, 
+            _value);
+    }
+    
+    #endregion
+
+
+    #region IComparable Implementation
+
+    public int CompareTo(Signature? other)
+    {
+        if (ReferenceEquals(this, other))
+            return 0;
+        
+        if (other is null) 
+            return 1;
+        
+        var uniformityDegreeComparison = 
+            _uniformityDegree.CompareTo(other._uniformityDegree);
+        if (uniformityDegreeComparison != 0) 
+            return uniformityDegreeComparison;
+        
+        var vertexCountComparison = 
+            _vertexCount.CompareTo(other._vertexCount);
+        if (vertexCountComparison != 0) 
+            return vertexCountComparison;
+
+        var compareResult = 0;
+        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        {
+            var ownValue =
+                Convert.ToInt64(Value.GetValue(state.SignatureIndices));
+            var otherValue =
+                Convert.ToInt64(other.Value.GetValue(state.SignatureIndices));
+
+            var result = ownValue.CompareTo(otherValue);
+            if (result != 0 && compareResult == 0)
+                compareResult = result;
+        });
+
+        return compareResult;
+    }
 
     #endregion
 }

@@ -14,6 +14,8 @@ namespace AlgebraOfSignatures.WPF.ViewModel.Pages;
 
 public class OperationsPageViewModel : PageViewModelBase
 {
+    #region Fields 
+    
     private readonly IDialogAware _dialogAware; 
     
     private readonly Lazy<ICommand> _showLeftGraphCommand; 
@@ -27,6 +29,11 @@ public class OperationsPageViewModel : PageViewModelBase
     private readonly Lazy<ICommand> _updateRightGraphCommand; 
     
     private readonly Lazy<ICommand> _operationPerformCommand; 
+    
+    #endregion
+    
+    
+    #region Properties
     
     public ICommand ShowLeftGraphCommand => 
         _showLeftGraphCommand.Value; 
@@ -50,7 +57,12 @@ public class OperationsPageViewModel : PageViewModelBase
         Enum.GetValues(typeof(UniformHyperGraph.RepresentationTypes));
     
     public static Array OperationTypesValues => 
-        Enum.GetValues(typeof(UniformHyperGraph.OperationsTypes));
+        Enum.GetValues(typeof(Signature.OperationsTypes));
+    
+    #endregion
+
+    
+    #region Constructors
 
     public OperationsPageViewModel(NavigationManager navigationManager) :
         base(navigationManager)
@@ -58,16 +70,8 @@ public class OperationsPageViewModel : PageViewModelBase
         _dialogAware = App.Container.Resolve<IDialogAware>();
         UniformityDegree = 2; 
         VertexCount = 6;
-        SelectedCellValueFrom = 0;
-        SelectedCellValueTo = 0;
-        
-        /* VertexCount = 6;
-         UniformityDegree = 5;
-          var array = ArrayExtensions.CreateRankedArray<long>( vertexCount - uniformityDegree + 1, uniformityDegree - 2); array.SetValue(11, 0, 0, 0); array.SetValue(3, 0, 0, 1); array.SetValue(1, 0,1, 1); array.SetValue(1, 1,1, 1); Signature = new Core.Signature(array, vertexCount, uniformityDegree); UniformHyperGraph = Core.UniformHyperGraph.FromSignature( Signature, vertexCount, uniformityDegree); */ /* VertexCount = 6; UniformityDegree = 4; var array = ArrayExtensions.CreateRankedArray<long>( vertexCount - uniformityDegree + 1, uniformityDegree - 2); array.SetValue(11, 0, 0); array.SetValue(3, 0, 1); array.SetValue(1, 0,2); Signature = new Core.Signature(array, vertexCount, uniformityDegree); UniformHyperGraph = Core.UniformHyperGraph.FromSignature( Signature, vertexCount, uniformityDegree); */ 
-            
-        /* VertexCount = 6; UniformityDegree = 2; Signature = new Core.Signature(11, vertexCount); UniformHyperGraph = Core.UniformHyperGraph.FromSignature( Signature, vertexCount, uniformityDegree); */
-
-        
+        SelectedCellValueLeftOperand = 0;
+        _selectedCellValueValueRightOperand = 0;
         
         
         
@@ -98,8 +102,6 @@ public class OperationsPageViewModel : PageViewModelBase
         
         
         
-        
-        
         _showLeftGraphCommand = new Lazy<ICommand>(() =>
             new RelayCommand(
                 _ => ShowGraphCommandExecute(LeftOperand), 
@@ -122,9 +124,77 @@ public class OperationsPageViewModel : PageViewModelBase
             new RelayCommand(UpdateRightGraphCommandExecute));
             
         _operationPerformCommand= new Lazy<ICommand>(() => 
-            new RelayCommand(OperationPerformCommandExecute));
+            new RelayCommand(
+                _ =>
+                {
+                    try
+                    {
+                        OperationPerformCommandExecute(null);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
+            ));
     }
+    
+    #endregion
+    
+    
+    #region Command methods
+    
+    private void OperationPerformCommandExecute(object? _)
+    {
+        Result = SelectedOperationType switch
+        {
+            Signature.OperationsTypes.Union =>
+                LeftOperand | RightOperand,
 
+            Signature.OperationsTypes.Intersection =>
+                LeftOperand & RightOperand,
+
+            Signature.OperationsTypes.AdditionHorizontal =>
+                UniformHyperGraph.Add(
+                    LeftOperand,
+                    RightOperand,
+                    Signature.AddType.Horizontal),
+            
+            Signature.OperationsTypes.AdditionVertical =>
+                UniformHyperGraph.Add(
+                    LeftOperand,
+                    RightOperand,
+                    Signature.AddType.Vertical),
+            
+            Signature.OperationsTypes.AdditionHorizontalConst =>
+                UniformHyperGraph.Add(
+                    LeftOperand,
+                    RightOperand.Signature.GetValue(),
+                    Signature.AddType.Horizontal),
+            
+            Signature.OperationsTypes.AdditionVerticalConst =>
+                UniformHyperGraph.Add(
+                    LeftOperand, 
+                    RightOperand.Signature.GetValue(),
+                    Signature.AddType.Vertical),
+
+            _ => throw new ArgumentOutOfRangeException()
+        };
+    }
+    
+    private void ShowGraphCommandExecute(UniformHyperGraph uh)
+    {
+        var parameters =
+            DialogAwareParameters.Builder.Create() 
+                .ForDialogType<GraphDialogViewModel>()
+                .AddParameter(
+                    GraphDialogViewModel.Parameters.AdjacencyMatrix, 
+                    uh.AdjacencyMatrix) 
+                .Build();
+        
+        _dialogAware.Show(parameters);
+    }
+    
     private void UpdateRightGraphCommandExecute(object? _)
     {
         var uh = GetNewUniformHyperGraph(RightOperand);
@@ -138,28 +208,35 @@ public class OperationsPageViewModel : PageViewModelBase
         LeftOperand = null!;
         LeftOperand = uh;
     }
+    
+    #endregion
 
-    private void ResetUniformHyperGraph()
+    
+    #region Methods
+
+    private void ResetRightUniformHyperGraph()
+    {
+        if (SelectedOperationType == Signature.OperationsTypes.AdditionHorizontalConst ||
+            SelectedOperationType == Signature.OperationsTypes.AdditionVerticalConst)
+        {
+            RightOperand =
+                UniformHyperGraph.Empty(20, 2);
+        }
+        else
+        {
+            RightOperand =
+                UniformHyperGraph.Empty(VertexCount, UniformityDegree);
+        }
+    }
+    
+    private void ResetUniformHyperGraphs()
     {
         LeftOperand =
-            UniformHyperGraph.Empty( VertexCount, UniformityDegree);
-        RightOperand =
-            UniformHyperGraph.Empty( VertexCount, UniformityDegree);
+            UniformHyperGraph.Empty(VertexCount, UniformityDegree);
         Result  =
-            UniformHyperGraph.Empty( VertexCount, UniformityDegree);
-    }
+            UniformHyperGraph.Empty(VertexCount, UniformityDegree);
 
-    private void ShowGraphCommandExecute(UniformHyperGraph uh)
-    {
-        var parameters =
-            DialogAwareParameters.Builder.Create() 
-                .ForDialogType<GraphDialogViewModel>()
-                .AddParameter(
-                    GraphDialogViewModel.Parameters.AdjacencyMatrix, 
-                    uh.AdjacencyMatrix) 
-                .Build();
-        
-        _dialogAware.Show(parameters);
+        ResetRightUniformHyperGraph();
     }
 
     private UniformHyperGraph GetNewUniformHyperGraph(UniformHyperGraph operand)
@@ -185,26 +262,10 @@ public class OperationsPageViewModel : PageViewModelBase
         };
     }
     
-    private void OperationPerformCommandExecute(object? _)
-    {
-        Result = SelectedOperationType switch
-        {
-            UniformHyperGraph.OperationsTypes.Union =>
-                LeftOperand | RightOperand,
-
-            UniformHyperGraph.OperationsTypes.Intersection =>
-                LeftOperand & RightOperand,
-
-            UniformHyperGraph.OperationsTypes.Addition =>
-                LeftOperand + RightOperand,
-
-            //todo: const
-            UniformHyperGraph.OperationsTypes.AdditionConst =>
-                LeftOperand + RightOperand,
-
-            _ => throw new ArgumentOutOfRangeException()
-        };
-    }
+    #endregion
+    
+    
+    #region Dependency Properties
     
     private Core.UniformHyperGraph _leftOperand;
 
@@ -256,7 +317,7 @@ public class OperationsPageViewModel : PageViewModelBase
             
             _uniformityDegree = value; 
             RaisePropertyChanged(nameof(UniformityDegree)); 
-            ResetUniformHyperGraph(); 
+            ResetUniformHyperGraphs(); 
         }
     } 
     
@@ -270,48 +331,58 @@ public class OperationsPageViewModel : PageViewModelBase
             if (value < 1) 
                 throw new ArgumentException(
                     "Vertex count must be at least 2",
-                    nameof(UniformityDegree)); 
+                    nameof(VertexCount)); 
             
             _vertexCount = value; 
             RaisePropertyChanged(nameof(VertexCount)); 
-            ResetUniformHyperGraph();
+            ResetUniformHyperGraphs();
         }
     } 
     
-    private object _selectedCellValueFrom;
+    private object _selectedCellValueLeftOperand;
 
-    public object SelectedCellValueFrom
+    public object SelectedCellValueLeftOperand
     {
-        get => _selectedCellValueFrom; 
+        get => _selectedCellValueLeftOperand; 
         set 
         {
-            _selectedCellValueFrom = value; 
-            RaisePropertyChanged(nameof(SelectedCellValueFrom));
+            _selectedCellValueLeftOperand = value; 
+            RaisePropertyChanged(nameof(SelectedCellValueLeftOperand));
         }
     } 
     
-    private object _selectedCellValueTo;
+    private object _selectedCellValueValueRightOperand;
 
-    public object SelectedCellValueTo
+    public object SelectedCellValueRightOperand
     {
-        get => _selectedCellValueTo;
+        get => _selectedCellValueValueRightOperand;
         set
         {
-            _selectedCellValueTo = value; 
-            RaisePropertyChanged(nameof(SelectedCellValueTo));
+            _selectedCellValueValueRightOperand = value; 
+            RaisePropertyChanged(nameof(SelectedCellValueRightOperand));
         }
     }
     
-    private UniformHyperGraph.OperationsTypes _selectedOperationType = 
-        Core.UniformHyperGraph.OperationsTypes.Union; 
+    private Signature.OperationsTypes _selectedOperationType = 
+        Core.Signature.OperationsTypes.Union; 
     
-    public UniformHyperGraph.OperationsTypes SelectedOperationType
+    public Signature.OperationsTypes SelectedOperationType
     {
         get => _selectedOperationType;
         set
         {
+            var lastIsConst =
+                _selectedOperationType == Signature.OperationsTypes.AdditionHorizontalConst ||
+                _selectedOperationType == Signature.OperationsTypes.AdditionVerticalConst;
+            var currentIsConst =
+                value == Signature.OperationsTypes.AdditionHorizontalConst ||
+                value == Signature.OperationsTypes.AdditionVerticalConst;
+            
             _selectedOperationType = value; 
             RaisePropertyChanged(nameof(SelectedOperationType));
+            
+            if (currentIsConst != lastIsConst)
+                ResetRightUniformHyperGraph();
         } 
     }
     
@@ -327,4 +398,6 @@ public class OperationsPageViewModel : PageViewModelBase
             RaisePropertyChanged(nameof(SelectedRepresentationType));
         }
     }
+    
+    #endregion
 }

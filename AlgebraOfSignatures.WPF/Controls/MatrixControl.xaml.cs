@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Threading;
 using AlgebraOfSignatures.Core.Base.Interfaces;
 using DistributedSystems.LaboratoryWork.Nuget.Command;
 using ArgumentException = System.ArgumentException;
@@ -74,6 +75,19 @@ public partial class MatrixControl :
     
     
     #region Dependency Properties
+    
+    public bool IsHeadersVisible
+    {
+        get => (bool)GetValue(IsHeadersVisibleProperty);
+        set => SetValue(IsHeadersVisibleProperty, value);
+    }
+
+    public static readonly DependencyProperty IsHeadersVisibleProperty =
+        DependencyProperty.Register(
+            nameof(IsHeadersVisible),
+            typeof(bool),
+            typeof(MatrixControl),
+            new PropertyMetadata(true));
     
     public int RowsCount
     {
@@ -147,7 +161,23 @@ public partial class MatrixControl :
             nameof(UpdateGraphCommand),
             typeof(ICommand),
             typeof(MatrixControl));
+    
+    public bool IsDrawGraphCommandCanExecute
+    {
+        get =>
+            (bool)GetValue(IsDrawGraphCommandCanExecuteProperty);
 
+        set =>
+            SetValue(IsDrawGraphCommandCanExecuteProperty, value);
+    }
+
+    public static readonly DependencyProperty IsDrawGraphCommandCanExecuteProperty
+        = DependencyProperty.Register(
+            nameof(IsDrawGraphCommandCanExecute),
+            typeof(bool),
+            typeof(MatrixControl),
+            new PropertyMetadata(true));
+    
     public bool IsDrawGraphButtonVisible
     {
         get =>
@@ -161,8 +191,24 @@ public partial class MatrixControl :
         = DependencyProperty.Register(
             nameof(IsDrawGraphButtonVisible),
             typeof(bool),
-            typeof(MatrixControl));
+            typeof(MatrixControl),
+            new PropertyMetadata(true));
 
+    public bool IsLoadGraphButtonVisible
+    {
+        get =>
+            (bool)GetValue(IsLoadGraphButtonVisibleProperty);
+
+        set =>
+            SetValue(IsLoadGraphButtonVisibleProperty, value);
+    }
+
+    public static readonly DependencyProperty IsLoadGraphButtonVisibleProperty
+        = DependencyProperty.Register(
+            nameof(IsLoadGraphButtonVisible),
+            typeof(bool),
+            typeof(MatrixControl),
+            new PropertyMetadata(true));
     
     public bool IsReadOnly
     {
@@ -228,6 +274,19 @@ public partial class MatrixControl :
             nameof(BackgroundMultiValueConverter),
             typeof(IMultiValueConverter),
             typeof(MatrixControl));
+        
+    public bool RequireInputConfirmation
+    {
+        get => (bool)GetValue(RequireInputConfirmationProperty);
+        set => SetValue(RequireInputConfirmationProperty, value);
+    }
+
+    public static readonly DependencyProperty RequireInputConfirmationProperty =
+        DependencyProperty.Register(
+            nameof(RequireInputConfirmation),
+            typeof(bool),
+            typeof(MatrixControl),
+            new PropertyMetadata(true));
     
     #endregion
     
@@ -245,7 +304,7 @@ public partial class MatrixControl :
         if (e.NewValue is not ICommand drawGraphCommand) 
             return;
         
-        control.IsDrawGraphButtonVisible = 
+        control.IsDrawGraphCommandCanExecute = 
             drawGraphCommand.CanExecute(null) == true;
     }
     
@@ -281,7 +340,7 @@ public partial class MatrixControl :
 
         control.FillDataGrid();
         
-        control.IsDrawGraphButtonVisible = 
+        control.IsDrawGraphCommandCanExecute  = 
             control.ShowGraphCommand.CanExecute(null) == true;
     }
     
@@ -483,7 +542,20 @@ public partial class MatrixControl :
         {
             SelectedCellValue = tb.Text;
         }
+        
+        //todo: Fix the crutch
+        if (RequireInputConfirmation)
+            return;
+        
+        if (e.EditAction != DataGridEditAction.Commit)
+            return;
+
+        Dispatcher.BeginInvoke(
+            DispatcherPriority.Background,
+            () => SaveGridCommand.Execute(null));
     }
     
+    
     #endregion
+    
 }
