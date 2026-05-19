@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using AlgebraOfSignatures.Core;
 using AlgebraOfSignatures.WPF.Converters.DataGridAppearance;
+using DistributedSystems.LaboratoryWork.Nuget.Command;
 using DistributedSystems.LaboratoryWork.Nuget.ViewModel;
 
 namespace AlgebraOfSignatures.WPF.Controls;
@@ -14,14 +15,78 @@ namespace AlgebraOfSignatures.WPF.Controls;
 public partial class UniformHyperGraphControl : 
     UserControl
 {
+    
+    #region Fields
+    
+    private readonly Lazy<ICommand> _saveToFileCommand;
+    
+    private readonly Lazy<ICommand> _loadFromFileCommand;
+
+    #endregion
+    
+    #region Properties
+    
+    public ICommand SaveToFileCommand =>
+        _saveToFileCommand.Value;
+    
+    public ICommand LoadFromFileCommand =>
+        _loadFromFileCommand.Value;
+
+    
+    #endregion
+    
+    
     #region Constructors
     
     public UniformHyperGraphControl()
     {
         InitializeComponent();
+                
+        _saveToFileCommand = new Lazy<ICommand>(() =>
+            new RelayCommand(_ => SaveToFileCommandExecute()));
+        
+        _loadFromFileCommand = new Lazy<ICommand>(() =>
+            new RelayCommand(_ => LoadFromFileCommandExecute()));
     }
     
     #endregion
+    
+    
+    #region Methods
+
+    private void SaveToFileCommandExecute()
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Filter     = "JSON файлы (*.json)|*.json",
+            DefaultExt = ".json",
+            FileName = "matrix.json"
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+
+        UniformHyperGraph.SaveToFile(dialog.FileName);
+    }
+
+    private void LoadFromFileCommandExecute()
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter     = "JSON файлы (*.json)|*.json",
+            DefaultExt = ".json",
+            FileName = "matrix.json"
+        };
+
+        if (dialog.ShowDialog() != true)
+            return;
+        
+        UniformHyperGraph = UniformHyperGraph.FromFile(dialog.FileName);
+        UpdateGraphCommand.Execute(UniformHyperGraph);
+    }
+    
+    #endregion
+    
     
     #region Dependency Properties
     
@@ -77,21 +142,6 @@ public partial class UniformHyperGraphControl :
     public static readonly DependencyProperty ShowGraphCommandProperty
         = DependencyProperty.Register(
             nameof(ShowGraphCommand),
-            typeof(ICommand),
-            typeof(UniformHyperGraphControl));
-    
-    public ICommand LoadFromFileCommand
-    {
-        get =>
-            (ICommand)GetValue(LoadFromFileCommandProperty);
-
-        set =>
-            SetValue(LoadFromFileCommandProperty, value);
-    }
-
-    public static readonly DependencyProperty LoadFromFileCommandProperty
-        = DependencyProperty.Register(
-            nameof(LoadFromFileCommand),
             typeof(ICommand),
             typeof(UniformHyperGraphControl));
     

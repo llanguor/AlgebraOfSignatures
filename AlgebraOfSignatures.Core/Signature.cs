@@ -173,7 +173,8 @@ public class Signature :
                 Value.GetValue(indices));
     }
 
-    private int CalculateBitLength(params int[] indices)
+    //todo: move to iterator
+    public int CalculateBitLengthFromIndices(params int[] indices)
     {
         return VertexCount - UniformityDegree + 1 - indices[^1];
     }
@@ -280,7 +281,7 @@ public class Signature :
     {
         ThrowIfLargeValue(
             value,
-            CalculateBitLength(indices));
+            CalculateBitLengthFromIndices(indices));
         
         for(var i = 0; i < indices.Length; ++i)
         {
@@ -313,13 +314,13 @@ public class Signature :
         if (value.ElementType != typeof(long))
             throw new ArgumentException($"{nameof(value)} elements must be of type long");
         
-        value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        this.Traverse(state =>
         {
             var currValue = 
                 Convert.ToInt64(value.GetValue(state.SignatureIndices));
             
             var currBitLength =
-                CalculateBitLength(state.SignatureIndices);
+                CalculateBitLengthFromIndices(state.SignatureIndices);
             
             ThrowIfLargeValue(currValue, currBitLength);
                     
@@ -363,7 +364,7 @@ public class Signature :
         if(1 != SignatureValueCompare(
                lastValue, 
                currValue, 
-               CalculateBitLength(indices)))
+               CalculateBitLengthFromIndices(indices)))
             return;
         
         var signatureIndicesStrTo = string.Join(", ", indices);
@@ -419,7 +420,7 @@ public class Signature :
             this.VertexCount,
             other.VertexCount);
         
-        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        this.Traverse(state =>
         {
             var signatureValue1 = this.GetValue(state.SignatureIndices);
             var signatureValue2 = other.GetValue(state.SignatureIndices);
@@ -479,7 +480,7 @@ public class Signature :
             this.VertexCount,
             other.VertexCount);
         
-        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        this.Traverse(state =>
         {
             var signatureValue1 = this.GetValue(state.SignatureIndices);
             var signatureValue2 = other.GetValue(state.SignatureIndices);
@@ -564,9 +565,9 @@ public class Signature :
 
     public Signature Add(long constant, AddType type)
     {
-        this.Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        this.Traverse(state =>
         {
-            var bitLen = CalculateBitLength(state.SignatureIndices);
+            var bitLen = CalculateBitLengthFromIndices(state.SignatureIndices);
             var maxValue = (1L << bitLen) - 1;
             var currentValue = System.Convert.ToInt64(
                 Value.GetValue(state.SignatureIndices));
@@ -775,7 +776,7 @@ public class Signature :
             return vertexCountComparison;
 
         var compareResult = 0;
-        Value.TraverseSignature(VertexCount, UniformityDegree, state =>
+        this.Traverse(state =>
         {
             var ownValue =
                 Convert.ToInt64(Value.GetValue(state.SignatureIndices));

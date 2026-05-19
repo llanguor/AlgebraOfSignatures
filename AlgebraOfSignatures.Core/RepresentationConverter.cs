@@ -140,7 +140,7 @@ internal sealed class RepresentationConverter :
             new Matrix<long>(1,1) : 
             new Matrix<long>(signatureLength, uniformityDegree-2);
         
-        signatureArray.TraverseSignature(vertexCount, uniformityDegree, state =>
+        signatureArray.Traverse(vertexCount, uniformityDegree, state =>
         {
             currentSignatureValue = System.Convert.ToInt64(
                 signatureArray.GetValue(state.SignatureIndices));
@@ -198,7 +198,7 @@ internal sealed class RepresentationConverter :
         Action<int[]> setValueAction = 
             array => adjacencyMatrix.SetValue(true, array);
         
-        adjacencyMatrix.TraverseSignature(signature.VertexCount,  signature.UniformityDegree, state =>
+        adjacencyMatrix.Traverse(signature.VertexCount,  signature.UniformityDegree, state =>
         {
             currentSignatureValue = System.Convert.ToInt64(
                 signature.GetValue(state.SignatureIndices));
@@ -254,6 +254,61 @@ internal sealed class RepresentationConverter :
 
     public override Matrix<int> ComputeVertexDegreeVectorFromSignature(Signature signature)
     {
-        throw new NotImplementedException();
+        var size = signature.VertexCount;
+        var rank = signature.UniformityDegree - 1;
+        
+        var vertexDegreeVector = new Matrix<int>(
+            signature.VertexCount,
+            signature.UniformityDegree-1);
+        var vertexDegreeVectorIndices = 
+            new int[signature.UniformityDegree-1];
+        
+        signature.Traverse(state =>
+        {
+            Array.Copy(state.SignatureIndices,
+                vertexDegreeVectorIndices,
+                state.SignatureIndices.Length-1);
+            vertexDegreeVectorIndices[^1] = state.SignatureIndices[^1];
+
+            var currentValue = signature.GetValue(state.SignatureIndices);
+            var bitLength = signature.CalculateBitLengthFromIndices(
+                state.SignatureIndices);
+            var mask = 1 << (bitLength-1);
+            
+            int onesCount = 0, zeroesCount = 0;
+            
+            for (var i = bitLength-1; i >= 0; --i)
+            {
+                var currentBit = (currentValue & mask) >> i;
+                mask >>= 1;
+                
+                if (currentBit == 0)
+                {
+                    ++zeroesCount;
+                    continue;
+                }
+                
+                ++onesCount;
+                
+                var currentSignatureRowLength = bitLength - onesCount + 1;
+                var cachedValue = currentSignatureRowLength - zeroesCount;
+                var currentSignatureStartIndex = signature.VertexCount - currentSignatureRowLength;
+
+                if (vertexDegreeVectorIndices.Length > 1)
+                {
+                    vertexDegreeVectorIndices[^2] = state.AdjacencyIndices[^2];
+                    ++state.AdjacencyIndices[^2];
+                }
+
+                
+                vertexDegreeVector.SetValue(cachedValue, vertexDegreeVectorIndices);
+                
+                //for (var j = 0; j < )
+            }
+            
+            
+        });
+        
+        return vertexDegreeVector;
     }
 }
