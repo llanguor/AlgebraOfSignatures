@@ -8,22 +8,28 @@ public class OperationTypeToDescriptionConverter :
 {
     public override object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is not UniformHyperGraph.OperationsTypes type)
+        if (value is not Signature.OperationsTypes type)
             return string.Empty;
 
         return type switch
         {
-            UniformHyperGraph.OperationsTypes.Union 
+            Signature.OperationsTypes.Union 
                 => "Объединение",
                 
-            UniformHyperGraph.OperationsTypes.Intersection 
+            Signature.OperationsTypes.Intersection 
                 => "Пересечение",
             
-            UniformHyperGraph.OperationsTypes.Addition 
-                => "Сложение",
+            Signature.OperationsTypes.AdditionVertical 
+                => "Сложение (вертикальное)",
             
-            UniformHyperGraph.OperationsTypes.AdditionConst 
-                => "Сложение с константой",
+            Signature.OperationsTypes.AdditionVerticalConst
+                => "Сложение с константой (вертикальное)",
+            
+            Signature.OperationsTypes.AdditionHorizontal
+                => "Сложение (горизонтальное)",
+            
+            Signature.OperationsTypes.AdditionHorizontalConst
+                => "Сложение с константой (горизонтальное)",
                 
             _ => string.Empty
         };

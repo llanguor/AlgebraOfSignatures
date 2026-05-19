@@ -21,6 +21,15 @@
             IsReadOnly="{Binding IsReadOnly, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}"
+            RequireInputConfirmation="{Binding RequireInputConfirmation, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=OneWay}"
+            IsDrawGraphButtonVisible="{Binding IsDrawGraphButtonVisible, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=OneWay}"
+            IsLoadGraphButtonVisible="{Binding IsLoadGraphButtonVisible, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=OneWay}"
             ShowGraphCommand="{Binding ShowGraphCommand, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}"
@@ -28,6 +37,9 @@
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}"
             LoadFromFileCommand="{Binding LoadFromFileCommand, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=OneWay}"
+            IsHeadersVisible="{Binding IsHeadersVisible, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}">
             <local:MatrixControl.BackgroundMultiValueConverter>

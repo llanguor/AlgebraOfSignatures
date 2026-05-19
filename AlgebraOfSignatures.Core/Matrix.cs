@@ -1,16 +1,16 @@
 ﻿using AlgebraOfSignatures.Core.Base.Interfaces;
 using AlgebraOfSignatures.Core.Extensions;
 
-namespace AlgebraOfSignatures.Core.Base;
+namespace AlgebraOfSignatures.Core;
 
 public class Matrix<T> :
-    IMatrix
+    IMatrix,
+    IEquatable<Matrix<T>>
 {
     #region Actions
     public event Action<int[], T?>? OnSetValue;
     
     #endregion
-    
     
     #region Constructors
     
@@ -33,7 +33,6 @@ public class Matrix<T> :
     }
     
     #endregion
-    
     
     #region Properties
     
@@ -84,6 +83,55 @@ public class Matrix<T> :
     
     public object Clone()
         => new Matrix<T>((Array)Value.Clone());
+    
+    #endregion
+
+    #region IEquatable<Matrix<T>> implementation
+    
+    public bool Equals(Matrix<T>? other)
+    {
+        if (other is null) 
+            return false;
+    
+        if (ReferenceEquals(this, other))
+            return true;
+
+        if (Value.Rank != other.Value.Rank)
+            return false;
+
+        for (var i = 0; i < Value.Rank; i++)
+            if (Value.GetLength(i) != other.Value.GetLength(i))
+                return false;
+
+        var xEnum = Value.GetEnumerator();
+        var yEnum = other.Value.GetEnumerator();
+
+        while (xEnum.MoveNext())
+        {
+            yEnum.MoveNext();
+
+            if (!EqualityComparer<T>.Default.Equals((T?)xEnum.Current, (T?)yEnum.Current))
+                return false;
+        }
+
+        return true;
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+
+        hash.Add(Value.Rank);
+
+        for (var i = 0; i < Value.Rank; i++)
+            hash.Add(Value.GetLength(i));
+
+        var enumerator = Value.GetEnumerator();
+        while (enumerator.MoveNext())
+            hash.Add(enumerator.Current);
+
+        return hash.ToHashCode();
+    }
     
     #endregion
 }

@@ -1,4 +1,5 @@
-﻿using AlgebraOfSignatures.Core.Base;
+﻿using AlgebraOfSignatures.Core;
+using AlgebraOfSignatures.Core.Base;
 using DistributedSystems.LaboratoryWork.Nuget.Dialog;
 using DistributedSystems.LaboratoryWork.Nuget.ViewModel;
 

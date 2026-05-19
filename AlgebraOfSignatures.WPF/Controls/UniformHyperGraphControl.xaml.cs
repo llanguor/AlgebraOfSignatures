@@ -119,6 +119,64 @@ public partial class UniformHyperGraphControl :
             nameof(RepresentationToVisualize),
             typeof(UniformHyperGraph.RepresentationTypes),
             typeof(UniformHyperGraphControl));
+    
+    public bool IsLoadGraphButtonVisible
+    {
+        get =>
+            (bool)GetValue(IsLoadGraphButtonVisibleProperty);
+
+        set =>
+            SetValue(IsLoadGraphButtonVisibleProperty, value);
+    }
+
+    public static readonly DependencyProperty IsLoadGraphButtonVisibleProperty
+        = DependencyProperty.Register(
+            nameof(IsLoadGraphButtonVisible),
+            typeof(bool),
+            typeof(UniformHyperGraphControl),
+            new PropertyMetadata(true));
+    
+    public bool IsDrawGraphButtonVisible
+    {
+        get =>
+            (bool)GetValue(IsDrawGraphButtonVisibleProperty);
+
+        set =>
+            SetValue(IsDrawGraphButtonVisibleProperty, value);
+    }
+
+    public static readonly DependencyProperty IsDrawGraphButtonVisibleProperty
+        = DependencyProperty.Register(
+            nameof(IsDrawGraphButtonVisible),
+            typeof(bool),
+            typeof(UniformHyperGraphControl),
+            new PropertyMetadata(true));
+    
+    public bool RequireInputConfirmation
+    {
+        get => (bool)GetValue(RequireInputConfirmationProperty);
+        set => SetValue(RequireInputConfirmationProperty, value);
+    }
+
+    public static readonly DependencyProperty RequireInputConfirmationProperty =
+        DependencyProperty.Register(
+            nameof(RequireInputConfirmation),
+            typeof(bool),
+            typeof(UniformHyperGraphControl),
+            new PropertyMetadata(true));
+    
+    public bool IsHeadersVisible
+    {
+        get => (bool)GetValue(IsHeadersVisibleProperty);
+        set => SetValue(IsHeadersVisibleProperty, value);
+    }
+
+    public static readonly DependencyProperty IsHeadersVisibleProperty =
+        DependencyProperty.Register(
+            nameof(IsHeadersVisible),
+            typeof(bool),
+            typeof(UniformHyperGraphControl),
+            new PropertyMetadata(true));
 
     #endregion
 }

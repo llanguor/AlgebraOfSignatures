@@ -36,6 +36,9 @@ public class RepresentationTypeToArrayConverter :
 
             UniformHyperGraph.RepresentationTypes.IncidenceMatrix =>
                 uh.IncidenceMatrix,
+            
+            UniformHyperGraph.RepresentationTypes.VertexDegreeVector =>
+                uh.VertexDegreeVector,
 
             _ => null
         };

@@ -6,6 +6,8 @@ namespace AlgebraOfSignatures.Core.Base;
 public abstract class RepresentationConverterBase :
     IRepresentationConverter
 {
+    //todo: The vertex degree vector is calculated from the adjacency matrix due to the lack of time to implement it from the signature. All calculations must be based on the signature.
+    
     #region Methods
     
     public Signature ComputeSignatureFromIncidence(
@@ -18,15 +20,42 @@ public abstract class RepresentationConverterBase :
     }
 
     public Matrix<bool> ComputeIncidenceFromSignature(
-        Signature signature,
-        int vertexCount,
-        int uniformityDegree)
+        Signature signature)
     {
         return ComputeIncidenceFromAdjacency(
             ComputeAdjacencyFromSignature(
-                signature,
-                vertexCount,
-                uniformityDegree));
+                signature));
+    }
+    
+    
+    public Matrix<int> ComputeVertexDegreeVectorFromIncidence(
+        Matrix<bool> incidenceMatrix,
+        int uniformityDegree)
+    {
+        return ComputeVertexDegreeVectorFromAdjacency(
+            ComputeAdjacencyFromIncidence(incidenceMatrix, uniformityDegree));
+    }
+    
+    public Matrix<bool> ComputeIncidenceFromVertexDegreeVector(
+        Matrix<int> vertexDegreeVector)
+    {
+        return ComputeIncidenceFromAdjacency(
+            ComputeAdjacencyFromVertexDegreeVector(vertexDegreeVector));
+    }
+
+
+    public Matrix<int> ComputeVertexDegreeVectorFromAdjacency(
+        Matrix<bool> adjacencyMatrix)
+    {
+        return ComputeVertexDegreeVectorFromSignature(
+            ComputeSignatureFromAdjacency(adjacencyMatrix));
+    }
+
+    public Matrix<bool> ComputeAdjacencyFromVertexDegreeVector(
+        Matrix<int> vertexDegreeVector)
+    {
+        return ComputeAdjacencyFromSignature(
+            ComputeSignatureFromVertexDegreeVector(vertexDegreeVector));
     }
     
     #endregion
@@ -134,9 +163,7 @@ public abstract class RepresentationConverterBase :
         bool isThrowIfIncorrectAdjacencyMatrix = false);
     
     public abstract Matrix<bool> ComputeAdjacencyFromSignature(
-        Signature signature,
-        int vertexCount,
-        int uniformityDegree);
+        Signature signature);
     
     public abstract Matrix<bool> ComputeIncidenceFromAdjacency(
         Matrix<bool> adjacencyMatrix);
@@ -144,7 +171,13 @@ public abstract class RepresentationConverterBase :
     public abstract Matrix<bool> ComputeAdjacencyFromIncidence(
         Matrix<bool> incidenceMatrix,
         int uniformityDegree);
-    
+
+    public abstract Signature ComputeSignatureFromVertexDegreeVector(
+        Matrix<int> vertexDegreeVector);
+
+    public abstract Matrix<int> ComputeVertexDegreeVectorFromSignature(
+        Signature signature);
+
     #endregion
-    
+
 }

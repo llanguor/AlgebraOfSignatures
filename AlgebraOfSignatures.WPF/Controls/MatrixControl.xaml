@@ -8,6 +8,7 @@
              xmlns:dataGridAppearanceConverters="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridAppearance"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:nestedMultibinding="clr-namespace:AlgebraOfSignatures.WPF.Packages.NestedMultiBinding"
              xmlns:multiValueConverterProxy="clr-namespace:AlgebraOfSignatures.WPF.Packages.MultiValueConverterProxy"
              mc:Ignorable="d"
              FontSize="17">
@@ -97,19 +98,31 @@
                 FontStyle="Italic"
                 Content="fx">
                 <Button.Visibility>
-                    <MultiBinding Converter="{converters:FromBoolConverter}">
-                        <Binding RelativeSource="{RelativeSource AncestorType=local:MatrixControl}" Path="IsDrawGraphButtonVisible"/>
-                        <Binding>
-                            <Binding.Source>
-                                <Visibility>Visible</Visibility>
-                            </Binding.Source>
-                        </Binding>
-                        <Binding>
-                            <Binding.Source>
-                                <Visibility>Collapsed</Visibility>
-                            </Binding.Source>
-                        </Binding>
-                    </MultiBinding>
+                    <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
+                        <nestedMultibinding:NestedMultiBinding.Bindings>
+                            <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
+                                <nestedMultibinding:NestedMultiBinding.Bindings>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}" Path="IsDrawGraphButtonVisible"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}" Path="IsDrawGraphCommandCanExecute"/>
+                                    <Binding>
+                                        <Binding.Source>
+                                            <system:Boolean>False</system:Boolean>
+                                        </Binding.Source>
+                                    </Binding>
+                                </nestedMultibinding:NestedMultiBinding.Bindings>
+                            </nestedMultibinding:NestedMultiBinding>
+                            <Binding>
+                                <Binding.Source>
+                                    <Visibility>Visible</Visibility>
+                                </Binding.Source>
+                            </Binding>
+                            <Binding>
+                                <Binding.Source>
+                                    <Visibility>Collapsed</Visibility>
+                                </Binding.Source>
+                            </Binding>
+                        </nestedMultibinding:NestedMultiBinding.Bindings>
+                    </nestedMultibinding:NestedMultiBinding>
                 </Button.Visibility>
             </Button>
             <Button
@@ -121,19 +134,31 @@
                 Foreground="Green"
                 Content="📂">
                 <Button.Visibility>
-                    <MultiBinding Converter="{converters:FromBoolConverter}">
-                        <Binding RelativeSource="{RelativeSource AncestorType=local:MatrixControl}" Path="IsReadOnly"/>
-                        <Binding>
-                            <Binding.Source>
-                                <Visibility>Collapsed</Visibility>
-                            </Binding.Source>
-                        </Binding>
-                        <Binding>
-                            <Binding.Source>
-                                <Visibility>Visible</Visibility>
-                            </Binding.Source>
-                        </Binding>
-                    </MultiBinding>
+                    <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
+                        <nestedMultibinding:NestedMultiBinding.Bindings>
+                            <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
+                                <nestedMultibinding:NestedMultiBinding.Bindings>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}" Path="IsLoadGraphButtonVisible"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}" Path="IsReadOnly"/>
+                                    <Binding>
+                                        <Binding.Source>
+                                            <system:Boolean>True</system:Boolean>
+                                        </Binding.Source>
+                                    </Binding>
+                                </nestedMultibinding:NestedMultiBinding.Bindings>
+                            </nestedMultibinding:NestedMultiBinding>
+                            <Binding>
+                                <Binding.Source>
+                                    <Visibility>Collapsed</Visibility>
+                                </Binding.Source>
+                            </Binding>
+                            <Binding>
+                                <Binding.Source>
+                                    <Visibility>Visible</Visibility>
+                                </Binding.Source>
+                            </Binding>
+                        </nestedMultibinding:NestedMultiBinding.Bindings>
+                    </nestedMultibinding:NestedMultiBinding>
                 </Button.Visibility>
             </Button>
             <Button
@@ -145,19 +170,31 @@
                 Foreground="Green"
                 Content="✓">
                 <Button.Visibility>
-                    <MultiBinding Converter="{converters:FromBoolConverter}">
-                        <Binding RelativeSource="{RelativeSource AncestorType=local:MatrixControl}" Path="IsReadOnly"/>
-                        <Binding>
-                            <Binding.Source>
-                                <Visibility>Collapsed</Visibility>
-                            </Binding.Source>
-                        </Binding>
-                        <Binding>
-                            <Binding.Source>
-                                <Visibility>Visible</Visibility>
-                            </Binding.Source>
-                        </Binding>
-                    </MultiBinding>
+                    <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
+                        <nestedMultibinding:NestedMultiBinding.Bindings>
+                            <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
+                                <nestedMultibinding:NestedMultiBinding.Bindings>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}" Path="RequireInputConfirmation"/>
+                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}" Path="IsReadOnly"/>
+                                    <Binding>
+                                        <Binding.Source>
+                                            <system:Boolean>True</system:Boolean>
+                                        </Binding.Source>
+                                    </Binding>
+                                </nestedMultibinding:NestedMultiBinding.Bindings>
+                            </nestedMultibinding:NestedMultiBinding>
+                            <Binding>
+                                <Binding.Source>
+                                    <Visibility>Collapsed</Visibility>
+                                </Binding.Source>
+                            </Binding>
+                            <Binding>
+                                <Binding.Source>
+                                    <Visibility>Visible</Visibility>
+                                </Binding.Source>
+                            </Binding>
+                        </nestedMultibinding:NestedMultiBinding.Bindings>
+                    </nestedMultibinding:NestedMultiBinding>
                 </Button.Visibility>
             </Button>
         </Grid>
@@ -187,6 +224,24 @@
             Background="Transparent"
             SelectedCellsChanged="DataGrid_SelectedCellsChanged"
             CellEditEnding="DataGrid_CellEditEnding">
+            <DataGrid.HeadersVisibility>
+                <MultiBinding Converter="{converters:FromBoolConverter}">
+                    <Binding 
+                        Path="IsHeadersVisible"
+                        RelativeSource="{RelativeSource AncestorType=local:MatrixControl}"
+                        Mode="OneWay"/>
+                    <Binding>
+                        <Binding.Source>
+                            <DataGridHeadersVisibility>All</DataGridHeadersVisibility>
+                        </Binding.Source>
+                    </Binding>
+                    <Binding>
+                        <Binding.Source>
+                            <DataGridHeadersVisibility>None</DataGridHeadersVisibility>
+                        </Binding.Source>
+                    </Binding>
+                </MultiBinding>
+            </DataGrid.HeadersVisibility>
             <DataGrid.RowHeaderStyle>
                 <Style TargetType="DataGridRowHeader">
                     <Setter Property="HorizontalContentAlignment" Value="Center"/>

@@ -124,7 +124,7 @@ public class ConversionPageViewModel :
         {
             UniformHyperGraph.RepresentationTypes.Signature => 
                 Core.UniformHyperGraph.FromSignature( 
-                    this.UniformHyperGraph.Signature, 
+                    this.UniformHyperGraph.Signature.Value, 
                     VertexCount, 
                     UniformityDegree),
             
