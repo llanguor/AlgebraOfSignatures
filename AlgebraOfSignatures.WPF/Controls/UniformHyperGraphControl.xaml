@@ -36,10 +36,13 @@
             UpdateGraphCommand="{Binding UpdateGraphCommand, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}"
-            LoadFromFileCommand="{Binding LoadFromFileCommand, 
+            IsHeadersVisible="{Binding IsHeadersVisible, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}"
-            IsHeadersVisible="{Binding IsHeadersVisible, 
+            SaveToFileCommand="{Binding SaveToFileCommand, 
+                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
+                Mode=OneWay}"
+            LoadFromFileCommand="{Binding LoadFromFileCommand, 
                 RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:UniformHyperGraphControl}, 
                 Mode=OneWay}">
             <local:MatrixControl.BackgroundMultiValueConverter>

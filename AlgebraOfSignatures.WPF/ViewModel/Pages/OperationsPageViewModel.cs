@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Text.Unicode;
+using System.Windows;
 using System.Windows.Input;
 using AlgebraOfSignatures.Core;
 using AlgebraOfSignatures.Core.Base;
@@ -194,17 +195,40 @@ public class OperationsPageViewModel : PageViewModelBase
         
         _dialogAware.Show(parameters);
     }
-    
-    private void UpdateRightGraphCommandExecute(object? _)
+
+    private void UpdateRightGraphCommandExecute(object? input)
     {
-        var uh = GetNewUniformHyperGraph(RightOperand);
+        if (input is not Core.UniformHyperGraph prev)
+            prev = RightOperand;
+
+        var uh = GetNewUniformHyperGraph(prev);
+
+        if (SelectedOperationType != Signature.OperationsTypes.AdditionHorizontalConst &&
+            SelectedOperationType != Signature.OperationsTypes.AdditionVerticalConst)
+        {
+            if (uh.UniformityDegree != UniformityDegree)
+                UniformityDegree = uh.UniformityDegree;
+            if (uh.VertexCount != VertexCount)
+                VertexCount = uh.VertexCount;
+        }
+
         RightOperand = null!;
         RightOperand = uh;
+
     }
     
-    private void UpdateLeftGraphCommandExecute(object? _)
+    private void UpdateLeftGraphCommandExecute(object? input)
     {
-        var uh = GetNewUniformHyperGraph(LeftOperand);
+        if (input is not Core.UniformHyperGraph prev)
+            prev = LeftOperand;
+        
+        var uh = GetNewUniformHyperGraph(prev);
+        
+        if (uh.UniformityDegree != UniformityDegree)
+            UniformityDegree = uh.UniformityDegree;
+        if (uh.VertexCount != VertexCount)
+            VertexCount = uh.VertexCount;
+        
         LeftOperand = null!;
         LeftOperand = uh;
     }
@@ -246,8 +270,8 @@ public class OperationsPageViewModel : PageViewModelBase
             UniformHyperGraph.RepresentationTypes.Signature => 
                 Core.UniformHyperGraph.FromSignature( 
                     operand.Signature, 
-                    VertexCount, 
-                    UniformityDegree),
+                    operand.VertexCount, 
+                    operand.UniformityDegree),
             
             UniformHyperGraph.RepresentationTypes.AdjacencyMatrix =>
                 Core.UniformHyperGraph.FromAdjacencyMatrix( 
