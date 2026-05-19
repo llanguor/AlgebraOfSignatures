@@ -1,5 +1,6 @@
 ﻿using System.Security.AccessControl;
 using System.Security.Cryptography.Xml;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -118,23 +119,30 @@ public class ConversionPageViewModel :
         UniformHyperGraph = uh;
     }
 
-    private void UpdateGraphCommandExecute(object? _)
+    private void UpdateGraphCommandExecute(object? input)
     {
+        if (input is not Core.UniformHyperGraph prev)
+            prev = UniformHyperGraph;
+        
         var uh = SelectedRepresentationTypeFrom switch
         {
             UniformHyperGraph.RepresentationTypes.Signature => 
                 Core.UniformHyperGraph.FromSignature( 
-                    this.UniformHyperGraph.Signature.Value, 
-                    VertexCount, 
-                    UniformityDegree),
+                    prev.Signature.Value, 
+                    prev.VertexCount, 
+                    prev.UniformityDegree),
             
             UniformHyperGraph.RepresentationTypes.AdjacencyMatrix =>
                 Core.UniformHyperGraph.FromAdjacencyMatrix( 
-                    this.UniformHyperGraph.AdjacencyMatrix),
+                    prev.AdjacencyMatrix),
             
             UniformHyperGraph.RepresentationTypes.IncidenceMatrix => 
                 Core.UniformHyperGraph.FromAdjacencyMatrix(
-                    this.UniformHyperGraph.IncidenceMatrix), 
+                    prev.IncidenceMatrix), 
+            
+            UniformHyperGraph.RepresentationTypes.VertexDegreeVector => 
+                Core.UniformHyperGraph.FromVertexDegreeVector(
+                    prev.VertexDegreeVector), 
             
             _ => throw new ArgumentOutOfRangeException( 
                 nameof(SelectedRepresentationTypeFrom))

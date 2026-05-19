@@ -148,8 +148,7 @@
                         IsReadOnly="False"
                         UniformHyperGraph="{Binding UniformHyperGraph, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         RepresentationToVisualize="{Binding SelectedRepresentationTypeFrom, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                        UpdateGraphCommand="{Binding UpdateGraphCommand, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                        LoadFromFileCommand="{Binding LoadFromFileCommand, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        UpdateGraphCommand="{Binding UpdateGraphCommand, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <StackPanel 
                         Grid.Row="2"
                         Orientation="Vertical"

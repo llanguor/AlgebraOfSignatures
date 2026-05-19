@@ -76,6 +76,33 @@ public partial class MatrixControl :
     
     #region Dependency Properties
     
+    public ICommand LoadFromFileCommand
+    {
+        get =>
+            (ICommand)GetValue(LoadFromFileCommandProperty);
+
+        set =>
+            SetValue(LoadFromFileCommandProperty, value);
+    }
+
+    public static readonly DependencyProperty LoadFromFileCommandProperty
+        = DependencyProperty.Register(
+            nameof(LoadFromFileCommand),
+            typeof(ICommand),
+            typeof(MatrixControl));
+    
+    public ICommand SaveToFileCommand
+    {
+        get => (ICommand)GetValue(SaveToFileCommandProperty);
+        set => SetValue(SaveToFileCommandProperty, value);
+    }
+ 
+    public static readonly DependencyProperty SaveToFileCommandProperty =
+        DependencyProperty.Register(
+            nameof(SaveToFileCommand),
+            typeof(ICommand),
+            typeof(MatrixControl));
+    
     public bool IsHeadersVisible
     {
         get => (bool)GetValue(IsHeadersVisibleProperty);
@@ -131,21 +158,6 @@ public partial class MatrixControl :
             new PropertyMetadata(
                 null,
                 OnShowGraphCommandChanged));
-    
-    public ICommand LoadFromFileCommand
-    {
-        get =>
-            (ICommand)GetValue(LoadFromFileCommandProperty);
-
-        set =>
-            SetValue(LoadFromFileCommandProperty, value);
-    }
-
-    public static readonly DependencyProperty LoadFromFileCommandProperty
-        = DependencyProperty.Register(
-            nameof(LoadFromFileCommand),
-            typeof(ICommand),
-            typeof(MatrixControl));
     
     public ICommand UpdateGraphCommand
     {
@@ -555,6 +567,14 @@ public partial class MatrixControl :
             () => SaveGridCommand.Execute(null));
     }
     
+    private void FolderButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn)
+        {
+            btn.ContextMenu!.PlacementTarget = btn;
+            btn.ContextMenu.IsOpen = true;
+        }
+    }
     
     #endregion
     

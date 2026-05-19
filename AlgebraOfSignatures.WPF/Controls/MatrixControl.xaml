@@ -127,12 +127,25 @@
             </Button>
             <Button
                 Grid.Column="2"
-                Command="{Binding LoadFromFileCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}}"
-                CommandParameter="True"
                 FontSize="15"
                 FontWeight="Medium"
                 Foreground="Green"
-                Content="📂">
+                Content="📂"
+                Click="FolderButton_Click"
+                Tag="{Binding RelativeSource={RelativeSource AncestorType=local:MatrixControl}}">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem
+                            Header="Загрузить из файла"
+                            Command="{Binding PlacementTarget.Tag.LoadFromFileCommand,
+                    RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+
+                        <MenuItem
+                            Header="Сохранить в файл"
+                            Command="{Binding PlacementTarget.Tag.SaveToFileCommand,
+                    RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
                 <Button.Visibility>
                     <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
                         <nestedMultibinding:NestedMultiBinding.Bindings>
