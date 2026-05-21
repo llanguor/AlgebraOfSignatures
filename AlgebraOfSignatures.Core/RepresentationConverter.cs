@@ -30,9 +30,6 @@ internal sealed class RepresentationConverter :
                 {
                     UniformHyperGraph.RepresentationTypes.AdjacencyMatrix
                         => ComputeAdjacencyFromSignature(signature),
-              
-                    UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
-                        => ComputeIncidenceFromSignature(signature),
                 
                     UniformHyperGraph.RepresentationTypes.Signature
                         => input,
@@ -54,39 +51,11 @@ internal sealed class RepresentationConverter :
                     UniformHyperGraph.RepresentationTypes.AdjacencyMatrix
                         => input,
                 
-                    UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
-                        => ComputeIncidenceFromAdjacency(adjacency),
-                
                     UniformHyperGraph.RepresentationTypes.Signature
                         => ComputeSignatureFromAdjacency(adjacency),
                     
                     UniformHyperGraph.RepresentationTypes.VertexDegreeVector
                         => ComputeVertexDegreeVectorFromAdjacency(adjacency),
-                
-                    _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
-                };
-                break;
-            }
-            case UniformHyperGraph.RepresentationTypes.IncidenceMatrix:
-            {
-                ArgumentNullException.ThrowIfNull(uniformityDegree);
-                
-                if (input is not Matrix<bool> incidence)
-                    throw new ArgumentException("Expected Array", nameof(input));
-            
-                output = to switch
-                {
-                    UniformHyperGraph.RepresentationTypes.AdjacencyMatrix
-                        => ComputeAdjacencyFromIncidence(incidence, uniformityDegree!.Value),
-                
-                    UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
-                        => input,
-                
-                    UniformHyperGraph.RepresentationTypes.Signature
-                        => ComputeSignatureFromIncidence(incidence, uniformityDegree!.Value),
-                    
-                    UniformHyperGraph.RepresentationTypes.VertexDegreeVector
-                        => ComputeVertexDegreeVectorFromIncidence(incidence, uniformityDegree!.Value),
                 
                     _ => throw new NotSupportedException($"Unsupported type for convert: {to}")
                 };
@@ -101,9 +70,6 @@ internal sealed class RepresentationConverter :
                 {
                     UniformHyperGraph.RepresentationTypes.AdjacencyMatrix
                         => ComputeAdjacencyFromVertexDegreeVector(vector),
-                
-                    UniformHyperGraph.RepresentationTypes.IncidenceMatrix 
-                        => ComputeIncidenceFromVertexDegreeVector(vector),
                 
                     UniformHyperGraph.RepresentationTypes.Signature
                         => ComputeSignatureFromVertexDegreeVector(vector),
@@ -233,82 +199,50 @@ internal sealed class RepresentationConverter :
 
         return adjacencyMatrix;
     }
-    
-    public override Matrix<bool> ComputeIncidenceFromAdjacency(
-        Matrix<bool> adjacencyMatrix)
-    {
-        throw new NotImplementedException();
-    }
 
-    public override Matrix<bool> ComputeAdjacencyFromIncidence(
-        Matrix<bool> incidenceMatrix,
-        int uniformityDegree)
+    public override Matrix<int> ComputeVertexDegreeVectorFromAdjacency(Matrix<bool> adjacencyMatrix)
     {
-        throw new NotImplementedException();
-    }
-
-    public override Signature ComputeSignatureFromVertexDegreeVector(Matrix<int> vertexDegreeVector)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override Matrix<int> ComputeVertexDegreeVectorFromSignature(Signature signature)
-    {
-        var size = signature.VertexCount;
-        var rank = signature.UniformityDegree - 1;
-        
         var vertexDegreeVector = new Matrix<int>(
-            signature.VertexCount,
-            signature.UniformityDegree-1);
+            adjacencyMatrix.Size,
+            adjacencyMatrix.Rank - 1);
         var vertexDegreeVectorIndices = 
-            new int[signature.UniformityDegree-1];
-        
-        signature.Traverse(state =>
+            new int[vertexDegreeVector.Rank];
+
+
+        var adjacencyIndices = new int[adjacencyMatrix.Rank];
+
+        while (adjacencyIndices[0] !=
+               adjacencyMatrix.Size)
         {
-            Array.Copy(state.SignatureIndices,
-                vertexDegreeVectorIndices,
-                state.SignatureIndices.Length-1);
-            vertexDegreeVectorIndices[^1] = state.SignatureIndices[^1];
-
-            var currentValue = signature.GetValue(state.SignatureIndices);
-            var bitLength = signature.CalculateBitLengthFromIndices(
-                state.SignatureIndices);
-            var mask = 1 << (bitLength-1);
-            
-            int onesCount = 0, zeroesCount = 0;
-            
-            for (var i = bitLength-1; i >= 0; --i)
+            for (var i = adjacencyMatrix.Rank - 1; i > 0; --i)
             {
-                var currentBit = (currentValue & mask) >> i;
-                mask >>= 1;
-                
-                if (currentBit == 0)
-                {
-                    ++zeroesCount;
-                    continue;
-                }
-                
-                ++onesCount;
-                
-                var currentSignatureRowLength = bitLength - onesCount + 1;
-                var cachedValue = currentSignatureRowLength - zeroesCount;
-                var currentSignatureStartIndex = signature.VertexCount - currentSignatureRowLength;
+                if (adjacencyIndices[i] != adjacencyMatrix.Size)
+                    break;
 
-                if (vertexDegreeVectorIndices.Length > 1)
-                {
-                    vertexDegreeVectorIndices[^2] = state.AdjacencyIndices[^2];
-                    ++state.AdjacencyIndices[^2];
-                }
-
+                ++adjacencyIndices[i-1];
+                adjacencyIndices[i] = 0;
                 
-                vertexDegreeVector.SetValue(cachedValue, vertexDegreeVectorIndices);
-                
-                //for (var j = 0; j < )
+                if (adjacencyIndices[0] == adjacencyMatrix.Size)
+                    return vertexDegreeVector;
             }
             
+            Array.Copy(adjacencyIndices, 
+                vertexDegreeVectorIndices, 
+                adjacencyIndices.Length - 1);
+
+            if (adjacencyMatrix.GetValue(adjacencyIndices))
+                vertexDegreeVector.SetValue(
+                    vertexDegreeVector.GetValue(vertexDegreeVectorIndices) + 1,
+                    vertexDegreeVectorIndices);
             
-        });
+            ++adjacencyIndices[^1];
+        }
         
         return vertexDegreeVector;
+    }
+
+    public override Matrix<bool> ComputeAdjacencyFromVertexDegreeVector(Matrix<int> vertexDegreeVector)
+    {
+        throw new NotImplementedException();
     }
 }

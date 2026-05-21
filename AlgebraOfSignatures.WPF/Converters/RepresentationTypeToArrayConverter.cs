@@ -25,6 +25,7 @@ public class RepresentationTypeToArrayConverter :
 
         if (values[1] is not UniformHyperGraph.RepresentationTypes type)
             return null;
+        
 
         return type switch
         {
@@ -33,9 +34,6 @@ public class RepresentationTypeToArrayConverter :
 
             UniformHyperGraph.RepresentationTypes.AdjacencyMatrix =>
                 uh.AdjacencyMatrix,
-
-            UniformHyperGraph.RepresentationTypes.IncidenceMatrix =>
-                uh.IncidenceMatrix,
             
             UniformHyperGraph.RepresentationTypes.VertexDegreeVector =>
                 uh.VertexDegreeVector,

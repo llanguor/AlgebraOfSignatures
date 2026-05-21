@@ -403,26 +403,35 @@ public partial class MatrixControl :
                 fullIndices[^1] = j;
                 
                 var value = MatrixDataTable.Rows[i][j].ToString();
-                
-                if (!long.TryParse(value, out var parsedValue))
-                {
-                    if (MatrixElementType==typeof(bool))
-                        throw new ArgumentException(
-                            $"Invalid value at [{i},{j}]. Expected a 1 or 0, but got '{value}'.");
-                    else
-                        throw new ArgumentException(
-                            $"Invalid value at [{i},{j}]. Expected long value, but got '{value}'.");
+
+                if (MatrixElementType == typeof(long) &&
+                    long.TryParse(value, out var longParsedValue))
+                { 
+                    InputArray.SetValue(longParsedValue, fullIndices);
+                    continue;
                 }
                 
-                if (MatrixElementType==typeof(bool) &&
-                    parsedValue != 0 &&
-                    parsedValue != 1)
-                    throw new ArgumentException(
-                        $"Invalid value at [{i},{j}]. Expected a 1 or 0, but got '{value}'.");
+                if (MatrixElementType == typeof(int) &&
+                    int.TryParse(value, out var intParsedValue))
+                { 
+                    InputArray.SetValue(intParsedValue, fullIndices);
+                    continue;
+                }
                 
-                InputArray.SetValue(
-                    MatrixElementType == typeof(bool) ? parsedValue == 1 : parsedValue, 
-                    fullIndices);
+                if (MatrixElementType == typeof(bool) &&
+                    int.TryParse(value, out var bitParsedValue))
+                { 
+                    InputArray.SetValue(bitParsedValue == 1, fullIndices);
+                    continue;
+                }
+
+                if (MatrixElementType != typeof(long) &&
+                    MatrixElementType != typeof(int) &&
+                    MatrixElementType != typeof(bool))
+                    throw new ArgumentException("Invalid matrix element type.");
+                else
+                    throw new ArgumentException(
+                            $"Invalid value at [{i},{j}]. Expected {MatrixElementType} value, but got '{value}'.");
             }
         }
     }

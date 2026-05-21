@@ -56,8 +56,6 @@
                     <Binding 
                         Source="{dataGridAppearanceConverters:Adjacency_CellValueToBackgroundConverter}"/>
                     <Binding 
-                        Source="{dataGridAppearanceConverters:Incidence_CellValueToBackgroundConverter}"/>
-                    <Binding 
                         Source="{dataGridAppearanceConverters:VertexDegreeVector_CellValueToBackgroundConverter}"/>
                 </MultiBinding>
             </local:MatrixControl.BackgroundMultiValueConverter>

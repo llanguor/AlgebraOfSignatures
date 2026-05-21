@@ -81,28 +81,6 @@ public class UniformHyperGraph :
             vertexCount,
             uniformityDegree);
     }
-
-    public static UniformHyperGraph FromIncidenceMatrix(
-        Matrix<bool> incidenceMatrix,
-        int uniformityDegree,
-        IRepresentationConverter? converter = null)
-    {
-        if (incidenceMatrix.ElementType != typeof(bool))
-            throw new ArgumentException(
-                $"Expected {typeof(bool)} array", 
-                nameof(incidenceMatrix));
-        
-        converter ??= new RepresentationConverter();
-        var vertexCount = incidenceMatrix.Size;
-        
-        return new UniformHyperGraph(
-            converter,
-            converter.ComputeSignatureFromIncidence(
-                incidenceMatrix, 
-                uniformityDegree),
-            vertexCount,
-            uniformityDegree);
-    }
     
     public static UniformHyperGraph FromAdjacencyMatrix(
         Matrix<bool> adjacencyMatrix,
@@ -203,8 +181,6 @@ public class UniformHyperGraph :
     
     
     #region Fields
-
-    private Matrix<bool>? _cachedIncidenceMatrix = null;
     
     private Matrix<bool>? _cachedAdjacencyMatrix = null;
     
@@ -214,22 +190,6 @@ public class UniformHyperGraph :
     
     
     #region Properties
-    
-    
-    /// <summary>
-    /// Incidence matrix lazily computed from <see cref="Signature"/> and cached until invalidated.
-    /// Mutating the returned value has no effect — modify <see cref="Signature"/> instead, then call <see cref="InvalidateCache"/>.
-    /// </summary>
-    public Matrix<bool> IncidenceMatrix
-    {
-        get
-        {
-            _cachedIncidenceMatrix ??= _converter.ComputeIncidenceFromSignature(
-                Signature);
-
-            return _cachedIncidenceMatrix!;
-        }
-    }
 
     /// <summary>
     /// Adjacency matrix lazily computed from <see cref="Signature"/> and cached until invalidated.
@@ -336,7 +296,6 @@ public class UniformHyperGraph :
 
     private void InvalidateCache()
     {
-        _cachedIncidenceMatrix = null;
         _cachedAdjacencyMatrix = null;
         _cachedVertexDegreeVector = null;
     }
@@ -502,8 +461,7 @@ public class UniformHyperGraph :
     {
         Signature = 0,
         AdjacencyMatrix = 1,
-        IncidenceMatrix = 2,
-        VertexDegreeVector = 3
+        VertexDegreeVector = 2
     }
 
     #endregion

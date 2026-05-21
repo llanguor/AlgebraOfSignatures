@@ -14,6 +14,7 @@ using DistributedSystems.LaboratoryWork.Nuget.Dialog;
 using DistributedSystems.LaboratoryWork.Nuget.Navigation;
 using DistributedSystems.LaboratoryWork.Nuget.ViewModel;
 using DryIoc;
+using DryIoc.ImTools;
 using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException; 
 namespace AlgebraOfSignatures.WPF.ViewModel.Pages;
 
@@ -124,32 +125,35 @@ public class ConversionPageViewModel :
         if (input is not Core.UniformHyperGraph prev)
             prev = UniformHyperGraph;
         
-        var uh = SelectedRepresentationTypeFrom switch
+        try
         {
-            UniformHyperGraph.RepresentationTypes.Signature => 
-                Core.UniformHyperGraph.FromSignature( 
-                    prev.Signature.Value, 
-                    prev.VertexCount, 
-                    prev.UniformityDegree),
+            var uh = SelectedRepresentationTypeFrom switch
+            {
+                UniformHyperGraph.RepresentationTypes.Signature =>
+                    Core.UniformHyperGraph.FromSignature(
+                        prev.Signature.Value,
+                        prev.VertexCount,
+                        prev.UniformityDegree),
+
+                UniformHyperGraph.RepresentationTypes.AdjacencyMatrix =>
+                    Core.UniformHyperGraph.FromAdjacencyMatrix(
+                        prev.AdjacencyMatrix),
+
+                UniformHyperGraph.RepresentationTypes.VertexDegreeVector =>
+                    Core.UniformHyperGraph.FromVertexDegreeVector(
+                        prev.VertexDegreeVector),
+
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(SelectedRepresentationTypeFrom))
+            };
             
-            UniformHyperGraph.RepresentationTypes.AdjacencyMatrix =>
-                Core.UniformHyperGraph.FromAdjacencyMatrix( 
-                    prev.AdjacencyMatrix),
-            
-            UniformHyperGraph.RepresentationTypes.IncidenceMatrix => 
-                Core.UniformHyperGraph.FromAdjacencyMatrix(
-                    prev.IncidenceMatrix), 
-            
-            UniformHyperGraph.RepresentationTypes.VertexDegreeVector => 
-                Core.UniformHyperGraph.FromVertexDegreeVector(
-                    prev.VertexDegreeVector), 
-            
-            _ => throw new ArgumentOutOfRangeException( 
-                nameof(SelectedRepresentationTypeFrom))
-        };
-        
-        UniformHyperGraph = null!;
-        UniformHyperGraph = uh;
+            UniformHyperGraph = null!;
+            UniformHyperGraph = uh;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message);
+        }
     } 
     
     private Core.UniformHyperGraph _uniformHyperGraph;
