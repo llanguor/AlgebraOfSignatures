@@ -173,7 +173,7 @@ public class Signature :
                 Value.GetValue(indices));
     }
 
-    //todo: move to iterator
+    //note: can be moved to iterator
     public int CalculateBitLengthFromIndices(params int[] indices)
     {
         return VertexCount - UniformityDegree + 1 - indices[^1];

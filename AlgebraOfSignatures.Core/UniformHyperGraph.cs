@@ -508,6 +508,7 @@ public class UniformHyperGraph :
     
     #endregion
 
+    
     #region Nested
 
     private static class FileHelpersMethods

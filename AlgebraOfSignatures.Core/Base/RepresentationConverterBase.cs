@@ -6,7 +6,7 @@ namespace AlgebraOfSignatures.Core.Base;
 public abstract class RepresentationConverterBase :
     IRepresentationConverter
 {
-    //todo: The vertex degree vector is calculated from the adjacency matrix due to the lack of time to implement it from the signature. All calculations must be based on the signature.
+    //note: The vertex degree vector can be calculated from the adjacency matrix due to the lack of time to implement it from the signature. All calculations must be based on the signature.
     
     #region Methods
     

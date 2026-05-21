@@ -6,7 +6,7 @@ public static class SignatureExtensions
 {
     #region Extensions
 
-    //todo: replace with iterator
+    //note: can be replaced with iterator
     public static void Traverse(
         this Signature signature,
         Action<MultiDimensionalArrayExtensions.TraverseState> delegateAction)

@@ -536,7 +536,7 @@ public partial class MatrixControl :
     
     #region Events
     
-    //todo: replace with trigger
+    //note: can be replaced with trigger
     private void DataGrid_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
     {
         var grid = (DataGrid)sender;
@@ -555,7 +555,7 @@ public partial class MatrixControl :
         SelectedCellValue = value;
     }
 
-    //todo: replace with trigger
+    //note: can be replaced with trigger
     private void DataGrid_CellEditEnding(object? sender, DataGridCellEditEndingEventArgs e)
     {
         if (e.EditingElement is TextBox tb)
@@ -563,7 +563,6 @@ public partial class MatrixControl :
             SelectedCellValue = tb.Text;
         }
         
-        //todo: Fix the crutch
         if (RequireInputConfirmation)
             return;
         

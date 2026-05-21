@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using AlgebraOfSignatures.Core;
 
-namespace AlgebraOfSignatures.WPF.Converters;
+namespace AlgebraOfSignatures.WPF.Converters.DataGridDescription;
 
 public class OperationTypeToDescriptionConverter : 
     DistributedSystems.LaboratoryWork.Nuget.Converters.Base.ValueConverterBase<OperationTypeToDescriptionConverter>
