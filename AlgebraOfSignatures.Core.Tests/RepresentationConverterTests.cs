@@ -5,8 +5,6 @@ namespace AlgebraOfSignatures.Core.Tests;
 
 public class RepresentationConverterTests
 {
-    //todo: тесты: ошибка при неверном заполнении незначащих и справа/слева от сигнатуры для к-матриц. Ошибка при неверном вводе. Проверка всех методов и тд
-    //todo: tests for 2,3,4, 5(?) uh. Data from excel
     private readonly RepresentationConverter _converter = new();
     
     [Fact]

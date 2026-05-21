@@ -335,8 +335,7 @@ public partial class MatrixControl :
         
         control.MatrixElementType = 
             inputArray.ElementType;
-
-        //todo: validate
+        
         if (control.Indices.Count != inputArray.Rank - 2)
         {
             control.Indices.Clear();

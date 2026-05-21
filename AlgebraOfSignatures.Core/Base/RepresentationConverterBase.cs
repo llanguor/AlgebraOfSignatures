@@ -98,24 +98,10 @@ public abstract class RepresentationConverterBase :
                 $"{nameof(uniformityDegree)} must be greater than or equal to 2.");
     }
 
-    protected void ThrowIfIllegalSignature(Signature signature, int vertexCount)
+    protected void ThrowIfIllegalAdjacency(Matrix<bool> adjacencyMatrix)
     {
-        //todo: throw if illegal signature 
-        //todo: throw if x > 2^(v-1) 
-        //throw new NotImplementedException();
-    }
-
-    protected void ThrowIfIllegalIncidence(Matrix<bool> incidenceMatrix)
-    {
-        throw new NotImplementedException();
-    }
-    
-    protected void ThrowIfIllegalAdjacency(Matrix<bool> incidenceMatrix)
-    {
-        //todo: validate 
-        
-        if (incidenceMatrix.ElementType != typeof(bool))
-            throw new ArgumentException($"{nameof(incidenceMatrix)} elements must be of type bool");
+        if (adjacencyMatrix.ElementType != typeof(bool))
+            throw new ArgumentException($"{nameof(adjacencyMatrix)} elements must be of type bool");
 
     }
     
