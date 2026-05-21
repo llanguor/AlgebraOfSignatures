@@ -8,7 +8,7 @@
         Title="MainWindow" 
         SizeToContent="Manual"
         WindowStartupLocation="CenterScreen"
-        FontSize="15">
+        FontSize="{StaticResource MainFontSize}">
     <Grid>
         <TabControl x:Name="Tabs">
             <TabItem Header="Конвертация">

@@ -14,7 +14,7 @@
       xmlns:dataGridDescription="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridDescription"
       mc:Ignorable="d"
       Title="OperationsPage"
-      FontSize="15"
+      FontSize="{StaticResource MainFontSize}"
       Foreground="#111827"
       Background="#FFFFFF">
     <Page.Resources>
@@ -28,6 +28,7 @@
         </Style>
         <Style TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
+            
             <Setter Property="Foreground" Value="#111827"/>
         </Style>
         <Style TargetType="xctk:IntegerUpDown">
@@ -121,16 +122,15 @@
                 </WrapPanel>
                 <Button Grid.Column="1"
                         Command="{Binding OperationPerformCommand,
-                                       Mode=OneWay,
-                                       UpdateSourceTrigger=PropertyChanged}"
+                       Mode=OneWay,
+                       UpdateSourceTrigger=PropertyChanged}"
                         Content="Выполнить"
                         Width="150"
-                        Height="35"
-                        Margin="24,20,0,0"
-                        VerticalAlignment="Top"
+                        Height="34"
+                        Margin="24,0,0,0"
+                        VerticalAlignment="Bottom"
                         HorizontalAlignment="Right"
                         Cursor="Hand"
-                        FontSize="15"
                         FontWeight="SemiBold"
                         Foreground="White"
                         Background="#16A34A"
@@ -183,7 +183,7 @@
                     <TextBlock 
                         Grid.Row="0"
                         Text="Левый операнд"
-                        FontSize="17"
+                        FontSize="{StaticResource LargeFontSize}"
                         FontWeight="SemiBold"
                         Margin="0,0,0,18"
                         Foreground="#0F172A"/>
@@ -216,7 +216,7 @@
                     <TextBlock 
                         Grid.Row="0"
                         Text="Правый операнд"
-                        FontSize="17"
+                        FontSize="{StaticResource LargeFontSize}"
                         FontWeight="SemiBold"
                         Margin="0,0,0,18"
                         Foreground="#0F172A"/>
@@ -386,7 +386,7 @@
                     <TextBlock 
                         Grid.Row="0"
                         Text="Результат"
-                        FontSize="17"
+                        FontSize="{StaticResource LargeFontSize}"
                         FontWeight="SemiBold"
                         Margin="0,0,0,18"
                         Foreground="#0F172A"/>

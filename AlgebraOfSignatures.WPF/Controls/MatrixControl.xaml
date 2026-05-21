@@ -11,16 +11,16 @@
              xmlns:nestedMultibinding="clr-namespace:AlgebraOfSignatures.WPF.Packages.NestedMultiBinding"
              xmlns:multiValueConverterProxy="clr-namespace:AlgebraOfSignatures.WPF.Packages.MultiValueConverterProxy"
              mc:Ignorable="d"
-             FontSize="17">
+             FontSize="{StaticResource LargeFontSize}">
 <UserControl.Resources>
         <multiValueConverterProxy:MultiValueConverterProxy
             x:Key="BgConverterProxy"
             Converter="{Binding BackgroundMultiValueConverter,
                     RelativeSource={RelativeSource AncestorType=local:MatrixControl}}"/>
         <Style TargetType="xctk:IntegerUpDown">
+            <Setter Property="FontSize" Value="{StaticResource MainFontSize}"/>
             <Setter Property="Width" Value="42"/>
             <Setter Property="Height" Value="25"/>
-            <Setter Property="FontSize" Value="15"/>
             <Setter Property="Margin" Value="0,0,5,0"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -29,13 +29,13 @@
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
         <Style TargetType="Button">
+            <Setter Property="FontSize" Value="{StaticResource MainFontSize}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="3,0,0,0"/>
             <Setter Property="Padding" Value="0, -1, 0, 0"/>
             <Setter Property="Width" Value="35"/>
             <Setter Property="Height" Value="25"/>
-            <Setter Property="FontSize" Value="15"/>
         </Style>
         <system:Int32 x:Key="One">1</system:Int32>
     </UserControl.Resources>
@@ -92,7 +92,6 @@
                 Grid.Column="1"
                 Command="{Binding ShowGraphCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}}"
                 CommandParameter="True"
-                FontSize="15"
                 FontWeight="SemiBold"
                 Foreground="Blue"
                 FontStyle="Italic"
@@ -127,7 +126,6 @@
             </Button>
             <Button
                 Grid.Column="2"
-                FontSize="15"
                 FontWeight="Medium"
                 Foreground="Green"
                 Content="📂"
@@ -178,7 +176,6 @@
                 Grid.Column="3"
                 Command="{Binding SaveGridCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}}"
                 CommandParameter="True"
-                FontSize="17"
                 FontWeight="SemiBold"
                 Foreground="Green"
                 Content="✓">
@@ -257,18 +254,27 @@
             </DataGrid.HeadersVisibility>
             <DataGrid.RowHeaderStyle>
                 <Style TargetType="DataGridRowHeader">
-                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                    <Setter Property="ContentTemplate">
+                    <Setter Property="Template">
                         <Setter.Value>
-                            <DataTemplate>
-                                <TextBlock
-                                    Text="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow},
-                                       Path=AlternationIndex,
-                                       StringFormat=V{0}}"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"/>
-                            </DataTemplate>
+                            <ControlTemplate TargetType="DataGridRowHeader">
+                                <Grid>
+                                    <TextBlock
+                                        TextAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0}{1}">
+                                                <Binding
+                                                    RelativeSource="{RelativeSource AncestorType=local:MatrixControl}"
+                                                    Path="RowHeaderText"/>
+                                                <Binding
+                                                    RelativeSource="{RelativeSource AncestorType=DataGridRow}"
+                                                    Path="AlternationIndex"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </Grid>
+                            </ControlTemplate>
                         </Setter.Value>
                     </Setter>
                 </Style>
