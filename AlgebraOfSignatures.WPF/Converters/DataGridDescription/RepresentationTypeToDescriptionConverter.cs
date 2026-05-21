@@ -1,10 +1,7 @@
-﻿using System.ComponentModel;
-using System.Globalization;
-using System.Reflection;
-using System.Windows.Data;
+﻿using System.Globalization;
 using AlgebraOfSignatures.Core;
 
-namespace AlgebraOfSignatures.WPF.Converters;
+namespace AlgebraOfSignatures.WPF.Converters.DataGridDescription;
 
 public class RepresentationTypeToDescriptionConverter :
     DistributedSystems.LaboratoryWork.Nuget.Converters.Base.ValueConverterBase<RepresentationTypeToDescriptionConverter>

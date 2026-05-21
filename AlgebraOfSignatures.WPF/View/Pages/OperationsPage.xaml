@@ -11,6 +11,7 @@
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
       xmlns:system="clr-namespace:System;assembly=System.Runtime"
       xmlns:converters1="clr-namespace:DistributedSystems.LaboratoryWork.Nuget.Converters;assembly=DistributedSystems.LaboratoryWork.Nuget"
+      xmlns:dataGridDescription="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridDescription"
       mc:Ignorable="d"
       Title="OperationsPage"
       FontSize="15"
@@ -95,7 +96,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock
-                                        Text="{Binding Converter={converters:RepresentationTypeToDescriptionConverter}}" />
+                                        Text="{Binding Converter={dataGridDescription:RepresentationTypeToDescriptionConverter}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -112,7 +113,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock
-                                        Text="{Binding Converter={converters:OperationTypeToDescriptionConverter}}" />
+                                        Text="{Binding Converter={dataGridDescription:OperationTypeToDescriptionConverter}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>

@@ -49,10 +49,7 @@ public class ConversionPageViewModel :
         VertexCount = 6;
         SelectedCellValueFrom = 0;
         SelectedCellValueTo = 0;
-        /* VertexCount = 6;
-         UniformityDegree = 5;
-          var array = ArrayExtensions.CreateRankedArray<long>( vertexCount - uniformityDegree + 1, uniformityDegree - 2); array.SetValue(11, 0, 0, 0); array.SetValue(3, 0, 0, 1); array.SetValue(1, 0,1, 1); array.SetValue(1, 1,1, 1); Signature = new Core.Signature(array, vertexCount, uniformityDegree); UniformHyperGraph = Core.UniformHyperGraph.FromSignature( Signature, vertexCount, uniformityDegree); */ /* VertexCount = 6; UniformityDegree = 4; var array = ArrayExtensions.CreateRankedArray<long>( vertexCount - uniformityDegree + 1, uniformityDegree - 2); array.SetValue(11, 0, 0); array.SetValue(3, 0, 1); array.SetValue(1, 0,2); Signature = new Core.Signature(array, vertexCount, uniformityDegree); UniformHyperGraph = Core.UniformHyperGraph.FromSignature( Signature, vertexCount, uniformityDegree); */ 
-        
+
         VertexCount = 6; 
         UniformityDegree = 3;
         var array = new Matrix<long>(
@@ -74,8 +71,6 @@ public class ConversionPageViewModel :
                 signature,
                 VertexCount,
                 UniformityDegree);
-        
-        /* VertexCount = 6; UniformityDegree = 2; Signature = new Core.Signature(11, vertexCount); UniformHyperGraph = Core.UniformHyperGraph.FromSignature( Signature, vertexCount, uniformityDegree); */
         
         _showGraphCommand = new Lazy<ICommand>(() =>
             new RelayCommand(

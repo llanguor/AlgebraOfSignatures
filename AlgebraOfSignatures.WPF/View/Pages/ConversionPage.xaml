@@ -8,6 +8,7 @@
       xmlns:controls="clr-namespace:AlgebraOfSignatures.WPF.Controls"
       xmlns:core="clr-namespace:AlgebraOfSignatures.Core;assembly=AlgebraOfSignatures.Core"
       xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+      xmlns:dataGridDescription="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridDescription"
       mc:Ignorable="d"
       Title="ConversionPage"
       FontSize="15"
@@ -91,7 +92,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock
-                                        Text="{Binding Converter={converters:RepresentationTypeToDescriptionConverter}}" />
+                                        Text="{Binding Converter={dataGridDescription:RepresentationTypeToDescriptionConverter}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -108,7 +109,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock
-                                        Text="{Binding Converter={converters:RepresentationTypeToDescriptionConverter}}" />
+                                        Text="{Binding Converter={dataGridDescription:RepresentationTypeToDescriptionConverter}}" />
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -135,7 +136,7 @@
                         Grid.Row="0"
                         Text="{Binding SelectedRepresentationTypeFrom,
                                   Mode=OneWay,
-                                  Converter={converters:RepresentationTypeToDescriptionConverter},
+                                  Converter={dataGridDescription:RepresentationTypeToDescriptionConverter},
                                   UpdateSourceTrigger=PropertyChanged}"
                         FontSize="17"
                         FontWeight="SemiBold"
@@ -202,7 +203,7 @@
                         Grid.Row="0"
                         Text="{Binding SelectedRepresentationTypeTo,
                           Mode=OneWay,
-                          Converter={converters:RepresentationTypeToDescriptionConverter},
+                          Converter={dataGridDescription:RepresentationTypeToDescriptionConverter},
                           UpdateSourceTrigger=PropertyChanged}"
                         FontSize="17"
                         FontWeight="SemiBold"
