@@ -117,7 +117,7 @@
                             </Binding>
                             <Binding>
                                 <Binding.Source>
-                                    <Visibility>Collapsed</Visibility>
+                                    <Visibility>Hidden</Visibility>
                                 </Binding.Source>
                             </Binding>
                         </nestedMultibinding:NestedMultiBinding.Bindings>
