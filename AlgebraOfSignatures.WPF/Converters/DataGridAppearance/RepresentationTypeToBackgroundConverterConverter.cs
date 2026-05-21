@@ -16,7 +16,6 @@ public class RepresentationTypeToBackgroundConverterConverter :
                 IMultiValueConverter first, 
                 IMultiValueConverter second, 
                 IMultiValueConverter third,
-                IMultiValueConverter fourth
             ])
             throw new ArgumentException($"value is not a {nameof(UniformHyperGraph.RepresentationTypes)}");
 
@@ -27,12 +26,9 @@ public class RepresentationTypeToBackgroundConverterConverter :
 
             UniformHyperGraph.RepresentationTypes.AdjacencyMatrix =>
                 second,
-
-            UniformHyperGraph.RepresentationTypes.IncidenceMatrix =>
-                third,
             
             UniformHyperGraph.RepresentationTypes.VertexDegreeVector =>
-                fourth,
+                third,
 
             _ => throw new ArgumentOutOfRangeException()
         };

@@ -277,10 +277,6 @@ public class OperationsPageViewModel : PageViewModelBase
                 Core.UniformHyperGraph.FromAdjacencyMatrix( 
                     operand.AdjacencyMatrix),
             
-            UniformHyperGraph.RepresentationTypes.IncidenceMatrix => 
-                Core.UniformHyperGraph.FromAdjacencyMatrix(
-                    operand.IncidenceMatrix), 
-            
             _ => throw new ArgumentOutOfRangeException( 
                 nameof(SelectedRepresentationType))
         };
