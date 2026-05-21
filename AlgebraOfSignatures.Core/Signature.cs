@@ -188,12 +188,13 @@ public class Signature :
     private int SignatureValueCompare(       
         long lastValue,
         long currValue,
+        int lastValueBitLength,
         int currValueBitLength)
     {
         ThrowIfLargeValue(currValue, currValueBitLength);
         
-        
-        lastValue = TruncateValue(lastValue);
+        if(lastValueBitLength != currValueBitLength)
+            lastValue = TruncateValue(lastValue);
         var lastCount = 0;
         var currCount = 0;
         
@@ -361,10 +362,17 @@ public class Signature :
         int changedIndex,
         params int[] indices)
     {
+        var currValueBitLength = CalculateBitLengthFromIndices(indices);
+        var lastValueBitLength =
+            changedIndex == indices.Length-1 ? 
+                currValueBitLength - 1 : 
+                currValueBitLength;
+        
         if(1 != SignatureValueCompare(
                lastValue, 
                currValue, 
-               CalculateBitLengthFromIndices(indices)))
+               lastValueBitLength,
+               currValueBitLength))
             return;
         
         var signatureIndicesStrTo = string.Join(", ", indices);
