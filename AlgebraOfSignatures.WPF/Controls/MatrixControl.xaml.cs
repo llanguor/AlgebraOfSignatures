@@ -116,6 +116,57 @@ public partial class MatrixControl :
             typeof(MatrixControl),
             new PropertyMetadata(true));
     
+    public string RowHeaderText
+    {
+        get => (string)GetValue(RowHeaderTextProperty);
+        set => SetValue(RowHeaderTextProperty, value);
+    }
+
+    public static readonly DependencyProperty RowHeaderTextProperty =
+        DependencyProperty.Register(
+            nameof(RowHeaderText),
+            typeof(string),
+            typeof(MatrixControl),
+            new PropertyMetadata(""));
+    
+    public string ColumnHeaderText
+    {
+        get => (string)GetValue(ColumnHeaderTextProperty);
+        set => SetValue(ColumnHeaderTextProperty, value);
+    }
+
+    public static readonly DependencyProperty ColumnHeaderTextProperty =
+        DependencyProperty.Register(
+            nameof(ColumnHeaderText),
+            typeof(string),
+            typeof(MatrixControl),
+            new PropertyMetadata("", OnRowHeaderTextChanged));
+
+    private static void OnRowHeaderTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not MatrixControl control)
+            return;
+    
+        var oldTable = control.MatrixDataTable;
+        if (oldTable == null || oldTable.Columns.Count == 0)
+            return;
+
+        var newTable = new DataTable();
+
+        for (var i = 0; i < oldTable.Columns.Count; i++)
+            newTable.Columns.Add($"{e.NewValue}{i}", typeof(string));
+
+        foreach (DataRow oldRow in oldTable.Rows)
+        {
+            var newRow = newTable.NewRow();
+            for (var i = 0; i < oldTable.Columns.Count; i++)
+                newRow[i] = oldRow[i];
+            newTable.Rows.Add(newRow);
+        }
+
+        control.MatrixDataTable = newTable;
+    }
+
     public int RowsCount
     {
         get => (int) GetValue(RowsCountProperty);
@@ -452,7 +503,7 @@ public partial class MatrixControl :
         for (var i = 0; i < RowsCount; ++i)
         {
             table.Columns.Add(
-                $"V{i}",
+                $"{ColumnHeaderText}{i}",
                 typeof(string));
         }
         

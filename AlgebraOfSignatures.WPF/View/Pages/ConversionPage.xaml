@@ -11,7 +11,7 @@
       xmlns:dataGridDescription="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridDescription"
       mc:Ignorable="d"
       Title="ConversionPage"
-      FontSize="15"
+      FontSize="{StaticResource MainFontSize}"
       Foreground="#111827"
       Background="#FFFFFF">
     <Page.Resources>
@@ -134,11 +134,11 @@
                     </Grid.RowDefinitions>
                     <TextBlock 
                         Grid.Row="0"
+                        FontSize="{StaticResource LargeFontSize}"
                         Text="{Binding SelectedRepresentationTypeFrom,
                                   Mode=OneWay,
                                   Converter={dataGridDescription:RepresentationTypeToDescriptionConverter},
                                   UpdateSourceTrigger=PropertyChanged}"
-                        FontSize="17"
                         FontWeight="SemiBold"
                         Margin="0,0,0,18"
                         Foreground="#0F172A"/>
@@ -160,26 +160,40 @@
                                 <Style.Triggers>
                                     <DataTrigger
                                         Binding="{Binding SelectedRepresentationTypeFrom}"
-                                        Value="{x:Static  core:UniformHyperGraph+RepresentationTypes.Signature}">
+                                        Value="{x:Static core:UniformHyperGraph+RepresentationTypes.Signature}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Выбранное значение" Width="180"/>
-                            <TextBlock Text="{Binding SelectedCellValueFrom,
-                                  Mode=OneWay,
-                                  UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal"
-                                    Margin="0,6,0,0">
-                            <TextBlock Text="Битовое представление" Width="180"/>
-                            <TextBlock Text="{Binding SelectedCellValueFrom,
-                                  Converter={converters:LongToBitsConverter},
-                                  Mode=OneWay,
-                                  UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Text="Выбранное значение"
+                                       Margin="0,0,15,0"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding SelectedCellValueFrom,
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                       Text="Битовое представление"
+                                       Margin="0,6,15,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       Text="{Binding SelectedCellValueFrom,
+                                       Converter={converters:LongToBitsConverter},
+                                       Mode=OneWay,
+                                       UpdateSourceTrigger=PropertyChanged}"
+                                       Margin="0,6,0,0"/>
+                        </Grid>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -201,11 +215,11 @@
                     </Grid.RowDefinitions>
                     <TextBlock 
                         Grid.Row="0"
+                        FontSize="{StaticResource LargeFontSize}"
                         Text="{Binding SelectedRepresentationTypeTo,
                           Mode=OneWay,
                           Converter={dataGridDescription:RepresentationTypeToDescriptionConverter},
                           UpdateSourceTrigger=PropertyChanged}"
-                        FontSize="17"
                         FontWeight="SemiBold"
                         Margin="0,0,0,18"
                         Foreground="#0F172A"/>
@@ -226,26 +240,40 @@
                                 <Style.Triggers>
                                     <DataTrigger
                                         Binding="{Binding SelectedRepresentationTypeTo}"
-                                        Value="{x:Static  core:UniformHyperGraph+RepresentationTypes.Signature}">
+                                        Value="{x:Static core:UniformHyperGraph+RepresentationTypes.Signature}">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Выбранное значение" Width="180"/>
-                            <TextBlock Text="{Binding SelectedCellValueTo,
-                                  Mode=OneWay,
-                                  UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal"
-                                    Margin="0,6,0,0">
-                            <TextBlock Text="Битовое представление" Width="180"/>
-                            <TextBlock Text="{Binding SelectedCellValueTo,
-                                  Converter={converters:LongToBitsConverter},
-                                  Mode=OneWay,
-                                  UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="180"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Text="Выбранное значение"
+                                       Margin="0,0,8,0"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding SelectedCellValueTo,
+                         Mode=OneWay,
+                         UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                       Text="Битовое представление"
+                                       Margin="0,6,8,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       Text="{Binding SelectedCellValueTo,
+                         Converter={converters:LongToBitsConverter},
+                         Mode=OneWay,
+                         UpdateSourceTrigger=PropertyChanged}"
+                                       Margin="0,6,0,0"/>
+                        </Grid>
                     </StackPanel>
                 </Grid>
             </Border>

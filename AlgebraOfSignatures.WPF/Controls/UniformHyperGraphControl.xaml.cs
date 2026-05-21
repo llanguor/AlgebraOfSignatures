@@ -24,6 +24,7 @@ public partial class UniformHyperGraphControl :
 
     #endregion
     
+    
     #region Properties
     
     public ICommand SaveToFileCommand =>

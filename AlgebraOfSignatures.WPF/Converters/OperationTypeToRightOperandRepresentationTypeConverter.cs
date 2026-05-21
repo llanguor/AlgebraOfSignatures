@@ -25,7 +25,7 @@ public class OperationTypeToRightOperandRepresentationTypeConverter :
             throw new ArgumentException($"First argument must be {typeof(Signature.OperationsTypes)}");
 
         if (values[1] is not UniformHyperGraph.RepresentationTypes defaultRepresentationType)
-            throw new ArgumentException($"First argument must be {typeof(UniformHyperGraph.RepresentationTypes)}");
+            throw new ArgumentException($"Second argument must be {typeof(UniformHyperGraph.RepresentationTypes)}");
 
         return operationType == Signature.OperationsTypes.AdditionVerticalConst ||
                operationType == Signature.OperationsTypes.AdditionHorizontalConst ? 

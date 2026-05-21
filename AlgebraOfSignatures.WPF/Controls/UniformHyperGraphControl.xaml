@@ -7,12 +7,13 @@
              xmlns:dg2d="http://gu.se/DataGrid2D"
              xmlns:converters="clr-namespace:AlgebraOfSignatures.WPF.Converters"
              xmlns:dataGridAppearanceConverters="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridAppearance"
+             xmlns:dataGridDescription="clr-namespace:AlgebraOfSignatures.WPF.Converters.DataGridDescription"
              mc:Ignorable="d"
              SnapsToDevicePixels="True"
              UseLayoutRounding="True"
              Focusable="True"
              FocusManager.IsFocusScope="True"
-             FontSize="15">
+             FontSize="{StaticResource MainFontSize}">
     <Grid>
         <local:MatrixControl
             SelectedCellValue="{Binding SelectedCellValue, 
@@ -71,6 +72,24 @@
                          UpdateSourceTrigger="PropertyChanged"/>
                  </MultiBinding>
             </local:MatrixControl.InputArray>
+            <local:MatrixControl.RowHeaderText>
+                <MultiBinding Converter="{dataGridDescription:RepresentationTypeToHeaderTextConverter}">
+                    <Binding 
+                        Path="RepresentationToVisualize" 
+                        RelativeSource="{RelativeSource AncestorType=local:UniformHyperGraphControl}"
+                        UpdateSourceTrigger="PropertyChanged"/>
+                    <Binding Source="{x:Static dataGridDescription:RepresentationTypeToHeaderTextConverter+HeaderType.RowHeader}"/>
+                </MultiBinding>
+            </local:MatrixControl.RowHeaderText>
+            <local:MatrixControl.ColumnHeaderText>
+                <MultiBinding Converter="{dataGridDescription:RepresentationTypeToHeaderTextConverter}">
+                    <Binding 
+                        Path="RepresentationToVisualize" 
+                        RelativeSource="{RelativeSource AncestorType=local:UniformHyperGraphControl}"
+                        UpdateSourceTrigger="PropertyChanged"/>
+                    <Binding Source="{x:Static dataGridDescription:RepresentationTypeToHeaderTextConverter+HeaderType.ColumnHeader}"/>
+                </MultiBinding>
+            </local:MatrixControl.ColumnHeaderText>
         </local:MatrixControl>
     </Grid>
 </UserControl>
