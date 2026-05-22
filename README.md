@@ -136,7 +136,7 @@ var result = UniformHyperGraph.Add(graph, 3L, Signature.AddType.Horizontal);
 
 ---
 
-## Операции напрямую над сигнатурами
+## Операции напрямую над объектами класса Signature
 
 Все операции доступны и на уровне класса `Signature`:
 
