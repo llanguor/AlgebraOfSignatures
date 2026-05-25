@@ -75,34 +75,6 @@ public class OperationsPageViewModel : PageViewModelBase
         _selectedCellValueValueRightOperand = 0;
         
         
-        
-        VertexCount = 6; 
-        UniformityDegree = 3;
-        var array = new Matrix<long>( 
-            VertexCount - UniformityDegree + 1,
-                UniformityDegree - 2);
-        
-        array.SetValue(11, 0);
-        array.SetValue(3, 1);
-        array.SetValue(1, 2);
-        array.SetValue(0, 3); 
-        
-        var leftSignature = new Core.Signature(
-            array, 
-            VertexCount, 
-            UniformityDegree);
-        
-        LeftOperand =
-            Core.UniformHyperGraph.FromSignature(
-                leftSignature,
-                VertexCount,
-                UniformityDegree);
-        
-        RightOperand = LeftOperand.Clone();
-
-        
-        
-        
         _showLeftGraphCommand = new Lazy<ICommand>(() =>
             new RelayCommand(
                 _ => ShowGraphCommandExecute(LeftOperand), 

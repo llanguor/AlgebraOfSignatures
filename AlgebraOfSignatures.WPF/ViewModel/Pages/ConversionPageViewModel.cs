@@ -49,28 +49,6 @@ public class ConversionPageViewModel :
         VertexCount = 6;
         SelectedCellValueFrom = 0;
         SelectedCellValueTo = 0;
-
-        VertexCount = 6; 
-        UniformityDegree = 3;
-        var array = new Matrix<long>(
-            VertexCount - UniformityDegree + 1,
-                UniformityDegree - 2);
-        
-        array.SetValue(11, 0);
-        array.SetValue(3, 1);
-        array.SetValue(1, 2);
-        array.SetValue(0, 3); 
-        
-        var signature = new Core.Signature(
-            array, 
-            VertexCount, 
-            UniformityDegree);
-        
-        UniformHyperGraph =
-            Core.UniformHyperGraph.FromSignature(
-                signature,
-                VertexCount,
-                UniformityDegree);
         
         _showGraphCommand = new Lazy<ICommand>(() =>
             new RelayCommand(
@@ -199,7 +177,7 @@ public class ConversionPageViewModel :
         }
     } 
     
-    private object _selectedCellValueFrom;
+    private object _selectedCellValueFrom = 0;
 
     public object SelectedCellValueFrom
     {
@@ -211,7 +189,7 @@ public class ConversionPageViewModel :
         }
     } 
     
-    private object _selectedCellValueTo;
+    private object _selectedCellValueTo = 0;
 
     public object SelectedCellValueTo
     {
