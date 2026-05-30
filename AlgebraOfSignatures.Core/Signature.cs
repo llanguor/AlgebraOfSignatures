@@ -538,27 +538,8 @@ public class Signature :
         return this;
     }
 
-    public Signature Mod2N(int n)
-    {
-        //отбрасывать старшие разряды? 
-        //у каждого числа?
-        //прохрдить по краю и уменьшать на один разряд
-        
-        /*
-        if (n <= 0) 
-            return this;
-        
-        Value &= (1L << n) - 1;
-        */
-        return this;
-    }
-
     public Signature Add(Signature other, AddType type)
     {
-        //получить вектор степеней вершин. Сложить все числа там. Получится ровно колво единиц
-        //это оно и есть
-        //тогда ассоциативность выполнится
-        
         var toAdd = 0;
         var counter = Signature.Empty(VertexCount, UniformityDegree);
         while (counter < other)
@@ -621,9 +602,6 @@ public class Signature :
 
     public static Signature Add(Signature a, long constant, AddType type) =>
         a.Clone().Add(constant, type);
-
-    public static Signature Mod2N(Signature a, int n) =>
-        a.Clone().Mod2N(n);
     
     #endregion
     
