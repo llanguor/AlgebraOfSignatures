@@ -361,13 +361,7 @@ public class UniformHyperGraph :
         this.Signature.Union(other.Signature);
         return this;
     }
-
-    public UniformHyperGraph Mod2N(int n)
-    {
-        this.Signature.Mod2N(n);
-        return this;
-    }
-
+    
     public UniformHyperGraph Add(UniformHyperGraph other, Signature.AddType type)
     {
         this.Signature.Add(other.Signature, type);
@@ -396,9 +390,6 @@ public class UniformHyperGraph :
 
     public static UniformHyperGraph Add(UniformHyperGraph a, long constant, Signature.AddType type) =>
         a.Clone().Add(constant, type);
-
-    public static UniformHyperGraph Mod2N(UniformHyperGraph a, int n) =>
-        a.Clone().Mod2N(n);
 
     #endregion
     
