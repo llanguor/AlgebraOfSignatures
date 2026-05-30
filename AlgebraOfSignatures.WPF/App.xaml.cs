@@ -120,6 +120,7 @@ public partial class App : Application
     {
         Container.Register<ConversionPage>(Reuse.Singleton);
         Container.Register<OperationsPage>(Reuse.Singleton);
+        Container.Register<CatalogPage>(Reuse.Singleton);
         return this;
     }
 
@@ -127,6 +128,7 @@ public partial class App : Application
     {
         Container.Register<ConversionPageViewModel>(Reuse.Singleton);
         Container.Register<OperationsPageViewModel>(Reuse.Singleton);
+        Container.Register<CatalogPageViewModel>(Reuse.Singleton);
         return this;
     }
 

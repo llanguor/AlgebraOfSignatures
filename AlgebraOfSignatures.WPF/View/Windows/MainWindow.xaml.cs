@@ -25,5 +25,8 @@ public partial class MainWindow : Window
 
         if (Equals(selectedTab.Content, OperationsFrame) && OperationsFrame.Content == null)
             OperationsFrame.Navigate(App.Container.Resolve<OperationsPage>());
+        
+        if (Equals(selectedTab.Content, CatalogFrame) && CatalogFrame.Content == null)
+            CatalogFrame.Navigate(App.Container.Resolve<CatalogPage>());
     }
 }

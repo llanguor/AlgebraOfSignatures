@@ -17,6 +17,9 @@
             <TabItem Header="Операции">
                 <Frame x:Name="OperationsFrame"/>
             </TabItem>
+            <TabItem Header="Каталог сигнатур">
+                <Frame x:Name="CatalogFrame"/>
+            </TabItem>
         </TabControl>
     </Grid>
 </Window>
