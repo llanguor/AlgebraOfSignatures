@@ -1,7 +1,6 @@
 ﻿namespace AlgebraOfSignatures.Core.Base.Interfaces;
 
-public interface IGraphRepresentation :
-    ICloneable
+public interface IGraphRepresentation
 {
     public object? GetValue(
         params int[] indices);

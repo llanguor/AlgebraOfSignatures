@@ -5,7 +5,8 @@ namespace AlgebraOfSignatures.Core;
 
 public class Matrix<T> :
     IMatrix,
-    IEquatable<Matrix<T>>
+    IEquatable<Matrix<T>>,
+    ICloneable
 {
     #region Actions
     public event Action<int[], T?>? OnSetValue;

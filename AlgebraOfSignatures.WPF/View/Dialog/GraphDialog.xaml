@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AlgebraOfSignatures.WPF.View.Dialog"
         xmlns:elements="clr-namespace:AlgebraOfSignatures.WPF.FrameworkElements"
         mc:Ignorable="d"
-        Title="GraphDialog"
+        Title="График"
         Background="Black"
         Width="600"
         Height="400">
