@@ -5,8 +5,8 @@
              xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <Application.Resources>
         <ResourceDictionary>
-            <system:Double x:Key="MainFontSize">15</system:Double>
-            <system:Double x:Key="LargeFontSize">17</system:Double>
+            <system:Double x:Key="MainFontSize">17</system:Double>
+            <system:Double x:Key="LargeFontSize">19</system:Double>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Themes/DataGridColors.xaml"/>
             </ResourceDictionary.MergedDictionaries>

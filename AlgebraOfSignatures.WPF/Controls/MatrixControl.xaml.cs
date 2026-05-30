@@ -401,9 +401,9 @@ public partial class MatrixControl :
         }
 
         control.FillDataGrid();
-        
-        control.IsDrawGraphCommandCanExecute  = 
-            control.ShowGraphCommand.CanExecute(null) == true;
+
+        control.IsDrawGraphCommandCanExecute =
+            control.ShowGraphCommand != null && control.ShowGraphCommand.CanExecute(null) == true;
     }
     
     #endregion

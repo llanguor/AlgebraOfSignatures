@@ -202,7 +202,7 @@ public class ConversionPageViewModel :
     }
     
     private UniformHyperGraph.RepresentationTypes _selectedRepresentationTypeTo = 
-        Core.UniformHyperGraph.RepresentationTypes.AdjacencyMatrix; 
+        Core.UniformHyperGraph.RepresentationTypes.Signature; 
     
     public UniformHyperGraph.RepresentationTypes SelectedRepresentationTypeTo 
     {
@@ -223,7 +223,7 @@ public class ConversionPageViewModel :
     }
     
     private UniformHyperGraph.RepresentationTypes _selectedRepresentationTypeFrom =
-        Core.UniformHyperGraph.RepresentationTypes.Signature;
+        Core.UniformHyperGraph.RepresentationTypes.AdjacencyMatrix;
 
     public UniformHyperGraph.RepresentationTypes SelectedRepresentationTypeFrom
     {

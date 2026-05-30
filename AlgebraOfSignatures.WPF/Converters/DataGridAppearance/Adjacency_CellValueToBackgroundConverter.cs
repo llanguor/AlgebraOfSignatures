@@ -19,8 +19,11 @@ public class Adjacency_CellValueToBackgroundConverter :
         if (i == j)
             return Application.Current.Resources["InsignificantCellBackground"];
 
-        if (externalIndices.Count == 0) 
-            return Application.Current.Resources["DefaultCellBackground"];
+        if (externalIndices.Count == 0)
+            return j < i ? 
+                    Application.Current.Resources["RepeatCellBackgroundForSquareMatrix"] : 
+                    Application.Current.Resources["DefaultCellBackground"];
+                
         
         var set = new HashSet<int> { i, j };
         if (externalIndices.Any(
@@ -37,7 +40,9 @@ public class Adjacency_CellValueToBackgroundConverter :
                 return Application.Current.Resources["RepeatCellBackground"];
         }
         
-        return 
-            Application.Current.Resources["DefaultCellBackground"];
+        if (j < i)
+            return Application.Current.Resources["RepeatCellBackgroundForSquareMatrix"];
+        
+        return Application.Current.Resources["DefaultCellBackground"];
     }
 }

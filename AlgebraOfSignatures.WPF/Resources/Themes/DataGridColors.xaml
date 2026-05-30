@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <SolidColorBrush x:Key="InsignificantCellBackground"        Color="#808080"/>
     <SolidColorBrush x:Key="RepeatCellBackground"        Color="#BBBBBB"/>
+    <SolidColorBrush x:Key="RepeatCellBackgroundForSquareMatrix"         Color="#BBBBBB"/>
     <SolidColorBrush x:Key="DefaultCellBackground"        Color="White"/>
     <SolidColorBrush x:Key="InsignificantCellForeground"        Color="#808080"/>
     <SolidColorBrush x:Key="RepeatCellForeground"        Color="Black"/>
