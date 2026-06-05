@@ -9,6 +9,7 @@ public class Matrix<T> :
     ICloneable
 {
     #region Actions
+    
     public event Action<int[], T?>? OnSetValue;
     
     #endregion

@@ -7,7 +7,8 @@ namespace AlgebraOfSignatures.Core;
 public class UniformHyperGraph :
     IUniformHyperGraph, 
     ICloneable,
-    IEquatable<UniformHyperGraph>
+    IEquatable<UniformHyperGraph>,
+    IComparable<UniformHyperGraph>
 {
     #region Fabric Methods
 
@@ -176,11 +177,6 @@ public class UniformHyperGraph :
     private readonly int _vertexCount;
 
     private readonly IRepresentationConverter _converter;
-
-    #endregion
-    
-    
-    #region Fields
     
     private Matrix<bool>? _cachedAdjacencyMatrix = null;
     
@@ -446,18 +442,6 @@ public class UniformHyperGraph :
     #endregion
 
     
-    #region Nested
-
-    public enum RepresentationTypes
-    {
-        Signature = 0,
-        AdjacencyMatrix = 1,
-        VertexDegreeVector = 2
-    }
-
-    #endregion
-    
-    
     #region IEquatable<UniformHyperGraph> Implementation
 
     public bool Equals(UniformHyperGraph? other)
@@ -500,8 +484,25 @@ public class UniformHyperGraph :
     #endregion
 
     
+    #region IComparable<UniformHyperGraph> implementation
+    
+    public int CompareTo(UniformHyperGraph? other)
+    {
+        return _signature.CompareTo(other?.Signature);
+    }
+    
+    #endregion
+    
+    
     #region Nested
 
+    public enum RepresentationTypes
+    {
+        Signature = 0,
+        AdjacencyMatrix = 1,
+        VertexDegreeVector = 2
+    }
+    
     private static class FileHelpersMethods
     {
          public static Array ParseLongArray(

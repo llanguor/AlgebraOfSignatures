@@ -112,7 +112,7 @@ public abstract class RepresentationConverterBase :
 
     public abstract Signature ComputeSignatureFromAdjacency(
         Matrix<bool> adjacencyMatrix,
-        bool isThrowIfIncorrectAdjacencyMatrix = false);
+        bool isThrowIfIncorrectAdjacency = false);
     
     public abstract Matrix<bool> ComputeAdjacencyFromSignature(
         Signature signature);

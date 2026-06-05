@@ -180,31 +180,20 @@
                 Foreground="Green"
                 Content="✓">
                 <Button.Visibility>
-                    <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
-                        <nestedMultibinding:NestedMultiBinding.Bindings>
-                            <nestedMultibinding:NestedMultiBinding Converter="{converters:FromBoolConverter}">
-                                <nestedMultibinding:NestedMultiBinding.Bindings>
-                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}" Path="RequireInputConfirmation"/>
-                                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}" Path="IsReadOnly"/>
-                                    <Binding>
-                                        <Binding.Source>
-                                            <system:Boolean>True</system:Boolean>
-                                        </Binding.Source>
-                                    </Binding>
-                                </nestedMultibinding:NestedMultiBinding.Bindings>
-                            </nestedMultibinding:NestedMultiBinding>
-                            <Binding>
-                                <Binding.Source>
-                                    <Visibility>Collapsed</Visibility>
-                                </Binding.Source>
-                            </Binding>
-                            <Binding>
-                                <Binding.Source>
-                                    <Visibility>Visible</Visibility>
-                                </Binding.Source>
-                            </Binding>
-                        </nestedMultibinding:NestedMultiBinding.Bindings>
-                    </nestedMultibinding:NestedMultiBinding>
+                    <MultiBinding Converter="{converters:FromBoolConverter}">
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:MatrixControl}"
+                                 Path="IsReadOnly"/>
+                        <Binding>
+                            <Binding.Source>
+                                <Visibility>Collapsed</Visibility>
+                            </Binding.Source>
+                        </Binding>
+                        <Binding>
+                            <Binding.Source>
+                                <Visibility>Visible</Visibility>
+                            </Binding.Source>
+                        </Binding>
+                    </MultiBinding>
                 </Button.Visibility>
             </Button>
         </Grid>

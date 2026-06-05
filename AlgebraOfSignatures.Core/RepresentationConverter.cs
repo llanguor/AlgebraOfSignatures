@@ -91,7 +91,7 @@ internal sealed class RepresentationConverter :
     
     public override Signature ComputeSignatureFromAdjacency(
         Matrix<bool> adjacencyMatrix,
-        bool isThrowIfIncorrectAdjacencyMatrix = false)
+        bool isThrowIfIncorrectAdjacency = false)
     {
         var vertexCount = adjacencyMatrix.Size;
         var uniformityDegree = adjacencyMatrix.Rank;
@@ -130,7 +130,7 @@ internal sealed class RepresentationConverter :
                     currentSignatureValue |= 1L << bitNumber;
                     ++state.AdjacencyIndices[^2];
                     
-                    if (isThrowIfIncorrectAdjacencyMatrix)
+                    if (isThrowIfIncorrectAdjacency)
                         ThrowIfIllegalAdjacencyValues(
                             vertexCount,
                             state.AdjacencyIndices[^2],

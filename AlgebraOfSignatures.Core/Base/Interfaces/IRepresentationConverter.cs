@@ -6,7 +6,7 @@ public interface IRepresentationConverter
 
     Signature ComputeSignatureFromAdjacency(
         Matrix<bool> adjacencyMatrix,
-        bool isThrowIfIncorrectAdjacencyMatrix = false);
+        bool isThrowIfIncorrectAdjacency = false);
     
     Matrix<bool> ComputeAdjacencyFromSignature(
         Signature signature);
